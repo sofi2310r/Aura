@@ -1,0 +1,78 @@
+.lista {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.publicacion-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    cursor: pointer;
+    border-left: 4px solid #9b7bb8;
+    box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.publicacion-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(91, 74, 138, 0.15);
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.anonima-badge {
+    background: #f0eef8;
+    color: #4a2d6a;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.fecha {
+    color: #a8ccd8;
+    font-size: 0.8rem;
+}
+
+.titulo {
+    font-size: 1.1rem;
+    color: #4a2d6a;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.preview {
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.comentarios {
+    color: #7a8fb8;
+    font-size: 0.85rem;
+}
+
+.ver-mas {
+    color: #9b7bb8;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.sin-publicaciones {
+    text-align: center;
+    color: #9b7bb8;
+    padding: 40px;
+}

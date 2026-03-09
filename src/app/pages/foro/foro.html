@@ -1,0 +1,19 @@
+<app-navbar></app-navbar>
+<app-aviso-normas></app-aviso-normas>
+
+<div class="foro-container">
+    <div class="foro-header">
+        <h1>Foro</h1>
+        <p>Un espacio seguro para compartir y apoyarnos</p>
+    </div>
+
+    <app-detalle-publicacion
+    *ngIf="vistaDetalle"
+    [publicacion]="vistaDetalle"
+    (volver)="volverLista()"></app-detalle-publicacion>
+
+    <div *ngIf="!vistaDetalle">
+        <app-nueva-publicacion></app-nueva-publicacion>
+        <app-lista-publicaciones (verPublicacion)="verDetalle($event)"></app-lista-publicaciones>
+    </div>
+</div>
