@@ -1,0 +1,24 @@
+.footer-banner {
+  background: white;
+  text-align: center;
+  padding: 80px 40px;
+}
+
+.footer-banner h2 {
+  font-size: 2rem;
+  color: var(--purple-dark);
+  margin-bottom: 16px;
+}
+
+.footer-banner p {
+  color: #6b7280;
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .footer-banner {
+    padding: 40px 20px;
+  }
+}

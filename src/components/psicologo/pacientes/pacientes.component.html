@@ -1,0 +1,21 @@
+<section class="patients-shell">
+  <header>
+    <div>
+      <p class="eyebrow">Psicologo</p>
+      <h1>Pacientes registrados</h1>
+    </div>
+    <nav>
+      <a routerLink="/home">Inicio</a>
+      <a routerLink="/psicologo/citas">Citas</a>
+    </nav>
+  </header>
+
+  <div class="patients-grid">
+    <article class="patient-card" *ngFor="let paciente of pacientes$ | async">
+      <span>{{ paciente.activo ? 'Activo' : 'Inactivo' }}</span>
+      <h2>{{ paciente.nombre }}</h2>
+      <p>{{ paciente.correo }}</p>
+      <small>Perfil sincronizado desde Firebase.</small>
+    </article>
+  </div>
+</section>

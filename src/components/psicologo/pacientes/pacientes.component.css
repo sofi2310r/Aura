@@ -1,0 +1,86 @@
+:host {
+  display: block;
+}
+
+.patients-shell {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(180deg, #fffaf2 0%, #f0f7ff 100%);
+}
+
+.patients-shell header,
+.patients-grid {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+.patients-shell header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.patients-shell nav {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.patients-shell nav a {
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #143642;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16rem;
+  color: #b45309;
+  font-size: 0.8rem;
+}
+
+.patients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.patient-card {
+  padding: 1.4rem;
+  border-radius: 1.4rem;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(20, 54, 66, 0.08);
+}
+
+.patient-card span {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+}
+
+.patient-card h2 {
+  color: #143642;
+  margin-bottom: 0.4rem;
+}
+
+.patient-card p {
+  margin-bottom: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .patients-shell {
+    padding: 1.25rem;
+  }
+
+  .patients-shell header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

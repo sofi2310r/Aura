@@ -1,0 +1,36 @@
+<nav class="navbar">
+  <div class="logo">
+      <a class="navbar-brand" routerLink="/">
+        <img
+          src="https://i.ibb.co/1YrgLzYR/logo.png"
+          alt="Aura Web Logo"
+          width="50"
+          height="auto"
+        />
+      </a>
+    <strong>AURA</strong>
+  </div>
+
+  <ul class="nav-links">
+    <li>
+      <a routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+    </li>
+    <li>
+      <a routerLink="/foro" routerLinkActive="active-link">Foro</a>
+    </li>
+    <li><a href="#">Quienes somos</a></li>
+  </ul>
+
+  <a
+    class="login-icon-link"
+    routerLink="/login"
+    routerLinkActive="active-login"
+    [routerLinkActiveOptions]="{ exact: true }"
+    aria-label="Iniciar sesion"
+    title="Iniciar sesion"
+  >
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M12 12c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm0 2c-3.34 0-10 1.68-10 5v2h20v-2c0-3.32-6.66-5-10-5z"/>
+    </svg>
+  </a>
+</nav>

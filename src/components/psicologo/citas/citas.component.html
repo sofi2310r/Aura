@@ -1,0 +1,42 @@
+<section class="workspace-shell">
+  <header class="workspace-header">
+    <div>
+      <p class="eyebrow">Psicologo</p>
+      <h1>Agenda de citas</h1>
+    </div>
+    <nav>
+      <a routerLink="/home">Inicio</a>
+      <a routerLink="/psicologo/pacientes">Pacientes</a>
+      <a routerLink="/login">Salir</a>
+    </nav>
+  </header>
+
+  <div class="workspace-grid">
+    <form class="card" (ngSubmit)="crearCita()">
+      <h2>Crear cita</h2>
+      <input type="text" name="paciente" [(ngModel)]="paciente" placeholder="Paciente" />
+      <input type="text" name="psicologo" [(ngModel)]="psicologo" placeholder="Psicologo" />
+      <input type="datetime-local" name="fecha" [(ngModel)]="fecha" />
+      <textarea name="motivo" [(ngModel)]="motivo" rows="4" placeholder="Motivo"></textarea>
+      <button type="submit">Guardar cita</button>
+      <p class="status">{{ mensaje }}</p>
+    </form>
+
+    <div class="card wide">
+      <h2>Citas agendadas</h2>
+
+      <article class="appointment" *ngFor="let cita of citas$ | async">
+        <div>
+          <p class="date">{{ cita.fecha | date: 'medium' }}</p>
+          <h3>{{ cita.paciente }}</h3>
+          <p>{{ cita.psicologo }}</p>
+          <p>{{ cita.motivo }}</p>
+        </div>
+        <div class="appointment-actions">
+          <span>{{ cita.estado }}</span>
+          <button type="button" (click)="eliminarCita(cita.id)">Eliminar</button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

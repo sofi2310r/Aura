@@ -1,0 +1,141 @@
+<app-navbar></app-navbar>
+
+<main class="auth-main">
+  <div class="auth-wrapper">
+    <div class="auth-box" [class.active]="mostrarRegistro">
+
+    <!-- ═══ PANEL: INICIAR SESIÓN ═══ -->
+    <div class="form-container login-container">
+      <div class="brand-mobile">
+        <img src="assets/logo-grande.png" alt="AURA" />
+        <span>AURA</span>
+      </div>
+      <h2 class="form-title">Bienvenido</h2>
+      <p class="form-subtitle">Inicia sesión en tu cuenta</p>
+
+      <form (ngSubmit)="iniciarSesion()" autocomplete="off">
+        <div class="input-group">
+          <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+          <input type="email" placeholder="Correo electrónico" [(ngModel)]="usuario" name="usuario" />
+        </div>
+
+        <div class="input-group">
+          <svg class="input-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+          </svg>
+          <input type="password" placeholder="Contraseña" [(ngModel)]="contrasena" name="contrasena" />
+        </div>
+
+        <p class="error-msg" *ngIf="errorLogin">{{ errorLogin }}</p>
+        <p class="success-msg" *ngIf="exitoLogin">{{ exitoLogin }}</p>
+
+        <button class="primary-btn" type="submit" [disabled]="cargandoLogin || loginExitoso">
+          {{
+            loginExitoso
+              ? '✅ ¡BIENVENIDO! (Cargando...)'
+              : cargandoLogin
+              ? 'Ingresando...'
+              : 'INGRESAR'
+          }}
+        </button>
+      </form>
+    </div>
+
+    <!-- ═══ PANEL: REGISTRO ═══ -->
+    <div class="form-container register-container">
+      <div class="brand-mobile">
+        <img src="assets/logo-grande.png" alt="AURA" />
+        <span>AURA</span>
+      </div>
+      <h2 class="form-title">Crear Cuenta</h2>
+      <p class="form-subtitle">Únete a la comunidad AURA</p>
+
+      <form (ngSubmit)="registrarUsuario()" autocomplete="off">
+        <div class="input-group">
+          <input type="text" placeholder="Nombre" [(ngModel)]="nombre" name="nombre" />
+        </div>
+
+        <div class="input-group">
+          <input type="text" placeholder="Apellido" [(ngModel)]="apellido" name="apellido" />
+        </div>
+
+        <div class="input-group">
+          <input type="text" placeholder="Documento" [(ngModel)]="documento" name="documento" />
+        </div>
+
+        <div class="input-group">
+          <input type="date" [(ngModel)]="fechaNacimiento" name="fecha" [class.has-value]="!!fechaNacimiento" />
+        </div>
+
+        <div class="input-group">
+          <input type="tel" placeholder="Teléfono" [(ngModel)]="telefono" name="telefono" />
+        </div>
+
+        <div class="input-group">
+          <input type="url" placeholder="URL de imagen (opcional)" [(ngModel)]="imagenUrl" name="imagenUrl" />
+        </div>
+
+
+        <div class="input-group">
+          <input type="email" placeholder="Correo electrónico" [(ngModel)]="correo" name="correo" />
+        </div>
+
+        <div class="input-group">
+          <input type="password" placeholder="Contraseña (mín. 4 caracteres)" [(ngModel)]="passwordReg" name="passwordReg" />
+        </div>
+
+        <p class="error-msg" *ngIf="errorReg">{{ errorReg }}</p>
+        <p class="success-msg" *ngIf="exitoReg">{{ exitoReg }}</p>
+
+        <button class="primary-btn" type="submit" [disabled]="cargandoReg || registroExitoso">
+          {{
+            registroExitoso
+              ? '✅ ¡CREADO!...)'
+              : cargandoReg
+              ? 'Creando cuenta...'
+              : 'REGISTRARME'
+          }}
+        </button>
+      </form>
+    </div>
+
+    <!-- ═══ OVERLAY DESLIZANTE ═══ -->
+    <div class="overlay-container">
+      <div class="overlay">
+
+        <!-- Panel izquierdo del overlay: visible cuando mostrarRegistro=true -->
+        <div class="overlay-panel overlay-left">
+          <img
+          src="https://i.ibb.co/1YrgLzYR/logo.png"
+          alt="Aura Web Logo"
+          width="180"
+          height="auto"
+        />
+          <h2>¡Bienvenido de nuevo!</h2>
+          <p>Inicia sesión para continuar tu camino hacia el bienestar</p>
+          <button class="ghost-btn" type="button" (click)="togglePanel()">INICIAR SESIÓN</button>
+        </div>
+
+        <!-- Panel derecho del overlay: visible cuando mostrarRegistro=false -->
+        <div class="overlay-panel overlay-right">
+ <img
+          src="https://i.ibb.co/1YrgLzYR/logo.png"
+          alt="Aura Web Logo"
+          width="180"
+          height="auto"
+        />
+          <h2>¡Hola, bienvenido!</h2>
+          <p>Regístrate y comienza tu camino hacia el bienestar mental</p>
+          <button class="ghost-btn" type="button" (click)="togglePanel()">CREAR CUENTA</button>
+        </div>
+
+      </div>
+    </div>
+
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>

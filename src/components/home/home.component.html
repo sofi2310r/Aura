@@ -1,0 +1,43 @@
+<app-navbar></app-navbar>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Bienvenido a AURA</h1>
+    <p>Tu espacio seguro para el crecimiento y bienestar personal.</p>
+
+    <div class="hero-buttons">
+      <button class="btn-primary" routerLink="/login">Registrate</button>
+      <button class="btn-secondary" routerLink="/admin">Descubre mas</button>
+    </div>
+  </div>
+
+  <div class="hero-image">
+    <div class="hero-circle">
+      <span class="hero-emoji">💜</span>
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="card" *ngFor="let f of features">
+    <div class="card-icon">{{ f.icon }}</div>
+    <h3>{{ f.title }}</h3>
+    <p>{{ f.desc }}</p>
+  </div>
+</section>
+
+<section class="empowerment">
+  <div class="emp-content">
+    <h2>Empoderamiento y Seguridad para Mujeres</h2>
+    <p>
+      En AURA encontraras un espacio digital seguro y confiable donde podras recibir apoyo e informacion para tu
+      desarrollo personal y proteccion.
+    </p>
+  </div>
+
+  <div class="emp-image">
+    <div class="emp-circle">💻</div>
+  </div>
+</section>
+
+<app-footer></app-footer>

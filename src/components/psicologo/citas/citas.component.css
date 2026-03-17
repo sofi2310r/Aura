@@ -1,0 +1,139 @@
+:host {
+  display: block;
+}
+
+.workspace-shell {
+  min-height: 100vh;
+  padding: 2rem;
+  background: linear-gradient(180deg, #eef8f6 0%, #fffaf1 100%);
+}
+
+.workspace-header,
+.workspace-grid {
+  width: min(1120px, 100%);
+  margin: 0 auto;
+}
+
+.workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.workspace-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.workspace-header a {
+  text-decoration: none;
+  color: #143642;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.16rem;
+  color: #047857;
+  font-size: 0.8rem;
+}
+
+.workspace-header h1 {
+  color: #143642;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.25rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(20, 54, 66, 0.08);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+}
+
+.card input,
+.card textarea {
+  width: 100%;
+  margin-bottom: 0.85rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(20, 54, 66, 0.12);
+  background: #fff;
+  font: inherit;
+}
+
+.card button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.8rem 1rem;
+  background: #047857;
+  color: #fff;
+  cursor: pointer;
+}
+
+.appointment {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(20, 54, 66, 0.08);
+}
+
+.appointment h3 {
+  margin: 0.25rem 0;
+  color: #143642;
+}
+
+.date {
+  color: #0f766e;
+  font-size: 0.9rem;
+}
+
+.appointment-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.appointment-actions span {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: #d1fae5;
+  color: #065f46;
+  text-transform: capitalize;
+}
+
+.appointment-actions button {
+  background: #f97316;
+}
+
+@media (max-width: 900px) {
+  .workspace-shell {
+    padding: 1.25rem;
+  }
+
+  .workspace-header,
+  .workspace-grid,
+  .appointment {
+    display: block;
+  }
+
+  .card + .card {
+    margin-top: 1rem;
+  }
+
+  .appointment-actions {
+    margin-top: 1rem;
+    align-items: start;
+  }
+}

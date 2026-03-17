@@ -1,0 +1,306 @@
+import { Component, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { UserRole } from '../../models/user.model';
+import Swal from 'sweetalert2';
+
+@Component({
+  selector: 'app-login',
+  standalone: false,
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css',
+})
+export class LoginComponent {
+  // ── Login ──
+  usuario = '';
+  contrasena = '';
+  errorLogin = '';
+  exitoLogin = '';
+  loginExitoso = false;
+  cargandoLogin = false;
+
+  // ── Registro ──
+  nombre = '';
+  apellido = '';
+  documento = '';
+  fechaNacimiento = '';
+  telefono = '';
+  correo = '';
+  imagenUrl = '';
+  reporte = '';
+  permisos = 'paciente'; 
+  passwordReg = '';
+  errorReg = '';
+  exitoReg = '';
+  registroExitoso = false;
+  cargandoReg = false;
+
+  // ── Estado del panel deslizante ──
+  mostrarRegistro = false;
+
+  constructor(
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly ngZone: NgZone,
+    private readonly cdr: ChangeDetectorRef,
+  ) {}
+
+  /** Alterna entre el panel de login y el de registro */
+  togglePanel(): void {
+    this.mostrarRegistro = !this.mostrarRegistro;
+    this.errorLogin = '';
+    this.exitoLogin = '';
+    this.errorReg = '';
+    this.exitoReg = '';
+    this.registroExitoso = false;
+    this.cargandoLogin = false;
+    this.cargandoReg = false;
+    this.cdr.markForCheck();
+  }
+
+  async iniciarSesion(): Promise<void> {
+    if (!this.usuario.trim() || !this.contrasena.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Todos los campos son obligatorios',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#9b59b6',
+      });
+      return;
+    }
+
+    this.cargandoLogin = true;
+    this.errorLogin = '';
+    this.exitoLogin = '';
+    this.loginExitoso = false;
+
+    try {
+      const user = await this.authService.login(this.usuario, this.contrasena);
+      
+      // Detener loading
+      this.ngZone.run(() => {
+        this.cargandoLogin = false;
+        this.cdr.markForCheck();
+      });
+
+      if (!user) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al iniciar sesión',
+          text: 'Usuario o contraseña incorrectos',
+          confirmButtonText: 'Intentar de nuevo',
+          confirmButtonColor: '#9b59b6',
+        });
+        return;
+      }
+
+      // Inicio exitoso SOLO si user existe
+      Swal.fire({
+        icon: 'success',
+        title: '¡Bienvenido!',
+        text: 'Ingresaste correctamente a AURA',
+        confirmButtonText: 'Continuar',
+        confirmButtonColor: '#9b59b6',
+        showConfirmButton: true,
+        timer: 2000,
+        timerProgressBar: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then(() => {
+        this.router.navigate([this.resolveRoute(user.rol)]);
+      });
+    } catch (error: any) {
+      this.ngZone.run(() => {
+        this.cargandoLogin = false;
+        this.cdr.markForCheck();
+      });
+
+      let mensaje = 'Error al iniciar sesión';
+      const errorCode = error?.message || '';
+
+      if (errorCode === 'USUARIO_NO_ENCONTRADO') {
+        mensaje = 'Usuario no encontrado. Verifica tu correo electrónico';
+      } else if (errorCode === 'CONTRASEÑA_INCORRECTA') {
+        mensaje = 'Contraseña incorrecta. Intenta de nuevo';
+      } else if (errorCode === 'CREDENCIALES_INVALIDAS') {
+        mensaje = 'Credenciales inválidas';
+      } else if (errorCode === 'PERFIL_NO_ENCONTRADO') {
+        mensaje = 'Tu perfil no está completamente configurado';
+      }
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al iniciar sesión',
+        text: mensaje,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#9b59b6',
+      });
+    }
+  }
+
+  async registrarUsuario(): Promise<void> {
+    this.errorReg = '';
+    this.exitoReg = '';
+    this.registroExitoso = false;
+
+    // Validar campos obligatorios
+    if (
+      !this.nombre.trim() ||
+      !this.apellido.trim() ||
+      !this.documento.trim() ||
+      !this.fechaNacimiento ||
+      !this.telefono.trim() ||
+      !this.correo.trim() ||
+      !this.passwordReg.trim()
+    ) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Todos los campos son obligatorios',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#9b59b6',
+      });
+      return;
+    }
+
+    if (!this.isValidEmail(this.correo)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Correo inválido',
+        text: 'Ingresa un correo electrónico válido',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#9b59b6',
+      });
+      return;
+    }
+
+    if (this.passwordReg.trim().length < 4) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Contraseña débil',
+        text: 'La contraseña debe tener mínimo 4 caracteres',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#9b59b6',
+      });
+      return;
+    }
+
+    this.cargandoReg = true;
+
+    try {
+      // Calcular edad desde fecha de nacimiento
+      const edad = this.calcularEdad(this.fechaNacimiento);
+      console.log('📝 Iniciando registro...');
+      
+      const registerError = await this.authService.register({
+        nombre: this.nombre.trim(),
+        apellido: this.apellido.trim(),
+        correo: this.correo,
+        password: this.passwordReg,
+        documento: this.documento,
+        fechaNacimiento: this.fechaNacimiento,
+        edad: edad,
+        telefono: this.telefono,
+        imagenUrl: this.imagenUrl,
+        reporte: this.reporte,
+        permisos: this.permisos,
+      });
+
+      console.log('✅ Respuesta recibida del backend:', registerError);
+
+      // Detener loading
+      this.ngZone.run(() => {
+        this.cargandoReg = false;
+        this.cdr.markForCheck();
+      });
+
+      if (registerError) {
+        // ERROR EN EL REGISTRO - MOSTRAR ALERTA DE ERROR Y RETORNAR
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al registrarse',
+          text: registerError,
+          confirmButtonText: 'Intentar de nuevo',
+          confirmButtonColor: '#9b59b6',
+        });
+        console.log('❌ Error mostrado:', registerError);
+        return;
+      }
+
+      // ÉXITO EN EL REGISTRO - SOLO AQUI SE MUESTRA ALERTA DE ÉXITO
+      console.log('✅ Registro exitoso. Mostrando alerta...');
+      Swal.fire({
+        icon: 'success',
+        title: '¡Tu cuenta creada correctamente!',
+        text: 'Bienvenido a AURA',
+        confirmButtonText: 'Continuar',
+        confirmButtonColor: '#9b59b6',
+        showConfirmButton: true,
+        timer: 3000,
+        timerProgressBar: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+      }).then(() => {
+        // Limpiar campos después de que el usuario confirme o expire el timer
+        this.nombre = '';
+        this.apellido = '';
+        this.documento = '';
+        this.fechaNacimiento = '';
+        this.telefono = '';
+        this.correo = '';
+        this.imagenUrl = '';
+        this.reporte = '';
+        this.permisos = 'paciente';
+        this.passwordReg = '';
+        
+        // Navegar a Inicio
+        this.router.navigate(['/home']);
+      });
+    } catch (error) {
+      this.ngZone.run(() => {
+        this.cargandoReg = false;
+        this.cdr.markForCheck();
+      });
+      console.error('❌ Exception en registrarUsuario:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Error al registrar. Intenta de nuevo.',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#9b59b6',
+      });
+    }
+  }
+
+  private resolveRoute(role: UserRole): string {
+    if (role === 'administrador' || role === 'admin') return '/admin';
+    if (role === 'psicologo') return '/psicologo/citas';
+    if (role === 'moderador') return '/moderador';
+    return '/home';
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  private calcularEdad(fechaNacimiento: string): number {
+    if (!fechaNacimiento) return 0;
+    const fecha = new Date(fechaNacimiento);
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - fecha.getFullYear();
+    const mesActual = hoy.getMonth();
+    const mesNacimiento = fecha.getMonth();
+
+    // Ajustar si el cumpleaños aún no ha llegado este año
+    if (mesActual < mesNacimiento || (mesActual === mesNacimiento && hoy.getDate() < fecha.getDate())) {
+      edad--;
+    }
+
+    return Math.max(0, edad);
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+}
