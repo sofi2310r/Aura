@@ -1,0 +1,98 @@
+<div class="page">
+
+  <!-- NAVBAR COMPARTIDO -->
+  <app-navbar-admin [titulo]="'Panel de Administración - ' + (adminUser?.nombre || 'Admin')"></app-navbar-admin>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="layout">
+
+    <!-- navbar con opciones  -->
+    <div class="sidebar">
+
+      <div class="perfil-mini">
+        <div class="icono">❤️</div>
+        <p class="perfil-nombre">{{ adminUser?.nombre || 'Admin' }}</p>
+        <small class="perfil-correo">{{ adminUser?.correo || 'administrador' }}</small>
+      </div>
+
+      <ul class="menu">
+        <li class="menu-item active" title="Panel">
+          <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <span class="menu-icon">✌️</span>
+            <span class="menu-text">Panel</span>
+          </a>
+        </li>
+        <li class="menu-item" title="Usuarios">
+          <a routerLink="/admin/usuarios" routerLinkActive="active">
+            <span class="menu-icon">👩‍🦰</span>
+            <span class="menu-text">Usuarios</span>
+          </a>
+        </li>
+        <li class="menu-item" title="Reportes">
+          <span class="menu-icon">👌</span>
+          <span class="menu-text">Reportes</span>
+        </li>
+        <li class="menu-item" title="Configuración">
+          <span class="menu-icon">⚙️</span>
+          <span class="menu-text">Configuración</span>
+        </li>
+      </ul>
+
+      <img src="assets/logo.png" class="logo">
+
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="contenido">
+
+      <!-- TITULO PRINCIPAL -->
+      <div class="header-section">
+        <h1 class="titulo-principal">Panel de Administración - {{ adminUser?.nombre || 'Admin' }}</h1>
+        <p class="subtitle">Bienvenido al centro de control de AURA</p>
+      </div>
+
+      <!-- ESTADISTICAS -->
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-icon usuarios">👥</div>
+          <div class="stat-content">
+            <p class="stat-label">Usuarios Totales</p>
+            <p class="stat-number">{{ totalUsuarios }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon psicologos">🧠</div>
+          <div class="stat-content">
+            <p class="stat-label">Psicólogos Activos</p>
+            <p class="stat-number">{{ psicologosActivos }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon moderadores">👮</div>
+          <div class="stat-content">
+            <p class="stat-label">Moderadores</p>
+            <p class="stat-number">{{ moderadores }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon pacientes">🏥</div>
+          <div class="stat-content">
+            <p class="stat-label">Pacientes Activos</p>
+            <p class="stat-number">{{ pacientesActivos }}</p>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER COMPARTIDO -->
+  <app-footer-admin [titulo]="'Panel de Administración'"></app-footer-admin>
+
+</div>
