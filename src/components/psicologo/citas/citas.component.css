@@ -1,0 +1,163 @@
+.citas-container {
+    padding: 40px;
+    background: #f5f7fb;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #2c2c2c;
+    font-weight: 600;
+}
+
+/* TARJETA MÁS GRANDE */
+.card {
+    width: 100%;
+    max-width: 700px;
+    /* 👈 MÁS ANCHO */
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+}
+
+/* TITULOS */
+h3 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+/* LABELS */
+.formulario label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+    color: #555;
+}
+
+/* INPUTS MÁS BONITOS */
+select,
+input,
+textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    margin-top: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+    outline: none;
+}
+
+/* BOTÓN MÁS PRO */
+button {
+    margin-top: 20px;
+    padding: 14px;
+    width: 100%;
+    background: linear-gradient(135deg, #6c63ff, #8a7fff);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
+}
+
+.cita-item {
+    transition: all 0.3s ease;
+}
+
+.cita-item.ng-leave {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+/* Estilos para el contador */
+.dashboard-resumen {
+    margin-bottom: 25px;
+    animation: fadeIn 0.5s ease;
+}
+
+.card-contador {
+    background: #fff9db;
+    border: 1px solid #ffe066;
+    padding: 12px 20px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.dot {
+    height: 10px;
+    width: 10px;
+    background-color: #fcc419;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+}
+
+.label {
+    font-weight: 600;
+    color: #856404;
+    font-size: 0.95rem;
+}
+
+.count {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #e67e22;
+}
+
+/* Animación para el puntito */
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(252, 196, 25, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(252, 196, 25, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(252, 196, 25, 0);
+    }
+}
+
+/* Mejora visual de los items de la lista */
+.cita-item {
+    border-bottom: 1px solid #edf2f7;
+    padding: 15px 0;
+}
+
+.acciones {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}

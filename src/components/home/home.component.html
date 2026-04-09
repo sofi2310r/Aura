@@ -1,0 +1,43 @@
+<app-navbar></app-navbar>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Bienvenida a AURA</h1>
+<p>Tu refugio para sanar, crecer y sentirte segura cada día.</p>
+    <div class="hero-buttons">
+      <button class="btn-primary" routerLink="/login">Registrate</button>
+      <button class="btn-secondary" routerLink="/admin">Descubre mas</button>
+    </div>
+  </div>
+
+  <div class="hero-image">
+    <div class="hero-circle">
+<img class="hero-img" src="https://cdn-icons-png.flaticon.com/512/833/833472.png" alt="amor">
+    </div>
+  </div>
+</section>
+
+<section class="features">
+  <div class="card" *ngFor="let f of features">
+ <div class="card-icon">
+  <img [src]="f.icon" alt="icono">
+</div>
+    <p>{{ f.desc }}</p>
+  </div>
+</section>
+
+<section class="empowerment">
+  <div class="emp-content">
+    <h2>Empoderamiento y Seguridad para Mujeres</h2>
+    <p>
+      En AURA encontraras un espacio digital seguro y confiable donde podras recibir apoyo e informacion para tu
+      desarrollo personal y proteccion.
+    </p>
+  </div>
+
+  <div class="emp-circle">
+  <img src="https://png.pngtree.com/png-vector/20250307/ourmid/pngtree-from-equality-to-equity-the-next-step-for-women-s-rights-png-image_15742610.png" alt="Mujer empoderada">
+</div>
+</section>
+
+<app-footer></app-footer>

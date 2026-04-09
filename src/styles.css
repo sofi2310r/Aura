@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f0eef8;
+  color: #3d3d5c;
+  font-weight: 400;
+}
+
+h1, h2, h3 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500; 
+}
+
+:root {
+  --purple-dark: #5b4a8a;
+  --purple-mid: #7c6bb0;
+  --teal: #4db8b8;
+  --teal-dark: #3a9e9e;
+  --lavender: #e8e4f5;
+  --white: #ffffff;
+}
+
+html, body{
+  height: 100%;
+  margin: 0;
+}
+.content {
+    flex: 1; /* 🔥 CLAVE para que el footer baje */
+}

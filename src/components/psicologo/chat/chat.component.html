@@ -1,0 +1,40 @@
+<div class="chat-container">
+
+    <!-- LISTA DE USUARIOS -->
+    <div class="chat-sidebar">
+        <h3>Pacientes</h3>
+
+        <div class="user" *ngFor="let user of pacientes" (click)="seleccionarUsuario(user)"
+            [class.active]="usuarioSeleccionado?.uid === user.uid">
+            {{ user.nombre }}
+        </div>
+    </div>
+
+    <!-- AREA DE MENSAJES -->
+    <div class="chat-main" *ngIf="usuarioSeleccionado">
+
+        <div class="chat-header">
+            <h3>{{ usuarioSeleccionado.nombre }}</h3>
+        </div>
+
+        <div class="chat-messages">
+            <div *ngFor="let msg of mensajes" class="message" [ngClass]="msg.emisor === miUid ? 'mine' : 'other'">
+                <div class="bubble">
+                    {{ msg.texto }}
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input [(ngModel)]="nuevoMensaje" placeholder="Escribe un mensaje..." />
+            <button (click)="enviarMensaje()">Enviar</button>
+        </div>
+
+    </div>
+
+    <!-- SI NO HAY CHAT -->
+    <div class="no-chat" *ngIf="!usuarioSeleccionado">
+        Selecciona un paciente
+    </div>
+
+</div>

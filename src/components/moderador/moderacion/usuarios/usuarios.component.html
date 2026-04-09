@@ -1,0 +1,46 @@
+<div class="usuarios-container">
+    <h2>Gestión de Usuarios 👥</h2>
+
+    <div class="table-wrapper shadow">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Reportes</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let usuario of usuarios">
+                    <td class="bold">{{ usuario.nombre }}</td>
+                    <td>{{ usuario.correo }}</td>
+                    <td><span class="badge-rol">{{ usuario.rol }}</span></td>
+
+                    <td [class.high-reports]="usuario.reporte >= 3">
+                        {{ usuario.reporte || 0 }}
+                    </td>
+
+                    <td>
+                        <span class="status-badge" [ngClass]="usuario.activo ? 'active' : 'blocked'">
+                            {{ usuario.activo ? 'Activo' : 'Bloqueado' }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <button *ngIf="usuario.activo" class="btn-action block" (click)="bloquear(usuario)">
+                            🚫 Bloquear
+                        </button>
+
+                        <button *ngIf="!usuario.activo" class="btn-action unblock" (click)="desbloquear(usuario)">
+                            ✅ Desbloquear
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

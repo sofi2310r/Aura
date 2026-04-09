@@ -1,0 +1,109 @@
+<app-navbar></app-navbar>
+
+<div class="normas-banner">
+  <div class="normas-content">
+    <span class="normas-icon">🛡️</span>
+    <div>
+      <strong>Normas del foro</strong>
+      <p>
+        Este es un espacio seguro. Trata a los demas con respeto y empatia. Cualquier comentario ofensivo sera
+        reportado.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="foro-container">
+  <div class="foro-header">
+    <h1>Foro</h1>
+    <p>Un espacio seguro para compartir y apoyarnos</p>
+  </div>
+  <p class="foro-status" *ngIf="mensaje">{{ mensaje }}</p>
+
+  <div class="detalle" *ngIf="vistaDetalle">
+    <button class="btn-volver" (click)="volverLista()">← Volver al foro</button>
+
+    <div class="publicacion-completa">
+      <div class="pub-header">
+        <span class="fecha">{{ formatFecha(vistaDetalle.fecha) }}</span>
+      </div>
+      <h2>{{ vistaDetalle.titulo }}</h2>
+      <p class="contenido-completo">{{ vistaDetalle.contenido }}</p>
+    </div>
+
+    <div class="aviso-respeto">Recuerda mantener un trato respetuoso y empatico con todas las personas del foro.</div>
+
+    <div class="comentarios-seccion">
+      <h3>Comentarios ({{ vistaDetalle.comentarios.length }})</h3>
+
+      <div class="comentario" *ngFor="let c of vistaDetalle.comentarios; let i = index">
+        <div class="comentario-header">
+          <span class="autor">{{ c.autor }}</span>
+          <span class="fecha-com">{{ formatFecha(c.fecha) }}</span>
+        </div>
+        <p class="comentario-texto">{{ c.texto }}</p>
+        <div class="comentario-acciones">
+          <span class="reportado" *ngIf="c.reportado">Reportado</span>
+          <button class="btn-reportar" *ngIf="!c.reportado" (click)="reportar(i)">Reportar</button>
+        </div>
+      </div>
+
+      <p class="sin-comentarios" *ngIf="vistaDetalle.comentarios.length === 0">Se la primera en responder.</p>
+    </div>
+
+    <div class="responder-seccion">
+      <h3>Responder</h3>
+      <textarea
+        class="textarea-field"
+        placeholder="Escribe tu respuesta..."
+        (ngModel)="nuevoComentario"
+        rows="4"
+      ></textarea>
+
+      <button class="btn-responder" (click)="responder()" [disabled]="enviando">
+        {{ enviando ? 'Enviando...' : 'Publicar respuesta' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!vistaDetalle">
+    <div class="nueva-pub">
+      <button class="btn-nueva" (click)="toggleFormulario()">
+        {{ mostrarFormulario ? 'Cancelar' : '+ Nueva Publicacion' }}
+      </button>
+
+      <div class="formulario" *ngIf="mostrarFormulario">
+        <h3>Crear publicacion</h3>
+
+        <input class="input-field" type="text" placeholder="Titulo de tu publicacion" (ngModel)="titulo" />
+
+        <textarea
+          class="textarea-field"
+          placeholder="Comparte tu experiencia o pregunta..."
+          (ngModel)="contenido"
+          rows="5"
+        ></textarea>
+
+        <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
+          {{ publicando ? 'Publicando...' : 'Publicar' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="lista">
+      <div class="publicacion-card" *ngFor="let pub of publicaciones" (click)="abrirDetalle(pub)">
+        <div class="card-top">
+          <span class="fecha">{{ formatFecha(pub.fecha) }}</span>
+        </div>
+        <h3 class="titulo">{{ pub.titulo }}</h3>
+        <p class="preview">{{ pub.contenido | slice : 0 : 120 }}...</p>
+        <div class="card-footer">
+          <span class="comentarios">{{ pub.comentarios.length }} comentarios</span>
+          <span class="ver-mas">Ver mas</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="sin-publicaciones" *ngIf="publicaciones.length === 0">Aun no hay publicaciones.</p>
+  </div>
+</div>

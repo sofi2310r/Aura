@@ -1,0 +1,40 @@
+<div class="pacientes-container">
+
+    <h2>Pacientes</h2>
+
+    <!-- BUSCADOR -->
+    <div class="card buscador">
+        <input 
+            type="text" 
+            placeholder="Buscar por nombre o correo..."
+            [(ngModel)]="buscador"
+            (input)="filtrar()"
+        />
+    </div>
+
+    <!-- LISTA -->
+    <div class="card lista">
+
+        <div *ngIf="pacientesFiltrados.length === 0" class="empty">
+            No hay pacientes
+        </div>
+
+        <div *ngFor="let p of pacientesFiltrados" class="paciente-item">
+
+            <div class="info">
+                <strong>{{ p.nombre }} {{ p.apellido }}</strong>
+                <span>{{ p.correo }}</span>
+                <small>{{ p.telefono }}</small>
+            </div>
+
+            <div class="acciones">
+                <button class="delete" (click)="eliminar(p)">
+                    Eliminar
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

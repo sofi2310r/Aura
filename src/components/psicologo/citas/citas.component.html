@@ -1,0 +1,69 @@
+<div class="citas-container">
+
+    <h2>Gestión de Citas</h2>
+
+    <div class="dashboard-resumen" *ngIf="citas.length > 0">
+        <div class="card-contador">
+            <span class="dot"></span>
+            <span class="label">Citas por confirmar:</span>
+            <span class="count">{{ totalPendientes }}</span>
+        </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="card formulario">
+
+        <h3>Nueva Cita</h3>
+
+        <label>Paciente</label>
+        <select [(ngModel)]="pacienteSeleccionado">
+            <option [ngValue]="null">Selecciona un paciente</option>
+            <option *ngFor="let p of pacientes" [ngValue]="p">
+                {{ p.nombre }}
+            </option>
+        </select>
+
+        <label>Fecha</label>
+        <input type="datetime-local" [(ngModel)]="fecha" />
+
+        <label>Motivo</label>
+        <textarea [(ngModel)]="motivo" placeholder="Describe el motivo..."></textarea>
+
+        <button (click)="crearCita()">Crear cita</button>
+
+    </div>
+
+    <!-- LISTA -->
+    <div class="card lista">
+
+        <h3>Mis Citas</h3>
+
+        <div *ngIf="citas.length === 0" class="empty">
+            No tienes citas aún
+        </div>
+
+        <div *ngFor="let c of citas" class="cita-item">
+
+            <div>
+                <strong>{{ c.paciente }}</strong>
+                <span>{{ c.fecha | date:'short' }}</span>
+            </div>
+
+            <p>{{ c.motivo }}</p>
+
+            <span class="estado" [ngClass]="c.estado">{{ c.estado }}</span>
+
+            <button (click)="confirmarCita(c)" *ngIf="c.estado === 'pendiente'">
+                Confirmar
+            </button>
+
+            <button class="delete" (click)="eliminar(c.id)">
+                Eliminar
+            </button>
+
+        </div>
+
+    </div>
+
+
+</div>
