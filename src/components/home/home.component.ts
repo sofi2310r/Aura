@@ -11,18 +11,18 @@ export class HomeComponent {
 
       {
     icon: 'https://cdn-icons-png.flaticon.com/512/4320/4320337.png',
-    title: 'Bienestar',
-    desc: 'Cuida tu salud emocional'
+    title: 'Recursos',
+    desc: 'Recursos'
   },
   {
     icon: 'https://cdn-icons-png.flaticon.com/512/3064/3064197.png',
-    title: 'Seguridad',
-    desc: 'Protegemos tu información'
+    title: 'Comunidad',
+    desc: 'Comunidad'
   },
   {
     icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-    title: 'Crecimiento',
-    desc: 'Desarrolla tu mejor versión'
+    title: 'Apoyo',
+    desc: 'Apoyo'
   }
    
   ];

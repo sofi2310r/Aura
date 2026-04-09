@@ -1,7 +1,7 @@
 /* SECCIÓN PRINCIPAL */
 .about {
   padding: 80px 10%;
-  background: linear-gradient(135deg, #5f2c82, #00c9a7);
+ background: linear-gradient(135deg, #6a1b9a, #e2b4f9); /* Degradado más vibrante */
   color: white;
 }
 
@@ -96,7 +96,7 @@
   position: fixed;
   top: 20px;
   left: 20px;
-  background: #c790ec;
+  background: #72a29d;
   border: none;
   border-radius: 50%;
   padding: 10px;
