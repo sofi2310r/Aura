@@ -1,6 +1,6 @@
 .layout {
     display: flex;
-   
+    height: 100vh;
     font-family: 'Poppins', sans-serif;
     overflow: hidden;
 }
@@ -59,7 +59,6 @@
     background: #f5f6fa;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .header {

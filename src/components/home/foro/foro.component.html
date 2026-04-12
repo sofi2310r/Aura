@@ -1,8 +1,9 @@
 <button class="back-icon" routerLink="/home">
   <svg viewBox="0 0 24 24" fill="none">
-    <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M15 18L9 12L15 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
   </svg>
 </button>
+
 <div class="normas-banner">
   <div class="normas-content">
     <span class="normas-icon">🛡️</span>
@@ -20,25 +21,39 @@
     <h1>Foro</h1>
     <p>Un espacio seguro para compartir y apoyarnos</p>
   </div>
+  
   <p class="foro-status" *ngIf="mensaje">{{ mensaje }}</p>
 
   <div class="detalle" *ngIf="vistaDetalle">
     <button class="btn-volver" (click)="volverLista()">← Volver al foro</button>
 
-    <div class="publicacion-completa">
+    <div class="publicacion-completa" *ngIf="vistaDetalle.titulo">
       <div class="pub-header">
         <span class="fecha">{{ formatFecha(vistaDetalle.fecha) }}</span>
-        <button *ngIf="tienePermisosModerador()" class="btn-eliminar-detalle" (click)="eliminarPublicacion($event, vistaDetalle)">
-          Eliminar Publicación 🗑️
-        </button>
+        
+        <div class="acciones-pub" style="display: flex; gap: 10px;">
+          <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'" 
+                  class="btn-editar-detalle" 
+                  (click)="editarPublicacion($event, vistaDetalle)">
+            Editar ✏️
+          </button>
+
+          <button *ngIf="tienePermisosModerador()" 
+                  class="btn-eliminar-detalle"
+                  (click)="eliminarPublicacion($event, vistaDetalle)">
+            Eliminar 🗑️
+          </button>
+        </div>
       </div>
       <h2>{{ vistaDetalle.titulo }}</h2>
       <p class="contenido-completo">{{ vistaDetalle.contenido }}</p>
     </div>
 
-    <div class="aviso-respeto">Recuerda mantener un trato respetuoso y empático con todas las personas del foro.</div>
+    <div class="aviso-respeto" *ngIf="vistaDetalle.titulo">
+      Recuerda mantener un trato respetuoso y empático con todas las personas del foro.
+    </div>
 
-    <div class="comentarios-seccion">
+    <div class="comentarios-seccion" *ngIf="vistaDetalle.titulo">
       <h3>Comentarios ({{ vistaDetalle.comentarios.length }})</h3>
 
       <div class="comentario" *ngFor="let c of vistaDetalle.comentarios; let i = index">
@@ -47,10 +62,6 @@
           <span class="fecha-com">{{ formatFecha(c.fecha) }}</span>
         </div>
         <p class="comentario-texto">{{ c.texto }}</p>
-
-        <button *ngIf="getRol() !== 'moderador'" class="btn-responder-mini" (click)="responderComentario(i)">
-          Responder
-        </button>
 
         <div class="respuestas" *ngIf="c.respuestas?.length">
           <div class="respuesta" *ngFor="let r of c.respuestas">
@@ -68,9 +79,10 @@
       <p class="sin-comentarios" *ngIf="vistaDetalle.comentarios.length === 0">Sé la primera en responder.</p>
     </div>
 
-    <div class="responder-seccion" *ngIf="getRol() !== 'moderador'">
+    <div class="responder-seccion" *ngIf="getRol() !== 'moderador' && vistaDetalle.titulo">
       <h3>Responder</h3>
-      <textarea class="textarea-field" placeholder="Escribe tu respuesta..." [(ngModel)]="nuevoComentario" name="comentario" rows="4"></textarea>
+      <textarea class="textarea-field" placeholder="Escribe tu respuesta..." [(ngModel)]="nuevoComentario"
+        name="comentario" rows="4"></textarea>
 
       <button type="button" class="btn-responder" (click)="responder()" [disabled]="enviando">
         {{ enviando ? 'Enviando...' : 'Publicar respuesta' }}
@@ -90,8 +102,10 @@
 
       <div class="formulario" *ngIf="mostrarFormulario && puedeCrearPublicacion()">
         <h3>Crear publicación</h3>
-        <input class="input-field" type="text" placeholder="Título de tu publicación" [(ngModel)]="titulo" name="titulo" />
-        <textarea class="textarea-field" placeholder="Comparte tu experiencia o pregunta..." [(ngModel)]="contenido" name="contenido" rows="5"></textarea>
+        <input class="input-field" type="text" placeholder="Título de tu publicación" [(ngModel)]="titulo"
+          name="titulo" />
+        <textarea class="textarea-field" placeholder="Comparte tu experiencia o pregunta..." [(ngModel)]="contenido"
+          name="contenido" rows="5"></textarea>
         <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
           {{ publicando ? 'Publicando...' : 'Publicar' }}
         </button>
@@ -102,10 +116,22 @@
       <div class="publicacion-card" *ngFor="let pub of publicaciones" (click)="abrirDetalle(pub)">
         <div class="card-top">
           <span class="fecha">{{ formatFecha(pub.fecha) }}</span>
-          <button *ngIf="tienePermisosModerador()" class="btn-eliminar-card" (click)="eliminarPublicacion($event, pub)">🗑️</button>
+
+          <div class="acciones-card" style="display: flex; gap: 5px;">
+            <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'" 
+                    class="btn-editar-card" 
+                    (click)="editarPublicacion($event, pub)">
+              ✏️
+            </button>
+            <button *ngIf="tienePermisosModerador()" 
+                    class="btn-eliminar-card"
+                    (click)="eliminarPublicacion($event, pub)">
+              🗑️
+            </button>
+          </div>
         </div>
         <h3 class="titulo">{{ pub.titulo }}</h3>
-        <p class="preview">{{ pub.contenido | slice : 0 : 120 }}...</p>
+        <p class="preview" style="white-space: pre-wrap;">{{ pub.contenido }}</p>
         <div class="card-footer">
           <span class="comentarios">{{ pub.comentarios.length }} comentarios</span>
           <span class="ver-mas">Ver más</span>

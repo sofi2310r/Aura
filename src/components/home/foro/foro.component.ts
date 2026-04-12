@@ -41,7 +41,11 @@ export class ForoComponent {
         this.publicaciones = publicaciones;
 
         if (this.vistaDetalle) {
-          this.vistaDetalle = publicaciones.find((pub) => pub.id === this.vistaDetalle?.id) ?? null;
+          const actualizada = publicaciones.find((pub) => pub.id === this.vistaDetalle?.id);
+          if (actualizada) {
+            this.vistaDetalle = actualizada;
+            this.cdr.markForCheck();
+          }
         }
       });
   }
@@ -104,7 +108,11 @@ export class ForoComponent {
   async editarPublicacion(event: Event, pub: Publicacion): Promise<void> {
     event.stopPropagation();
 
-    if (!this.tienePermisosModerador()) return;
+    // Verificación de rol: Solo Admin o Psicólogo
+    if (!['admin', 'administrador', 'psicologo'].includes(this.getRol())) {
+      Swal.fire('Acceso denegado', 'No tienes permisos para editar.', 'error');
+      return;
+    }
 
     const { value: formValues } = await Swal.fire({
       title: 'Editar Publicación',
@@ -115,24 +123,27 @@ export class ForoComponent {
       showCancelButton: true,
       confirmButtonText: 'Guardar cambios',
       preConfirm: () => {
-        return [
-          (document.getElementById('sw-titulo') as HTMLInputElement).value,
-          (document.getElementById('sw-contenido') as HTMLTextAreaElement).value
-        ]
+        const t = (document.getElementById('sw-titulo') as HTMLInputElement).value;
+        const c = (document.getElementById('sw-contenido') as HTMLTextAreaElement).value;
+        if (!t || !c) return Swal.showValidationMessage('Ambos campos son obligatorios');
+        return [t, c];
       }
     });
 
-    if (formValues && formValues[0].trim() && formValues[1].trim()) {
+    if (formValues) {
       this.foroService.actualizarPublicacion(pub.id, {
         titulo: formValues[0],
         contenido: formValues[1]
       }).subscribe({
-        next: () => {
-          this.mensaje = 'Publicación actualizada.';
+        next: (pubActualizada) => {
+          // Si estamos en la vista de detalle, actualizamos la referencia local
+          if (this.vistaDetalle?.id === pubActualizada.id) {
+            this.vistaDetalle = pubActualizada;
+          }
           this.cdr.detectChanges();
-          Swal.fire('¡Éxito!', 'Los cambios se han guardado.', 'success');
+          Swal.fire('¡Éxito!', 'Publicación actualizada correctamente.', 'success');
         },
-        error: (error: any) => this.mensaje = error.message
+        error: (error: any) => Swal.fire('Error', error.message, 'error')
       });
     }
   }
@@ -148,10 +159,7 @@ export class ForoComponent {
       return;
     }
 
-    if (!this.titulo.trim() || !this.contenido.trim()) {
-      this.mensaje = 'Escribe un título y un contenido antes de publicar.';
-      return;
-    }
+    if (!this.titulo.trim() || !this.contenido.trim()) return;
 
     this.publicando = true;
     this.foroService
