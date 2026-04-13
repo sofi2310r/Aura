@@ -14,7 +14,7 @@
     flex-direction: column;
 }
 
-.logo{
+.logo {
     margin-bottom: 30px;
 }
 
@@ -37,7 +37,7 @@
 }
 
 .sidebar nav a:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .sidebar nav a.active {
@@ -72,7 +72,7 @@
     color: white;
 }
 
-.buscador{
+.buscador {
     background: rgba(255, 255, 255, 0.2);
     padding: 8px 15px;
     border-radius: 20px;
@@ -84,6 +84,7 @@
     outline: none;
     color: white;
 }
+
 .content {
     flex: 1;
     overflow-y: auto;
@@ -97,7 +98,7 @@
     width: 45px;
     height: 45px;
     border-radius: 12px;
-    border: 2px solid rgba(255,255,255,0.5);
+    border: 2px solid rgba(255, 255, 255, 0.5);
     background: transparent;
 
     display: flex;
@@ -112,31 +113,32 @@
 .logout-icon svg {
     width: 22px;
     height: 22px;
-    
+
 }
 
 /* hover bonito */
 .logout-icon:hover {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.15);
     border-color: white;
     transform: scale(1.05);
 }
+
 footer {
-   
-  background: linear-gradient(135deg,  #6a11cb 0%, #2fa98f 100%);
-  color: white;
-  padding: 25px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+
+    background: linear-gradient(135deg, #6a11cb 0%, #2fa98f 100%);
+    color: white;
+    padding: 25px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 footer p {
-  margin: 0;
-  font-size: 14px;
+    margin: 0;
+    font-size: 14px;
 }
- 
-    .main { 
-     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
- }
+
+.main {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}

@@ -58,7 +58,7 @@ export class Reportes implements OnInit {
                 // --- PASO 1: CARGA INSTANTÁNEA ---
                 // Eliminamos el reporte visualmente de inmediato
                 this.reportes = this.reportes.filter(r => !(r.publicacion.id === pub.id && r.index === index));
-                
+
                 this.cdr.detectChanges(); // Forzar actualización visual
 
                 // --- PASO 2: PROCESO POR DETRÁS ---
@@ -102,29 +102,79 @@ export class Reportes implements OnInit {
     }
 
     bloquearUsuario(autorId: string, pubId: string, index: number) {
-        if (!autorId) return;
+        if (!autorId) {
+            Swal.fire('Error', 'No se encontró el ID del autor', 'error');
+            return;
+        }
 
         Swal.fire({
-            title: '¿Bloquear usuario?',
-            icon: 'error',
+            title: '¿Confirmar sanción automática?',
+            text: "Se aplicará un bloqueo progresivo basado en el historial del usuario.",
+            icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sí, bloquear',
+            confirmButtonText: 'Sí, sancionar',
             confirmButtonColor: '#dc2626'
         }).then((result) => {
             if (result.isConfirmed) {
-                
-                // 3. Aplicamos el filtro
-                this.reportes = this.reportes.filter(r => 
-                    !(r.publicacion.id === pubId && r.index === index)
-                );
+                this.userService.getUserById(autorId).subscribe((usuario: any) => { // Añadimos : any aquí
+                    if (!usuario) return;
 
-                // 4. ¡LA CLAVE! Forzamos a Angular a ver el cambio YA
-                this.cdr.detectChanges(); 
+                    // Ahora TypeScript permitirá leer contadorReportes
+                    const nuevosReportes = (usuario.contadorReportes || 0) + 1;
+                    let fechaDesbloqueo: Date | null = new Date();
+                    let mensajeSancion = "";
 
-                // 5. Ejecutamos el servicio por detrás
-                this.userService.updateUser({ uid: autorId, activo: false } as any).subscribe();
-                
-                this.notificacionExito('Usuario bloqueado');
+                    switch (nuevosReportes) {
+                        case 1:
+                            fechaDesbloqueo.setHours(fechaDesbloqueo.getHours() + 24);
+                            mensajeSancion = "Bloqueado por 24 horas";
+                            break;
+                        case 2:
+                            fechaDesbloqueo.setDate(fechaDesbloqueo.getDate() + 7);
+                            mensajeSancion = "Bloqueado por 1 semana";
+                            break;
+                        case 3:
+                            fechaDesbloqueo.setMonth(fechaDesbloqueo.getMonth() + 1);
+                            mensajeSancion = "Bloqueado por 1 mes";
+                            break;
+                        default:
+                            fechaDesbloqueo = null;
+                            mensajeSancion = "Bloqueo PERMANENTE";
+                            break;
+                    }
+
+                    const updatePayload: any = {
+                        uid: autorId,
+                        activo: false,
+                        contadorReportes: nuevosReportes,
+                        fechaDesbloqueo: fechaDesbloqueo ? fechaDesbloqueo.toISOString() : 'permanente'
+                    };
+
+                    this.userService.updateUser(updatePayload).subscribe({
+                        next: () => {
+                            this.reportes = this.reportes.filter(r =>
+                                !(r.publicacion.id === pubId && r.index === index)
+                            );
+                            this.cdr.detectChanges();
+                            this.notificacionExito(mensajeSancion);
+                            this.eliminarComentarioSilencioso(pubId, index);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    // Corregido para usar getPublicaciones() y filtrar manualmente
+    private eliminarComentarioSilencioso(pubId: string, index: number) {
+        this.foroService.getPublicaciones().subscribe((pubs: any[]) => {
+            const pub = pubs.find(p => p.id === pubId);
+            if (pub && pub.comentarios) {
+                const nuevosComentarios = [...pub.comentarios];
+                nuevosComentarios.splice(index, 1);
+
+                const payload = { ...pub, comentarios: nuevosComentarios };
+                this.foroService.actualizarPublicacion(pubId, payload).subscribe();
             }
         });
     }

@@ -19,4 +19,6 @@ export interface User {
   permisos?: string;
   createdAt?: string;
   updatedAt?: string;
+  fechaDesbloqueo?: string;
+  contadorReportes?: number;
 }

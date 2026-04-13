@@ -2,16 +2,22 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
-        <h2 class="logo">🧠 AURA</h2>
+        <h2 class="logo">🧠 AURA </h2>
 
-        <nav>
-            <a routerLink="/psicologo" routerLinkActive="active">🏡 Panel</a>
-            <a routerLink="/psicologo/citas" routerLinkActive="active">📅 Citas</a>
-            <a routerLink="/psicologo/pacientes" routerLinkActive="active">👥 Pacientes</a>
-            <a routerLink="/psicologo/chat" routerLinkActive="active">💬 Chat</a>
-            <a routerLink="/psicologo/foro" routerLinkActive="active">🗨 Foro</a>
+        <nav class="menu">
+            <a routerLink="/moderador" routerLinkActive="active">📊 Panel</a>
+            <a routerLink="/moderador/usuarios" routerLinkActive="active">👥 Usuarios</a>
+            <a routerLink="/moderador/reportes" routerLinkActive="active" class="nav-item">🚫 Reportes
+                <span *ngIf="reportesPendientes > 0" class="badge">
+                    {{ reportesPendientes }}
+                </span>
+            </a>
+            <a routerLink="/moderador/foro" routerLinkActive="active">💬 Foro</a>
+
+
         </nav>
 
+       
     </aside>
 
     <!-- CONTENIDO -->
@@ -19,20 +25,19 @@
 
         <!-- HEADER -->
         <header class="header">
-            <h1>Panel de Psicólogo</h1>
+            <h1>Panel de Moderador</h1>
 
-            <button class="logout-icon" (click)="logout()">
-                <svg viewBox="0 0 24 24" fill="none">
 
-                    <path d="M16 17L21 12L16 7" stroke="white" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                    <path d="M21 12H9" stroke="white" stroke-width="2" stroke-linecap="round" />
+    <button class="logout-icon" (click)="logout()">
+        <svg viewBox="0 0 24 24" fill="none">
+            <path d="M16 17L21 12L16 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12H9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M13 3H5C3.895 3 3 3.895 3 5V19C3 20.105 3.895 21 5 21H13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </button>
 
-                    <path d="M13 3H5C3.895 3 3 3.895 3 5V19C3 20.105 3.895 21 5 21H13" stroke="white" stroke-width="2"
-                        stroke-linecap="round" />
 
-                </svg>
-            </button>
+            
         </header>
 
         <!-- CONTENIDO DINÁMICO -->
@@ -40,11 +45,10 @@
             <router-outlet></router-outlet>
         </div>
 
-        <!-- 🔥 FOOTER IGUAL AL ADMIN -->
-        <footer>
-            <p>© 2026 AURA - Panel de Psicólogo</p>
-            <p>Todos los derechos reservados</p>
-        </footer>
-
+         <!-- 🔥 FOOTER -->
+    <footer>
+        <p>© 2026 AURA - Panel de Moderador</p>
+        <p>Todos los derechos reservados</p>
+    </footer>
     </div>
 </div>

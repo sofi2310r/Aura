@@ -106,6 +106,21 @@ export class LoginComponent implements OnInit {
 
     try {
       const user = await this.authService.login(this.usuario, this.contrasena);
+
+      if (user && user.activo === false) {
+        this.cargandoLogin = false;
+        const mensajeBloqueo = user.fechaDesbloqueo === 'permanente'
+        ? 'Tu cuenta ha sido bloqueada permanente.'
+        : `Tu cuenta está suspendida. Podrás ingresar después de: ${user.fechaDesbloqueo}`;
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Acceso denegado',
+          text: mensajeBloqueo,
+          confirmButtonColor: '#9b59b6',
+        });
+        return;
+      }
       
       // Detener loading
       this.ngZone.run(() => {
