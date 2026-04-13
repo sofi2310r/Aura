@@ -13,8 +13,7 @@ import { ChangeDetectorRef } from '@angular/core';
     styleUrl: './citas.component.css'
 })
 export class CitasComponent implements OnInit {
-
-    pacientes: any[] = [];
+  pacientes: any[] = [];
     psicologos: any[] = [];
 
     pacienteSeleccionado: any = null;
@@ -153,24 +152,20 @@ export class CitasComponent implements OnInit {
 
     confirmarCita(cita: any) {
 
-    
+        const backup = [...this.citas];
 
-    const backup = [...this.citas];
+        this.citas = this.citas.map(c =>
+            c.id === cita.id ? { ...c, estado: 'confirmada' } : c
+        );
 
-    this.citas = this.citas.map(c =>
-        c.id === cita.id ? { ...c, estado: 'confirmada' } : c
-    );
+        this.citaService.updateCita(cita.id, { estado: 'confirmada' }).subscribe({
+            error: () => {
+                this.citas = backup;
+                Swal.fire('Error', 'No se pudo confirmar la cita', 'error');
+            }
+        });
+    }
 
-    this.citaService.updateCita(cita.id, { estado: 'confirmada' }).subscribe({
-        next: () => {
-            console.log('Confirmada correctamente');
-        },
-        error: () => {
-            this.citas = backup;
-            Swal.fire('Error', 'No se pudo confirmar la cita', 'error');
-        }
-    });
-}
     get totalPendientes(): number {
         return this.citas.filter(c => c.estado === 'pendiente').length;
     }
@@ -181,4 +176,29 @@ export class CitasComponent implements OnInit {
         this.fecha = '';
         this.motivo = '';
     }
+    get citasDeHoy(): any[] {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const manana = new Date(hoy);
+    manana.setDate(manana.getDate() + 1);
+
+    return this.citas.filter(c => {
+        const fechaCita = new Date(c.fecha);
+        return fechaCita >= hoy && fechaCita < manana;
+    });
+}
+
+get citasNoHoy(): any[] {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const manana = new Date(hoy);
+    manana.setDate(manana.getDate() + 1);
+
+    return this.citas.filter(c => {
+        const fechaCita = new Date(c.fecha);
+        return !(fechaCita >= hoy && fechaCita < manana);
+    });
+}
 }

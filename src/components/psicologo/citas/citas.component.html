@@ -2,12 +2,27 @@
 
     <h2>Gestión de Citas</h2>
 
+    <!-- RESUMEN -->
     <div class="dashboard-resumen" *ngIf="citas.length > 0">
+
         <div class="card-contador">
             <span class="dot"></span>
             <span class="label">Citas por confirmar:</span>
             <span class="count">{{ totalPendientes }}</span>
         </div>
+
+        <div class="card-contador">
+            <span class="dot hoy"></span>
+            <span class="label">Citas de hoy:</span>
+            <span class="count">{{ citasDeHoy.length }}</span>
+        </div>
+
+        <div class="card-contador">
+            <span class="dot otra"></span>
+            <span class="label">Otras citas:</span>
+            <span class="count">{{ citasNoHoy.length }}</span>
+        </div>
+
     </div>
 
     <!-- FORMULARIO -->
@@ -48,16 +63,60 @@
 
     </div>
 
-    <!-- LISTA -->
+    <!-- ===================== -->
+    <!-- CITAS DE HOY -->
+    <!-- ===================== -->
     <div class="card lista">
 
-        <h3>Mis Citas</h3>
+        <h3>Citas de Hoy</h3>
 
-        <div *ngIf="citas.length === 0" class="empty">
-            No tienes citas aún
+        <div *ngIf="citasDeHoy.length === 0" class="empty">
+            No hay citas para hoy
         </div>
 
-        <div *ngFor="let c of citas" class="cita-item">
+        <div *ngFor="let c of citasDeHoy" class="cita-item">
+
+            <div>
+                <strong>{{ c.paciente }}</strong>
+                <span>{{ c.fecha | date:'short' }}</span>
+            </div>
+
+            <p>{{ c.motivo }}</p>
+
+            <p><strong>Psicólogo:</strong> {{ c.psicologo }}</p>
+
+            <span class="estado" [ngClass]="c.estado">
+                {{ c.estado }}
+            </span>
+
+            <button type="button"
+                    (click)="confirmarCita(c)"
+                    *ngIf="c.estado === 'pendiente'">
+                Confirmar
+            </button>
+
+            <button type="button"
+                    class="delete"
+                    (click)="eliminar(c.id)">
+                Eliminar
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- OTRAS CITAS -->
+    <!-- ===================== -->
+    <div class="card lista">
+
+        <h3>Otras Citas</h3>
+
+        <div *ngIf="citasNoHoy.length === 0" class="empty">
+            No hay otras citas
+        </div>
+
+        <div *ngFor="let c of citasNoHoy" class="cita-item">
 
             <div>
                 <strong>{{ c.paciente }}</strong>
