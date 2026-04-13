@@ -1,0 +1,39 @@
+<div class="dashboard-container">
+    <h2>Panel del Moderador 🛡️</h2>
+
+    <div class="cards-grid">
+
+        <div class="card shadow">
+            <div class="card-icon blue">👥</div>
+            <div class="card-info">
+                <h3>Usuarios</h3>
+                <p class="number">{{ totalUsuarios }}</p>
+            </div>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-icon green">📝</div>
+            <div class="card-info">
+                <h3>Publicaciones</h3>
+                <p class="number">{{ publicaciones }}</p>
+            </div>
+        </div>
+
+        <div class="card shadow" [class.has-danger]="reportes > 0">
+            <div class="card-icon red">🚫</div>
+            <div class="card-info">
+                <h3>Reportes</h3>
+                <p class="number danger">{{ reportes }}</p>
+            </div>
+        </div>
+
+        <div class="card shadow" [class.has-warning]="comentariosReportados > 0">
+            <div class="card-icon orange">💬</div>
+            <div class="card-info">
+                <h3>Comentarios Reportados</h3>
+                <p class="number warning">{{ comentariosReportados }}</p>
+            </div>
+        </div>
+
+    </div>
+</div>

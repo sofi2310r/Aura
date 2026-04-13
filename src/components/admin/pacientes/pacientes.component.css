@@ -1,0 +1,67 @@
+.pacientes-container {
+    padding: 40px;
+    background: #f5f7fb;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.buscador input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.lista .paciente-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.info strong {
+    display: block;
+}
+
+.info span {
+    color: gray;
+    font-size: 13px;
+}
+
+.info small {
+    color: #999;
+}
+
+.delete {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.delete:hover {
+    background: #e63939;
+}
+
+.empty {
+    text-align: center;
+    color: gray;
+    padding: 20px;
+}
+

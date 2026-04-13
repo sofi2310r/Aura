@@ -1,0 +1,47 @@
+<div class="layout">
+    <aside class="sidebar">
+        <h2 class="logo">🧠 AURA</h2>
+        <nav>
+            <a routerLink="/psicologo" routerLinkActive="active">🏡 Panel</a>
+            <a routerLink="/psicologo/citas" routerLinkActive="active">📅 Citas</a>
+           
+            <a routerLink="/psicologo/chat" routerLinkActive="active">💬 Chat</a>
+            <a routerLink="/psicologo/foro" routerLinkActive="active">🗨 Foro</a>
+        </nav>
+    </aside>
+
+    <div class="main">
+        <header class="header">
+            <h1>Panel de Psicólogo</h1>
+            <button class="logout-icon" (click)="logout()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M16 17L21 12L16 7" stroke="white" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M21 12H9" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    <path d="M13 3H5C3.895 3 3 3.895 3 5V19C3 20.105 3.895 21 5 21H13" stroke="white" stroke-width="2"
+                        stroke-linecap="round" />
+                </svg>
+            </button>
+        </header>
+
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+
+        <footer class="psico-footer">
+            <div class="footer-container">
+                <div class="footer-branding">
+                    <div class="footer-logo">AURA</div>
+                </div>
+                <div class="footer-bottom">
+                    <div class="footer-copyright">
+                        © 2026 
+                    </div>
+                    <div class="footer-rights">
+                        Todos los derechos reservados.
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>

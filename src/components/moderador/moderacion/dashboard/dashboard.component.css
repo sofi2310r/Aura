@@ -1,0 +1,107 @@
+.dashboard-container {
+    padding: 20px;
+}
+
+h2 {
+    color: #2d3436;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.cards-grid {
+    display: flex;             /* Cambiamos a Flexbox */
+    flex-direction: row;       /* Forzamos dirección de fila */
+    justify-content: space-between; /* Espaciado uniforme entre ellas */
+    gap: 20px;                 /* Espacio entre tarjetas */
+    padding: 20px 0;
+    width: 100%;
+    overflow-x: auto;          /* Por si la pantalla es muy pequeña, permite scroll horizontal en vez de romperse */
+}
+
+.card {
+    flex: 1;                   /* Todas las tarjetas crecen por igual para llenar el ancho */
+    min-width: 200px;          /* Evita que se aplasten demasiado */
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid #f1f2f6;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+/* Para que los números no se amontonen */
+.card-info {
+    display: flex;
+    flex-direction: column;
+}
+.card-icon {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+/* Colores de iconos */
+.blue {
+    background: #e3f2fd;
+}
+
+.green {
+    background: #e8f5e9;
+}
+
+.red {
+    background: #ffebee;
+}
+
+.orange {
+    background: #fff3e0;
+}
+
+.card-info h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #636e72;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.number {
+    margin: 5px 0 0;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #2d3436;
+}
+
+/* Estados de alerta */
+.has-danger {
+    border: 1px solid #fab1a0;
+    background: #fffafa;
+}
+
+.danger {
+    color: #d63031;
+}
+
+.has-warning {
+    border: 1px solid #ffeaa7;
+    background: #fffdf5;
+}
+
+.warning {
+    color: #e67e22;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    /* Se levanta 8px */
+    box-shadow: 0 12px 24px rgba(108, 99, 255, 0.12);
+    /* Sombra más intensa y con tinte azul */
+    border-color: #e0e0ff;
+    /* Borde sutil al hover */
+}       

@@ -1,0 +1,116 @@
+/* SECCIÓN PRINCIPAL */
+.about {
+  padding: 80px 10%;
+ background: linear-gradient(135deg, #6a1b9a, #e2b4f9); /* Degradado más vibrante */
+  color: white;
+}
+
+.about-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 50px;
+}
+
+.about-text {
+  max-width: 500px;
+}
+
+.about-text h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.about-text p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+/* CÍRCULO */
+.about-circle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 70px;
+}
+
+/* VALORES */
+.values {
+  padding: 70px 10%;
+  background: #f8f8f8;
+  text-align: center;
+}
+
+.values h2 {
+  font-size: 2.2rem;
+  margin-bottom: 40px;
+  color: #5f2c82;
+}
+
+.values-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+.value-card {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: 0.3s;
+}
+
+.value-card span {
+  font-size: 40px;
+}
+
+.value-card h3 {
+  margin-top: 10px;
+  color: #5f2c82;
+}
+
+.value-card p {
+  color: #555;
+  margin-top: 8px;
+}
+
+.value-card:hover {
+  transform: translateY(-8px);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .about-container {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.back-icon {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: #72a29d;
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.back-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.back-icon:hover {
+  transform: scale(1.1);
+  transition: 0.3s;
+}

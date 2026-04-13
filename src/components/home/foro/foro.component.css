@@ -1,0 +1,505 @@
+:host {
+  display: block;
+}
+
+.normas-banner {
+  background: linear-gradient(135deg, #f0eef8, #edf7f7);
+  border-bottom: 2px solid #e8e4f5;
+  padding: 16px 40px;
+}
+
+.normas-content {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.normas-icon {
+  font-size: 1.5rem;
+}
+
+.normas-content strong {
+  color: #4a2d6a;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.normas-content p {
+  color: #7a8fb8;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.foro-container {
+  width: 100%;
+  max-width: 860px;
+  padding: 40px 20px;
+}
+
+.foro-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.foro-header h1 {
+  font-size: 2rem;
+  color: #4a2d6a;
+  margin-bottom: 8px;
+}
+
+.foro-header p {
+  color: #7a8fb8;
+  font-size: 1rem;
+}
+
+.foro-status {
+  margin: 0 auto 20px;
+  max-width: 720px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #edf7f7;
+  color: #4a2d6a;
+  text-align: center;
+}
+
+.nueva-pub {
+  margin-bottom: 24px;
+}
+
+.btn-nueva {
+  background: #4a2d6a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-nueva:hover {
+  background: #9b7bb8;
+}
+
+.formulario {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  margin-top: 16px;
+  box-shadow: 0 4px 20px rgba(91, 74, 138, 0.1);
+}
+
+.formulario h3 {
+  color: #4a2d6a;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.input-field,
+.textarea-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e8e4f5;
+  border-radius: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+  color: #3d3d5c;
+}
+
+.input-field:focus,
+.textarea-field:focus {
+  border-color: #9b7bb8;
+}
+
+.btn-publicar {
+  background: #5a8fa0;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-publicar:hover {
+  background: #4a2d6a;
+}
+
+.btn-publicar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.publicacion-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  border-left: 4px solid #9b7bb8;
+  box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.publicacion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(91, 74, 138, 0.15);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.fecha,
+.fecha-com {
+  color: #a8ccd8;
+  font-size: 0.8rem;
+}
+
+.titulo {
+  font-size: 1.1rem;
+  color: #4a2d6a;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.preview {
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.comentarios {
+  color: #7a8fb8;
+  font-size: 0.85rem;
+}
+
+.ver-mas {
+  color: #9b7bb8;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.sin-publicaciones {
+  text-align: center;
+  color: #9b7bb8;
+  padding: 40px;
+}
+
+.detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.btn-volver {
+  background: none;
+  border: none;
+  color: #9b7bb8;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  padding: 0;
+  font-weight: 500;
+}
+
+.publicacion-completa {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  border-left: 4px solid #9b7bb8;
+  box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+}
+
+.pub-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.publicacion-completa h2 {
+  color: #4a2d6a;
+  margin-bottom: 16px;
+  font-size: 1.4rem;
+}
+
+.contenido-completo {
+  color: #3d3d5c;
+  line-height: 1.8;
+}
+
+.aviso-respeto {
+  background: #edf7f7;
+  color: #5a8fa0;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 0.88rem;
+  border-left: 3px solid #5a8fa0;
+}
+
+.comentarios-seccion {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+}
+
+.comentarios-seccion h3,
+.responder-seccion h3 {
+  color: #4a2d6a;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.comentario {
+  border-bottom: 1px solid #f0eef8;
+  padding: 16px 0;
+}
+
+.comentario:last-child {
+  border-bottom: none;
+}
+
+.comentario-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.autor {
+  color: #9b7bb8;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.comentario-texto {
+  color: #3d3d5c;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.comentario-acciones {
+  margin-top: 8px;
+}
+
+.btn-reportar {
+  background: none;
+  border: 1px solid #c49bc4;
+  color: #c49bc4;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-reportar:hover {
+  background: #c49bc4;
+  color: white;
+}
+
+.reportado {
+  color: #c49bc4;
+  font-size: 0.78rem;
+}
+
+.sin-comentarios {
+  color: #9b7bb8;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.responder-seccion {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+}
+
+.btn-responder {
+  background: #4a2d6a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 32px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-responder:hover {
+  background: #9b7bb8;
+}
+
+.btn-responder:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .normas-banner {
+    padding: 14px 16px;
+  }
+
+  .foro-container {
+    padding: 24px 14px;
+  }
+
+  .card-footer,
+  .pub-header,
+  .comentario-header {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-eliminar-card {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-eliminar-card:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+  /* Un rojo suave al pasar el mouse */
+}
+
+/* Botón en el detalle (estilo más formal) */
+.pub-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.btn-eliminar-detalle {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-eliminar-detalle:hover {
+  background-color: #b91c1c;
+}
+
+:host {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.foro-container {
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
+
+.publicacion-completa,
+.comentarios-seccion,
+.responder-seccion,
+.formulario {
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+}
+
+textarea,
+input {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.respuestas {
+  margin-left: 20px;
+  margin-top: 8px;
+}
+
+.respuesta {
+  background: #f1f1f1;
+  padding: 6px;
+  border-radius: 6px;
+  margin-bottom: 5px;
+}
+
+.btn-responder-mini {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.back-icon {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+background: #72a29d;
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.back-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.back-icon:hover {
+  transform: scale(1.1);
+  transition: 0.3s;
+}

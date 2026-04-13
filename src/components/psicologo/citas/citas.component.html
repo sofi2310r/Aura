@@ -1,0 +1,91 @@
+<div class="citas-container">
+
+    <h2>Gestión de Citas</h2>
+
+    <div class="dashboard-resumen" *ngIf="citas.length > 0">
+        <div class="card-contador">
+            <span class="dot"></span>
+            <span class="label">Citas por confirmar:</span>
+            <span class="count">{{ totalPendientes }}</span>
+        </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="card formulario">
+
+        <h3>Nueva Cita</h3>
+
+        <!-- PACIENTE -->
+        <label>Paciente</label>
+        <select [(ngModel)]="pacienteSeleccionado" [ngModelOptions]="{ standalone: true }">
+            <option [ngValue]="null">Selecciona un paciente</option>
+            <option *ngFor="let p of pacientes" [ngValue]="p">
+                {{ p.nombre }}
+            </option>
+        </select>
+
+        <!-- PSICÓLOGO -->
+        <label>Psicólogo</label>
+        <select [(ngModel)]="psicologoSeleccionado" [ngModelOptions]="{ standalone: true }">
+            <option [ngValue]="null">Selecciona un psicólogo</option>
+            <option *ngFor="let p of psicologos" [ngValue]="p">
+                {{ p.nombre }}
+            </option>
+        </select>
+
+        <!-- FECHA -->
+        <label>Fecha</label>
+        <input type="datetime-local" [(ngModel)]="fecha" />
+
+        <!-- MOTIVO -->
+        <label>Motivo</label>
+        <textarea [(ngModel)]="motivo" placeholder="Describe el motivo..."></textarea>
+
+        <!-- BOTÓN -->
+        <button type="button" (click)="crearCita()">
+            Crear cita
+        </button>
+
+    </div>
+
+    <!-- LISTA -->
+    <div class="card lista">
+
+        <h3>Mis Citas</h3>
+
+        <div *ngIf="citas.length === 0" class="empty">
+            No tienes citas aún
+        </div>
+
+        <div *ngFor="let c of citas" class="cita-item">
+
+            <div>
+                <strong>{{ c.paciente }}</strong>
+                <span>{{ c.fecha | date:'short' }}</span>
+            </div>
+
+            <p>{{ c.motivo }}</p>
+
+            <p><strong>Psicólogo:</strong> {{ c.psicologo }}</p>
+
+            <span class="estado" [ngClass]="c.estado">
+                {{ c.estado }}
+            </span>
+
+            <button type="button"
+                    (click)="confirmarCita(c)"
+                    *ngIf="c.estado === 'pendiente'">
+                Confirmar
+            </button>
+
+            <button type="button"
+                    class="delete"
+                    (click)="eliminar(c.id)">
+                Eliminar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
