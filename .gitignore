@@ -45,8 +45,11 @@ Thumbs.db
 .firebase
 *-debug.log
 .runtimeconfig.json
+<<<<<<< HEAD
 
 # Backend
 .env
 backend/
 *.log
+=======
+>>>>>>> d89e316e627d09751f793627f31196d069cb7534

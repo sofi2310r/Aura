@@ -32,8 +32,12 @@
               }
             ],
             "styles": [
+<<<<<<< HEAD
               "src/styles.css",
               "node_modules/animate.css/animate.min.css"
+=======
+              "src/styles.css"
+>>>>>>> d89e316e627d09751f793627f31196d069cb7534
             ]
           },
           "configurations": {
@@ -67,8 +71,12 @@
               "buildTarget": "aura:build:production"
             },
             "development": {
+<<<<<<< HEAD
               "buildTarget": "aura:build:development",
               "proxyConfig": "proxy.conf.json"
+=======
+              "buildTarget": "aura:build:development"
+>>>>>>> d89e316e627d09751f793627f31196d069cb7534
             }
           },
           "defaultConfiguration": "development"

@@ -1,0 +1,19 @@
+<div class="lista">
+    <div class="publicacion-card" *ngFor="let pub of publicaciones" (click)="abrir(pub)">
+        <div class="card-top">
+            <span class="anonima-badge" *ngIf="pub.anonima">🔒 Anónima</span>
+            <span class="fecha">{{ formatFecha(pub.fecha) }}</span>
+        </div>
+        <h3 class="titulo">{{ pub.titulo }}</h3>
+        <p class="preview"> {{pub.contenido | slice:0:120 }}...</p>
+        <div class="card-footer">
+            <!-- ✅ después -->
+            <span class="comentarios"> 💬 {{pub.comentarios ? pub.comentarios.length : 0}} comentarios </span>
+            <span class="ver-mas">Ver más -></span>
+        </div>
+    </div>
+
+    <p class="sin-publicaciones" *ngIf="publicaciones.length === 0">
+        Aún no hay publicaciones. ¡Se la primera en compartir!
+    </p>
+</div>

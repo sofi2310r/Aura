@@ -1,0 +1,21 @@
+.foro-container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.foro-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.foro-header h1 {
+    font-size: 2rem;
+    color: #4a2d6a;
+    margin-bottom: 8px;
+}
+
+.foro-header p {
+    color: #7a8fb8;
+    font-size: 1rem;
+}

@@ -25,6 +25,7 @@ h1, h2, h3 {
   --teal-dark: #3a9e9e;
   --lavender: #e8e4f5;
   --white: #ffffff;
+<<<<<<< HEAD
 }
 
 html, body{
@@ -33,4 +34,6 @@ html, body{
 }
 .content {
     flex: 1; /* 🔥 CLAVE para que el footer baje */
+=======
+>>>>>>> d89e316e627d09751f793627f31196d069cb7534
 }

@@ -1,0 +1,203 @@
+.detalle {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.btn-volver {
+    background: none;
+    border: none;
+    color: #9b7bb8;
+    font-size: 0.95rem;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    padding: 0;
+    font-weight: 500;
+}
+
+.publicacion-completa {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    border-left: 4px solid #9b7bb8;
+    box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+}
+
+.pub-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.anonima-badge {
+    background: #f0eef8;
+    color: #4a2d6a;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.fecha,
+.fecha-com {
+    color: #a8ccd8;
+    font-size: 0.8rem;
+}
+
+h2 {
+    color: #4a2d6a;
+    margin-bottom: 16px;
+    font-size: 1.4rem;
+}
+
+.contenido-completo {
+    color: #3d3d5c;
+    line-height: 1.8;
+}
+
+.aviso-respeto {
+    background: #edf7f7;
+    color: #5a8fa0;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.88rem;
+    border-left: 3px solid #5a8fa0;
+}
+
+.comentarios-seccion {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+}
+
+.comentarios-seccion h3,
+.responder-seccion h3 {
+    color: #4a2d6a;
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+}
+
+.comentario {
+    border-bottom: 1px solid #f0eef8;
+    padding: 16px 0;
+}
+
+.comentario:last-child {
+    border-bottom: none;
+}
+
+.comentario-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.autor {
+    color: #9b7bb8;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.comentario-texto {
+    color: #3d3d5c;
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.comentario-acciones {
+    margin-top: 8px;
+}
+
+.btn-reportar {
+    background: none;
+    border: 1px solid #c49bc4;
+    color: #c49bc4;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s;
+}
+
+.btn-reportar:hover {
+    background: #c49bc4;
+    color: white;
+}
+
+.reportado {
+    color: #c49bc4;
+    font-size: 0.78rem;
+}
+
+.sin-comentarios {
+    color: #9b7bb8;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.responder-seccion {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(91, 74, 138, 0.08);
+}
+
+.textarea-field {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e8e4f5;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    color: #3d3d5c;
+    resize: vertical;
+}
+
+.textarea-field:focus {
+    border-color: #9b7bb8;
+}
+
+.anonima-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4a2d6a;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+    cursor: pointer;
+}
+
+.aviso-profesional {
+    background: #f0eef8;
+    color: #7a8fb8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.82rem;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+.btn-responder {
+    background: #4a2d6a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 32px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-responder:hover {
+    background: #9b7bb8;
+}
+
+.btn-responder:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

@@ -1,0 +1,37 @@
+.features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 60px 40px;
+    background: white;
+}
+
+.card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(91, 74, 138, 0.1);
+    transition: transform 0.2s;
+}
+
+.card:hover{
+    transform: translateY(-4px);
+}
+
+.card-icon {
+    font-size: 3ren;
+    margin-bottom: 16px;
+}
+
+h3 {
+    color: var(--purple-dark);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+p {
+    color: #6b7280;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}

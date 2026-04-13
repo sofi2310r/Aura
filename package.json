@@ -25,6 +25,7 @@
     "@angular/common": "^20.2.0",
     "@angular/compiler": "^20.2.0",
     "@angular/core": "^20.2.0",
+<<<<<<< HEAD
     "@angular/forms": "^20.2.0",
     "@angular/platform-browser": "^20.2.0",
     "@angular/router": "^20.2.0",
@@ -36,6 +37,14 @@
     "animate.css": "^4.1.1",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.26.23",
+=======
+    "@angular/fire": "^20.0.1",
+    "@angular/forms": "^20.2.0",
+    "@angular/platform-browser": "^20.2.0",
+    "@angular/router": "^20.2.0",
+    "firebase": "^11.10.0",
+    "rxjs": "~7.8.0",
+>>>>>>> d89e316e627d09751f793627f31196d069cb7534
     "tslib": "^2.3.0",
     "zone.js": "^0.15.1"
   },

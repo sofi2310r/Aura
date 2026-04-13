@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+<<<<<<< HEAD
 import { ChatComponent } from '../components/psicologo/chat/chat.component';
 import { CitasComponent } from '../components/psicologo/citas/citas.component';
 import { DashboardComponent } from '../components/psicologo/dashboard/dashboard';
@@ -53,6 +54,14 @@ const routes: Routes = [
   { path: '404', component: NotFoundComponent },
   { path: '**', component: NotFoundComponent },
   { path: 'psicologo/chat', component: ChatComponent},
+=======
+import { Home } from './pages/home/home';
+import { Foro } from './pages/foro/foro';
+
+const routes: Routes = [
+  { path: '', component: Home },
+  { path: 'foro', component: Foro },
+>>>>>>> d89e316e627d09751f793627f31196d069cb7534
 ];
 
 @NgModule({
