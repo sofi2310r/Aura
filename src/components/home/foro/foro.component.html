@@ -1,0 +1,200 @@
+<app-navbar-admin *ngIf="mostrarNavbarAdmin" [titulo]="'Foro de Administración'"></app-navbar-admin>
+
+<div *ngIf="mostrarNavbarAdmin; else foroPublico" class="admin-foro-shell">
+  <div class="layout admin-foro-layout">
+    <div class="sidebar">
+      <div class="perfil-mini">
+        <p class="perfil-nombre">{{ getNombre() }}</p>
+        <small class="perfil-correo">{{ getCorreo() }}</small>
+      </div>
+
+      <ul class="menu">
+        <li class="menu-item" title="Panel">
+          <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <span class="menu-icon">✌️</span>
+            <span class="menu-text">Panel</span>
+          </a>
+        </li>
+
+        <li class="menu-item" title="Usuarios">
+          <a routerLink="/admin/usuarios" routerLinkActive="active">
+            <span class="menu-icon">👩‍🦰</span>
+            <span class="menu-text">Usuarios</span>
+          </a>
+        </li>
+
+        <li class="menu-item" title="Foro">
+          <a routerLink="/admin/foro" routerLinkActive="active">
+            <span class="menu-icon">💬</span>
+            <span class="menu-text">Foro</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <section class="contenido admin-foro-main">
+      <ng-container *ngTemplateOutlet="foroBody"></ng-container>
+    </section>
+  </div>
+</div>
+
+<ng-template #foroPublico>
+  <ng-container *ngIf="mostrarNavegacionPublica; else foroInterno">
+    <app-navbar></app-navbar>
+
+    <ng-container *ngTemplateOutlet="foroBody"></ng-container>
+
+    <app-footer></app-footer>
+  </ng-container>
+</ng-template>
+
+<ng-template #foroInterno>
+  <ng-container *ngTemplateOutlet="foroBody"></ng-container>
+</ng-template>
+
+<ng-template #foroBody>
+  <div class="normas-banner">
+    <div class="normas-content">
+      <span class="normas-icon">🛡️</span>
+      <div>
+        <strong>Normas del foro</strong>
+        <p>
+          Este es un espacio seguro. Trata a los demás con respeto y empatía. Cualquier comentario ofensivo será reportado.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foro-container">
+    <div class="foro-header">
+      <h1>Foro</h1>
+      <p>Un espacio seguro para compartir y apoyarnos</p>
+    </div>
+
+    <p class="foro-status" *ngIf="mensaje">{{ mensaje }}</p>
+
+    <div class="detalle" *ngIf="vistaDetalle">
+      <button class="btn-volver" (click)="volverLista()">← Volver al foro</button>
+
+      <div class="publicacion-completa" *ngIf="vistaDetalle.titulo">
+        <div class="pub-header">
+          <div class="pub-meta">
+            <span class="fecha">{{ formatFecha(vistaDetalle.fecha) }}</span>
+            <span class="autor-pub">Por {{ vistaDetalle.autor || 'Usuario Aura' }}</span>
+          </div>
+
+          <div class="acciones-pub" style="display: flex; gap: 10px;">
+            <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'"
+                    class="btn-editar-detalle"
+                    (click)="editarPublicacion($event, vistaDetalle)">
+              Editar ✏️
+            </button>
+
+            <button *ngIf="tienePermisosModerador()"
+                    class="btn-eliminar-detalle"
+                    (click)="eliminarPublicacion($event, vistaDetalle)">
+              Eliminar 🗑️
+            </button>
+          </div>
+        </div>
+        <h2>{{ vistaDetalle.titulo }}</h2>
+        <p class="contenido-completo">{{ vistaDetalle.contenido }}</p>
+      </div>
+
+      <div class="aviso-respeto" *ngIf="vistaDetalle.titulo">
+        Recuerda mantener un trato respetuoso y empático con todas las personas del foro.
+      </div>
+
+      <div class="comentarios-seccion" *ngIf="vistaDetalle.titulo">
+        <h3>Comentarios ({{ vistaDetalle.comentarios.length }})</h3>
+
+        <div class="comentario" *ngFor="let c of vistaDetalle.comentarios; let i = index">
+          <div class="comentario-header">
+            <span class="autor">{{ c.autor }}</span>
+            <span class="fecha-com">{{ formatFecha(c.fecha) }}</span>
+          </div>
+          <p class="comentario-texto">{{ c.texto }}</p>
+
+          <div class="respuestas" *ngIf="c.respuestas?.length">
+            <div class="respuesta" *ngFor="let r of c.respuestas">
+              <strong>{{ r.autor }}</strong>
+              <p>{{ r.texto }}</p>
+            </div>
+          </div>
+
+          <div class="comentario-acciones">
+            <span class="reportado" *ngIf="c.reportado">Reportado 🚩</span>
+            <button class="btn-reportar" *ngIf="!c.reportado" (click)="reportar(i)">Reportar</button>
+          </div>
+        </div>
+
+        <p class="sin-comentarios" *ngIf="vistaDetalle.comentarios.length === 0">Sé la primera en responder.</p>
+      </div>
+
+      <div class="responder-seccion" *ngIf="getRol() !== 'moderador' && vistaDetalle.titulo">
+        <h3>Responder</h3>
+        <textarea class="textarea-field" placeholder="Escribe tu respuesta..." [(ngModel)]="nuevoComentario"
+          name="comentario" rows="4"></textarea>
+
+        <button type="button" class="btn-responder" (click)="responder()" [disabled]="enviando">
+          {{ enviando ? 'Enviando...' : 'Publicar respuesta' }}
+        </button>
+      </div>
+
+      <p class="aviso-moderador" *ngIf="getRol() === 'moderador'">
+        🛡️ Estás en modo moderación. Solo puedes reportar o eliminar contenido.
+      </p>
+    </div>
+
+    <div *ngIf="!vistaDetalle">
+      <div class="nueva-pub">
+        <button *ngIf="puedeCrearPublicacion()" class="btn-nueva" (click)="toggleFormulario()">
+          {{ mostrarFormulario ? 'Cancelar' : '+ Nueva Publicación' }}
+        </button>
+
+        <div class="formulario" *ngIf="mostrarFormulario && puedeCrearPublicacion()">
+          <h3>Crear publicación</h3>
+          <input class="input-field" type="text" placeholder="Título de tu publicación" [(ngModel)]="titulo"
+            name="titulo" />
+          <textarea class="textarea-field" placeholder="Comparte tu experiencia o pregunta..." [(ngModel)]="contenido"
+            name="contenido" rows="5"></textarea>
+          <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
+            {{ publicando ? 'Publicando...' : 'Publicar' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="lista">
+        <div class="publicacion-card" *ngFor="let pub of publicaciones" (click)="abrirDetalle(pub)">
+          <div class="card-top">
+            <div class="pub-meta">
+              <span class="fecha">{{ formatFecha(pub.fecha) }}</span>
+              <span class="autor-pub">Por {{ pub.autor || 'Usuario Aura' }}</span>
+            </div>
+
+            <div class="acciones-card" style="display: flex; gap: 5px;">
+              <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'"
+                      class="btn-editar-card"
+                      (click)="editarPublicacion($event, pub)">
+                ✏️
+              </button>
+              <button *ngIf="tienePermisosModerador()"
+                      class="btn-eliminar-card"
+                      (click)="eliminarPublicacion($event, pub)">
+                🗑️
+              </button>
+            </div>
+          </div>
+          <h3 class="titulo">{{ pub.titulo }}</h3>
+          <p class="preview" style="white-space: pre-wrap;">{{ pub.contenido }}</p>
+          <div class="card-footer">
+            <span class="comentarios">{{ pub.comentarios.length }} comentarios</span>
+            <span class="ver-mas">Ver más</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="sin-publicaciones" *ngIf="publicaciones.length === 0">Aún no hay publicaciones.</p>
+    </div>
+  </div>
+</ng-template>

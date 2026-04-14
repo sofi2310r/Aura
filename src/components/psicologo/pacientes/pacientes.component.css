@@ -1,0 +1,146 @@
+.pacientes-container {
+    padding: 40px;
+    background:
+        radial-gradient(circle at 12% 10%, rgba(108, 99, 255, 0.12), transparent 42%),
+        radial-gradient(circle at 88% 2%, rgba(72, 149, 239, 0.14), transparent 40%),
+        #f4f7fa;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+    margin-bottom: 8px;
+    font-size: 30px;
+    color: #2b2d70;
+}
+
+.subtitulo {
+    margin: 0 0 22px;
+    color: #4c4f9d;
+    font-size: 15px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(108, 99, 255, 0.14);
+    padding: 22px;
+    border-radius: 18px;
+    box-shadow: 0 14px 30px rgba(57, 37, 142, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    gap: 10px;
+}
+
+h3 {
+    margin: 0;
+    color: #2d2f7f;
+}
+
+.badge {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: #ede9fe;
+    color: #5b21b6;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.badge.secondary {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.buscador input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #d5d9ff;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.buscador input:focus {
+    outline: none;
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.16);
+}
+
+.lista .paciente-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border: 1px solid #e5e9ff;
+    border-radius: 14px;
+    background: #fff;
+    margin-bottom: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lista .paciente-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(79, 70, 229, 0.14);
+}
+
+.info strong {
+    display: block;
+    color: #2d2f7f;
+}
+
+.info span {
+    color: #5b6fb0;
+    font-size: 13px;
+}
+
+.info small {
+    color: #7d85c2;
+}
+
+.delete {
+    background: linear-gradient(135deg, #5b4ee6, #2f57c9);
+    color: white;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.delete:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px rgba(79, 70, 229, 0.25);
+}
+
+.empty {
+    text-align: center;
+    color: #4a5f9a;
+    padding: 20px;
+    border: 1px dashed #c7d7ea;
+    border-radius: 12px;
+    background: #f8fbff;
+}
+
+@media (max-width: 768px) {
+    .pacientes-container {
+        padding: 22px 14px;
+    }
+
+    .lista .paciente-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .delete {
+        width: 100%;
+    }
+}

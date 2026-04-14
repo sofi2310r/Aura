@@ -1,0 +1,91 @@
+<div class="chat-container">
+
+    <div class="no-chat" *ngIf="authError">
+        {{ authError }}
+    </div>
+
+    <div class="chat-error" *ngIf="!authError && errorMessage">
+        {{ errorMessage }}
+    </div>
+
+    <!-- LISTA DE CHATS -->
+    <div class="chat-sidebar" *ngIf="!authError">
+        <div class="chat-sidebar-header">
+            <h3>Chats</h3>
+            <button class="btn-new-chat" type="button" (click)="togglePanelNuevoChat()"
+                [disabled]="creandoChat">
+                {{ mostrarPanelNuevoChat ? 'Cerrar' : 'Nuevo chat' }}
+            </button>
+        </div>
+
+        <div class="new-chat-panel" *ngIf="mostrarPanelNuevoChat">
+            <input
+                [(ngModel)]="usuarioBusqueda"
+                type="text"
+                placeholder="Buscar usuario por nombre o documento" />
+
+            <div class="new-chat-list" *ngIf="usuariosFiltrados.length > 0; else noUsuarios">
+                <button
+                    class="new-chat-user"
+                    type="button"
+                    *ngFor="let user of usuariosFiltrados"
+                    (click)="crearChatConUsuario(user)"
+                    [disabled]="creandoChat">
+                    <strong>{{ getUserDisplayName(user) }}</strong>
+                    <small>{{ user.documento || 'Sin documento' }}</small>
+                </button>
+            </div>
+
+            <ng-template #noUsuarios>
+                <div class="no-users">No se encontraron usuarios con ese filtro.</div>
+            </ng-template>
+        </div>
+
+        <div class="chat-item" *ngFor="let chat of chats; trackBy: trackByChatId" (click)="seleccionarChat(chat)"
+            [class.active]="chatSeleccionado?.id === chat.id">
+            <strong>{{ getChatTitle(chat) }}</strong>
+            <small>{{ getChatMeta(chat) }}</small>
+            <small>{{ getChatPreview(chat) }}</small>
+        </div>
+
+        <div class="no-chat" *ngIf="!cargando && chats.length === 0">
+            No tienes chats activos.
+        </div>
+    </div>
+
+    <!-- AREA DE MENSAJES -->
+    <div class="chat-main" *ngIf="chatSeleccionado && !authError">
+
+        <div class="chat-header">
+            <h3>{{ chatSeleccionado.nombre_usuario || chatSeleccionado.Documento_usuario }}</h3>
+        </div>
+
+        <div #messagesViewport class="chat-messages" (scroll)="onMessagesScroll()">
+            <div class="chat-thread">
+                <div *ngIf="cargando" class="no-chat">Cargando conversación...</div>
+
+                <div *ngFor="let msg of mensajes" class="message" [ngClass]="msg.autorUid === miUid ? 'mine' : 'other'">
+                    <div class="bubble">
+                        {{ msg.texto }}
+                    </div>
+                </div>
+
+                <div *ngIf="!cargando && mensajes.length === 0" class="no-chat">
+                    Aún no hay mensajes. Inicia la conversación.
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input [(ngModel)]="nuevoMensaje" placeholder="Escribe un mensaje..." (keyup.enter)="enviarMensaje()" />
+            <button (click)="enviarMensaje()" [disabled]="enviando">{{ enviando ? 'Enviando...' : 'Enviar' }}</button>
+        </div>
+
+    </div>
+
+    <!-- SI NO HAY CHAT -->
+    <div class="no-chat" *ngIf="!chatSeleccionado && !authError">
+        Selecciona un chat
+    </div>
+
+</div>

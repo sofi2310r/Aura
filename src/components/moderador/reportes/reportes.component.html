@@ -1,0 +1,37 @@
+<div class="reportes-container">
+    <h2>Centro de Moderación 🚨</h2>
+
+    <div *ngIf="reportes.length === 0" class="vacio shadow">
+        <span class="icon">🎉</span>
+        <p>¡Todo limpio! No hay reportes pendientes.</p>
+    </div>
+
+    <div class="lista">
+        <div class="reporte-card shadow" *ngFor="let r of reportes">
+            
+            <div class="info">
+                <span class="tag">Post: {{ r.publicacion.titulo }}</span>
+                <p class="comentario">"{{ r.comentario.texto }}"</p>
+                <div class="meta">
+                    <span class="autor">👤 {{ r.comentario.autor }}</span>
+                    <span class="fecha">{{ r.comentario.fecha | date:'short' }}</span>
+                </div>
+            </div>
+
+            <div class="acciones">
+                <button class="btn ignorar" (click)="ignorarReporte(r.publicacion, r.index)">
+                    Ignorar ✔
+                </button>
+
+                <button class="btn eliminar" (click)="eliminarComentario(r.publicacion, r.index)">
+                    Eliminar 💀
+                </button>
+
+                <button class="btn bloquear" (click)="bloquearUsuario(r.comentario.autor, r.publicacion.id, r.index)">
+                    Bloquear 🚫
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

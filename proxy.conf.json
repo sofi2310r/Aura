@@ -1,0 +1,8 @@
+{
+  "/api/*": {
+    "target": "https://backend-aura-d0or.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
