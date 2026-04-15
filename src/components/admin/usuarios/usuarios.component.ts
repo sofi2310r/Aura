@@ -204,6 +204,7 @@ export class UsuariosComponent implements OnInit {
       apellido: this.apellido,
       correo: this.correo,
       rol: this.rol,
+      role:this.rol,
       activo: this.activo,
       fechaNacimiento: this.fechaNacimiento,
       edad: this.calcularEdad(this.fechaNacimiento),
@@ -217,7 +218,6 @@ export class UsuariosComponent implements OnInit {
         if (index !== -1){
           this.usuarios[index] = usuarioActualizado;
         }
-
         this.filtrar();
         Swal.fire({
           icon: 'success',
@@ -225,10 +225,12 @@ export class UsuariosComponent implements OnInit {
           text: 'Usuario actualizado exitosamente',
           confirmButtonColor: '#2fa98f',
           timer: 1500,
+          showConfirmButton: false
+        }).then(() => {
+          this.cerrarModal();
+          this.cdr.detectChanges();
+          this.cargarUsuarios();
         });
-        
-        this.cerrarModal();
-        this.cargarUsuarios();
       },
       error: () => {
         Swal.fire({

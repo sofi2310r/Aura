@@ -7,7 +7,7 @@ export interface User {
   apellido: string;
   correo: string;
   rol?: UserRole;
-  role?: string;
+  role?: UserRole;
   activo: boolean;
   documento?: string;
   fechaNacimiento?: string;

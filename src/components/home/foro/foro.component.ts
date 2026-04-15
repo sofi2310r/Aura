@@ -201,6 +201,20 @@ export class ForoComponent {
 
     if (!this.titulo.trim() || !this.contenido.trim()) return;
 
+    // Limitar a 25 caracteres el título
+    if (this.titulo.length > 25) {
+      Swal.fire('Límite de caracteres', 'El título no puede superar los 25 caracteres.', 'warning');
+      this.publicando = false;
+      return;
+    }
+
+    // Limitar a 200 caracteres
+    if (this.contenido.length > 200) {
+      Swal.fire('Límite de caracteres', 'El contenido no puede superar los 200 caracteres.', 'warning');
+      this.publicando = false;
+      return;
+    }
+
     this.publicando = true;
     this.foroService
       .crearPublicacion({
@@ -338,5 +352,13 @@ export class ForoComponent {
       month: 'long',
       year: 'numeric',
     });
+  }
+
+  get conteoCaracteres(): number {
+    return this.contenido ? this.contenido.length : 0;
+  }
+
+  get conteoTitulo(): number {
+    return this.titulo ? this.titulo.length : 0;
   }
 }

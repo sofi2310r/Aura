@@ -748,3 +748,20 @@ background: #72a29d;
   transform: scale(1.1);
   transition: 0.3s;
 }
+
+/* Evita desbordamiento de texto en tarjetas del foro */
+.publicacion-card, .publicacion-completa, .preview, .titulo {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Limita el ancho de los textos largos en la vista previa */
+.preview {
+  max-width: 100%;
+  white-space: pre-line;
+}
+
+/* Evita desbordamiento horizontal en la tarjeta */
+.publicacion-card {
+  overflow-x: auto;
+}

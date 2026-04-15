@@ -67,6 +67,7 @@
                 <div *ngFor="let msg of mensajes" class="message" [ngClass]="msg.autorUid === miUid ? 'mine' : 'other'">
                     <div class="bubble">
                         {{ msg.texto }}
+                        <span class="msg-time">{{ getHora(msg.fecha) }}</span>
                     </div>
                 </div>
 

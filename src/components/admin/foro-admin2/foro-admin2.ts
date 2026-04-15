@@ -291,4 +291,11 @@ export class ForoAdmin2 {
     });
   }
 
+  get conteoTitulo(): number {
+    return this.titulo ? this.titulo.length : 0;
+  }
+  get conteoCaracteres(): number {
+    return this.contenido ? this.contenido.length : 0;
+  }
+
 }

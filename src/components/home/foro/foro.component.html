@@ -134,8 +134,10 @@
       <div class="responder-seccion" *ngIf="getRol() !== 'moderador' && vistaDetalle.titulo">
         <h3>Responder</h3>
         <textarea class="textarea-field" placeholder="Escribe tu respuesta..." [(ngModel)]="nuevoComentario"
-          name="comentario" rows="4"></textarea>
-
+          name="comentario" rows="4" maxlength="200"></textarea>
+        <div style="text-align:right; color:#9b7bb8; font-size:0.95em; margin-bottom:8px;">
+          Caracteres: {{ nuevoComentario.length }} / 200
+        </div>
         <button type="button" class="btn-responder" (click)="responder()" [disabled]="enviando">
           {{ enviando ? 'Enviando...' : 'Publicar respuesta' }}
         </button>
@@ -155,9 +157,13 @@
         <div class="formulario" *ngIf="mostrarFormulario && puedeCrearPublicacion()">
           <h3>Crear publicación</h3>
           <input class="input-field" type="text" placeholder="Título de tu publicación" [(ngModel)]="titulo"
-            name="titulo" />
+            name="titulo" maxlength="25" />
           <textarea class="textarea-field" placeholder="Comparte tu experiencia o pregunta..." [(ngModel)]="contenido"
-            name="contenido" rows="5"></textarea>
+            name="contenido" rows="5" maxlength="200"></textarea>
+          <div class="conteo-palabras" style="text-align:right; color:#9b7bb8; font-size:0.95em; margin-bottom:8px;">
+            Título: {{ conteoTitulo }} / 25 caracteres<br>
+            Contenido: {{ conteoCaracteres }} / 200 caracteres
+          </div>
           <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
             {{ publicando ? 'Publicando...' : 'Publicar' }}
           </button>

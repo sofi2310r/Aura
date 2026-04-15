@@ -24,6 +24,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   errorMessage = '';
 
   mensajes: ChatMessage[] = [];
+
+  // Detectar cambios en mensajes y hacer scroll abajo automáticamente
+  ngAfterViewChecked(): void {
+    this.scrollToBottom(true);
+  }
   nuevoMensaje: string = '';
   cargando = false;
   enviando = false;
@@ -37,6 +42,14 @@ export class ChatComponent implements OnInit, OnDestroy {
   private userPinnedToBottom = true;
   readonly fallbackChatTitle = 'Paciente sin nombre';
   readonly fallbackUserLabel = 'Usuario sin nombre';
+
+  // Formatea la hora a mostrar en cada mensaje
+  getHora(fechaIso: string): string {
+    if (!fechaIso) return '';
+    const fecha = new Date(fechaIso);
+    if (isNaN(fecha.getTime())) return '';
+    return fecha.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
   constructor(
     private authService: AuthService,
@@ -186,9 +199,8 @@ export class ChatComponent implements OnInit, OnDestroy {
             mensajes: mergedMessages.length,
           });
 
-          if (showLoader || wasNearBottom || this.userPinnedToBottom) {
-            this.queueScrollToBottom(showLoader);
-          }
+          // Siempre hacer scroll abajo cuando llegan mensajes nuevos
+          this.queueScrollToBottom(true);
 
           this.scheduleViewUpdate();
         },
@@ -501,7 +513,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   private queueScrollToBottom(force = false): void {
-    setTimeout(() => this.scrollToBottom(force), 0);
+    setTimeout(() => {
+      this.scrollToBottom(force);
+      // Segundo intento tras un pequeño delay para asegurar renderizado completo
+      setTimeout(() => this.scrollToBottom(force), 80);
+    }, 0);
   }
 
   private scrollToBottom(force = false): void {

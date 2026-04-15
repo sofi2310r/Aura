@@ -28,7 +28,7 @@
         </select>
 
         <label>Fecha</label>
-        <input type="datetime-local" [(ngModel)]="fecha" />
+        <input type="datetime-local" [(ngModel)]="fecha" [min]="minFecha" />
 
         <label>Motivo</label>
         <textarea [(ngModel)]="motivo" placeholder="Describe el motivo..."></textarea>

@@ -19,6 +19,7 @@ export class CitasComponent implements OnInit {
 
     fecha: string = '';
     motivo: string = '';
+    minFecha: string = '';
 
     citas: any[] = [];
 
@@ -40,12 +41,32 @@ export class CitasComponent implements OnInit {
         this.citaService.getCitas().subscribe(c => {
             this.citas = c;
         });
+
+        this.setMinFecha();
+
+        // Ejecutar cada minuto la limpieza automática de citas vencidas
+        setInterval(() => this.eliminarCitasVencidas(), 60 * 1000);
+        // Ejecutar una vez al cargar
+        this.eliminarCitasVencidas();
     }
 
     crearCita() {
+
         // 1. Validaciones básicas de campos vacíos
         if (!this.pacienteSeleccionado || !this.fecha || !this.motivo.trim()) {
             Swal.fire('Campos incompletos', 'Completa todos los campos', 'warning');
+            return;
+        }
+
+        // 2. Validar que la fecha y hora no sean pasadas
+        const fechaSeleccionada = new Date(this.fecha);
+        const ahora = new Date();
+        if (isNaN(fechaSeleccionada.getTime())) {
+            Swal.fire('Fecha inválida', 'Selecciona una fecha y hora válida.', 'warning');
+            return;
+        }
+        if (fechaSeleccionada < ahora) {
+            Swal.fire('Fecha inválida', 'No puedes crear una cita en una fecha u hora pasada.', 'warning');
             return;
         }
 
@@ -164,6 +185,38 @@ export class CitasComponent implements OnInit {
         });
     }
 
+    /**
+     * Elimina automáticamente las citas que hayan pasado más de 30 minutos desde su fecha, sin mostrar alertas.
+     */
+    private eliminarCitasVencidas() {
+        const ahora = new Date();
+        this.citas.forEach(cita => {
+            if (cita.fecha) {
+                const fechaCita = new Date(cita.fecha);
+                // Si han pasado más de 30 minutos desde la fecha de la cita
+                if (ahora.getTime() - fechaCita.getTime() > 30 * 60 * 1000) {
+                    this.eliminarSinAlerta(cita.id);
+                }
+            }
+        });
+    }
+
+    /**
+     * Elimina una cita sin mostrar alertas ni confirmaciones.
+     */
+    private eliminarSinAlerta(id: string) {
+        const backupCitas = [...this.citas];
+        this.citas = this.citas.filter(c => c.id !== id);
+        this.cdr.detectChanges();
+        this.citaService.removeCita(id).subscribe({
+            next: () => {},
+            error: (err) => {
+                this.citas = backupCitas;
+                this.cdr.detectChanges();
+            }
+        });
+    }
+
     get totalPendientes(): number {
         return this.citas.filter(cita => cita.estado === 'pendiente').length;
     }
@@ -173,4 +226,15 @@ export class CitasComponent implements OnInit {
         this.motivo = '';
         this.pacienteSeleccionado = null;
     }
+
+    setMinFecha() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        this.minFecha = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
 }
