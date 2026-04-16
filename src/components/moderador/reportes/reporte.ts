@@ -14,7 +14,7 @@ import Swal from "sweetalert2";
 export class Reportes implements OnInit {
     reportes: {
         publicacion: Publicacion,
-        comentario: Comentario,
+        Comentario: Comentario,
         index: number
     }[] = [];
 
@@ -29,11 +29,11 @@ export class Reportes implements OnInit {
             const nuevosReportes: any[] = [];
 
             pubs.forEach(pub => {
-                pub.comentarios?.forEach((comentario: any, i: number) => {
-                    if (comentario.reportado) {
+                pub.Comentarios?.forEach((Comentario: any, i: number) => {
+                    if (Comentario.reportado) {
                         nuevosReportes.push({
                             publicacion: pub,
-                            comentario,
+                            Comentario,
                             index: i
                         });
                     }
@@ -62,12 +62,12 @@ export class Reportes implements OnInit {
                 this.cdr.detectChanges(); // Forzar actualización visual
 
                 // --- PASO 2: PROCESO POR DETRÁS ---
-                const nuevosComentarios = [...pub.comentarios];
+                const nuevosComentarios = [...pub.Comentarios];
                 nuevosComentarios.splice(index, 1);
 
                 const payload: any = {
                     ...pub,
-                    comentarios: nuevosComentarios
+                    Comentarios: nuevosComentarios
                 };
 
                 this.foroService.actualizarPublicacion(pub.id, payload).subscribe({
@@ -90,12 +90,12 @@ export class Reportes implements OnInit {
         );
 
         // 2. Actualizar en Firebase por detrás
-        const nuevosComentarios = [...pub.comentarios];
+        const nuevosComentarios = [...pub.Comentarios];
         nuevosComentarios[index].reportado = false;
 
         const payload: any = {
             ...pub,
-            comentarios: nuevosComentarios
+            Comentarios: nuevosComentarios
         };
 
         this.foroService.actualizarPublicacion(pub.id, payload).subscribe();
@@ -116,10 +116,13 @@ export class Reportes implements OnInit {
             confirmButtonColor: '#dc2626'
         }).then((result) => {
             if (result.isConfirmed) {
-                this.userService.getUserById(autorId).subscribe((usuario: any) => { // Añadimos : any aquí
-                    if (!usuario) return;
+                this.userService.getUserById(autorId).subscribe(async (usuario: any) => {
+                    if (!usuario) {
+                        console.error('[Bloqueo] Usuario no encontrado para autorId:', autorId);
+                        Swal.fire('Error', 'Usuario no encontrado', 'error');
+                        return;
+                    }
 
-                    // Ahora TypeScript permitirá leer contadorReportes
                     const nuevosReportes = (usuario.contadorReportes || 0) + 1;
                     let fechaDesbloqueo: Date | null = new Date();
                     let mensajeSancion = "";
@@ -144,22 +147,28 @@ export class Reportes implements OnInit {
                     }
 
                     const updatePayload: any = {
-                        uid: autorId,
                         activo: false,
                         contadorReportes: nuevosReportes,
                         fechaDesbloqueo: fechaDesbloqueo ? fechaDesbloqueo.toISOString() : 'permanente'
                     };
 
-                    this.userService.updateUser(updatePayload).subscribe({
-                        next: () => {
-                            this.reportes = this.reportes.filter(r =>
-                                !(r.publicacion.id === pubId && r.index === index)
-                            );
-                            this.cdr.detectChanges();
-                            this.notificacionExito(mensajeSancion);
-                            this.eliminarComentarioSilencioso(pubId, index);
-                        }
-                    });
+                    console.log('[Bloqueo] autorId:', autorId);
+                    console.log('[Bloqueo] Payload enviado:', updatePayload);
+
+                    try {
+                            const updatePayload: any = {
+                                ...usuario, // Mantener toda la información existente
+                                contadorReportes: nuevosReportes,
+                                fechaDesbloqueo: fechaDesbloqueo ? fechaDesbloqueo.toISOString() : 'permanente',
+                                activo: false // Esto va al final para sobrescribir
+                            };
+                        this.cdr.detectChanges();
+                        this.notificacionExito(mensajeSancion);
+                        this.eliminarComentarioSilencioso(pubId, index);
+                    } catch (err: any) {
+                        console.error('[Bloqueo] Error en updateUserByUid:', err);
+                        Swal.fire('Error', 'No se pudo bloquear el usuario: ' + (err?.message || err), 'error');
+                    }
                 });
             }
         });
@@ -169,11 +178,11 @@ export class Reportes implements OnInit {
     private eliminarComentarioSilencioso(pubId: string, index: number) {
         this.foroService.getPublicaciones().subscribe((pubs: any[]) => {
             const pub = pubs.find(p => p.id === pubId);
-            if (pub && pub.comentarios) {
-                const nuevosComentarios = [...pub.comentarios];
+            if (pub && pub.Comentarios) {
+                const nuevosComentarios = [...pub.Comentarios];
                 nuevosComentarios.splice(index, 1);
 
-                const payload = { ...pub, comentarios: nuevosComentarios };
+                const payload = { ...pub, Comentarios: nuevosComentarios };
                 this.foroService.actualizarPublicacion(pubId, payload).subscribe();
             }
         });

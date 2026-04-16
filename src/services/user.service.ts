@@ -51,7 +51,7 @@ export class UserService {
     if (!response || response.length === 0) throw new Error('Usuario no encontrado');
     const userId = response[0].id;
     await firstValueFrom(
-      this.backend.put(`${this.usersUrl}/${encodeURIComponent(userId)}`, data)
+      this.backend.patch(`${this.usersUrl}/${encodeURIComponent(userId)}`, data)
     );
   }
 

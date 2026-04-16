@@ -6,6 +6,7 @@ import { NotificacionService } from './notificacion.service';
 export interface Comentario {
   texto: string;
   autor: string;
+  autorUid: string;
   fecha: Date;
   reportado: boolean;
   rol?: string;
@@ -19,7 +20,7 @@ export interface Publicacion {
   autor?: string;
   rol?: string;
   fecha: Date;
-  comentarios: Comentario[];
+  Comentarios: Comentario[];
 }
 
 export interface Respuesta {
@@ -51,7 +52,7 @@ interface FirestorePublicacionDocument {
   rol?: unknown;
   role?: unknown;
   fecha?: unknown;
-  comentarios?: unknown;
+  Comentarios?: unknown;
 }
 
 interface FirestoreCreateResponse {
@@ -91,7 +92,7 @@ export class ForoService {
       autor: input.autor?.trim() || 'Usuario Aura',
       rol: input.rol?.trim() || 'usuario',
       fecha: new Date(),
-      comentarios: [],
+      Comentarios: [],
     };
 
     return this.backend.post<FirestoreCreateResponse>(this.publicacionesUrl, this.toPublicacionPayload(nuevaPublicacion)).pipe(
@@ -119,9 +120,10 @@ export class ForoService {
       return throwError(() => new Error('La publicación ya no está disponible.'));
     }
 
-    const comentario: Comentario = {
+    const Comentario: Comentario = {
       texto: input.texto.trim(),
       autor: input.autor?.trim() || 'Usuario',
+      autorUid: input.autorUid || '',
       rol: input.rol || 'usuario',
       fecha: input.fecha || new Date(),
       respuestas: [],
@@ -130,7 +132,7 @@ export class ForoService {
 
     const actualizada: Publicacion = {
       ...publicacion,
-      comentarios: [...publicacion.comentarios, comentario],
+      Comentarios: [...publicacion.Comentarios, Comentario],
     };
 
     return this.saveComentarios(
@@ -139,22 +141,22 @@ export class ForoService {
     );
   }
 
-  reportarComentario(publicacionId: string, comentarioIndex: number): Observable<Publicacion> {
+  reportarComentario(publicacionId: string, ComentarioIndex: number): Observable<Publicacion> {
     const publicacion = this.publicacionesSubject.value.find((item) => item.id === publicacionId);
 
     if (!publicacion) {
       return throwError(() => new Error('La publicacion ya no esta disponible.'));
     }
 
-    const comentarios = publicacion.comentarios.map((comentario, index) =>
-      index === comentarioIndex ? { ...comentario, reportado: true } : comentario,
+    const Comentarios = publicacion.Comentarios.map((Comentario, index) =>
+      index === ComentarioIndex ? { ...Comentario, reportado: true } : Comentario,
     );
-    return this.saveComentarios({ ...publicacion, comentarios }, 'No se pudo reportar el comentario.');
+    return this.saveComentarios({ ...publicacion, Comentarios }, 'No se pudo reportar el comentario.');
   }
 
   agregarRespuesta(
     pubicacionId: string,
-    comentarioIndex: number,
+    ComentarioIndex: number,
     input: { texto: string; autor?: string }
   ): Observable<Publicacion> {
 
@@ -163,7 +165,7 @@ export class ForoService {
       return throwError(() => new Error('Publicación no encontrada'));
     }
 
-    const comentario = publicacion.comentarios[comentarioIndex];
+    const Comentario = publicacion.Comentarios[ComentarioIndex];
 
     const respuesta: Respuesta = {
       texto: input.texto.trim(),
@@ -171,18 +173,18 @@ export class ForoService {
       fecha: new Date()
     };
 
-    const respuestas = (comentario as ComentarioExtendido).respuestas || [];
+    const respuestas = (Comentario as ComentarioExtendido).respuestas || [];
 
-    const comentarioActualizado: ComentarioExtendido = {
-      ...comentario,
+    const ComentarioActualizado: ComentarioExtendido = {
+      ...Comentario,
       respuestas: [...respuestas, respuesta]
     };
 
-    const comentariosActualizados = [...publicacion.comentarios];
-    comentariosActualizados[comentarioIndex] = comentarioActualizado;
+    const ComentariosActualizados = [...publicacion.Comentarios];
+    ComentariosActualizados[ComentarioIndex] = ComentarioActualizado;
 
     return this.saveComentarios(
-      { ...publicacion, comentarios: comentariosActualizados },
+      { ...publicacion, Comentarios: ComentariosActualizados },
       'No se pudo guardar la respuesta'
     );
   }
@@ -239,9 +241,9 @@ export class ForoService {
   private buildPublicacionesSignature(publicaciones: Publicacion[]): string {
     return publicaciones
       .map((pub) => {
-        const lastComentario = pub.comentarios.at(-1);
-        const totalRespuestas = pub.comentarios.reduce(
-          (total, comentario) => total + (comentario.respuestas?.length || 0),
+        const lastComentario = pub.Comentarios.at(-1);
+        const totalRespuestas = pub.Comentarios.reduce(
+          (total, Comentario) => total + (Comentario.respuestas?.length || 0),
           0,
         );
 
@@ -252,7 +254,7 @@ export class ForoService {
           pub.autor || '',
           pub.rol || '',
           pub.fecha.getTime(),
-          pub.comentarios.length,
+          pub.Comentarios.length,
           totalRespuestas,
           lastComentario?.texto || '',
           lastComentario?.autor || '',
@@ -265,7 +267,7 @@ export class ForoService {
   private saveComentarios(publicacion: Publicacion, fallbackMessage: string): Observable<Publicacion> {
     return this.backend
       .patch<{ updated: boolean }>(`${this.publicacionesUrl}/${encodeURIComponent(publicacion.id)}`, {
-        comentarios: publicacion.comentarios.map((comentario) => this.toComentarioPayload(comentario)),
+        Comentarios: publicacion.Comentarios.map((Comentario) => this.toComentarioPayload(Comentario)),
       })
       .pipe(
         map(() => publicacion),
@@ -300,7 +302,7 @@ export class ForoService {
             ? document.role.trim().toLowerCase()
             : 'usuario',
       fecha: this.parseDate(document.fecha),
-      comentarios: this.mapComentarios(document.comentarios),
+      Comentarios: this.mapComentarios((document as any).Comentarios),
     };
   }
 
@@ -308,17 +310,19 @@ export class ForoService {
     if (!Array.isArray(value)) {
       return [];
     }
-    return value.map((comentario) => this.mapComentario(comentario as FirestoreComentario));
+    return value.map((Comentario) => this.mapComentario(Comentario as FirestoreComentario));
   }
 
-  private mapComentario(comentario: FirestoreComentario): Comentario {
+  private mapComentario(Comentario: FirestoreComentario): Comentario {
+      console.log('[DEBUG comentario recibido]', Comentario);
     return {
-      texto: typeof comentario.texto === 'string' && comentario.texto.trim() ? comentario.texto.trim() : '',
-      autor: typeof comentario.autor === 'string' && comentario.autor.trim() ? comentario.autor.trim() : 'Usuario Aura',
-      fecha: this.parseDate(comentario.fecha),
-      reportado: comentario.reportado === true,
-      respuestas: Array.isArray((comentario as any).respuestas)
-        ? (comentario as any).respuestas.map((r: any) => ({
+      texto: typeof Comentario.texto === 'string' && Comentario.texto.trim() ? Comentario.texto.trim() : '',
+      autor: typeof Comentario.autor === 'string' && Comentario.autor.trim() ? Comentario.autor.trim() : 'Usuario Aura',
+      autorUid: typeof (Comentario as any).autorUid === 'string' ? (Comentario as any).autorUid : '',
+      fecha: this.parseDate(Comentario.fecha),
+      reportado: Comentario.reportado === true,
+      respuestas: Array.isArray((Comentario as any).respuestas)
+        ? (Comentario as any).respuestas.map((r: any) => ({
           texto: r.texto,
           autor: r.autor,
           fecha: this.parseDate(r.fecha)
@@ -334,17 +338,17 @@ export class ForoService {
       autor: publicacion.autor,
       rol: publicacion.rol || 'usuario',
       fecha: publicacion.fecha.toISOString(),
-      comentarios: publicacion.comentarios.map((comentario) => this.toComentarioPayload(comentario)),
+      Comentarios: publicacion.Comentarios.map((Comentario) => this.toComentarioPayload(Comentario)),
     };
   }
 
-  private toComentarioPayload(comentario: Comentario): Record<string, unknown> {
+  private toComentarioPayload(Comentario: Comentario): Record<string, unknown> {
     return {
-      texto: comentario.texto,
-      autor: comentario.autor,
-      fecha: comentario.fecha.toISOString(),
-      reportado: comentario.reportado,
-      respuestas: (comentario.respuestas || []).map((r: any) => ({
+      texto: Comentario.texto,
+      autor: Comentario.autor,
+      fecha: Comentario.fecha.toISOString(),
+      reportado: Comentario.reportado,
+      respuestas: (Comentario.respuestas || []).map((r: any) => ({
         texto: r.texto,
         autor: r.autor,
         fecha: r.fecha.toISOString()

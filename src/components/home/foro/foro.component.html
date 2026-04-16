@@ -106,9 +106,9 @@
       </div>
 
       <div class="comentarios-seccion" *ngIf="vistaDetalle.titulo">
-        <h3>Comentarios ({{ vistaDetalle.comentarios.length }})</h3>
+        <h3>Comentarios ({{ vistaDetalle.Comentarios.length }})</h3>
 
-        <div class="comentario" *ngFor="let c of vistaDetalle.comentarios; let i = index">
+        <div class="comentario" *ngFor="let c of vistaDetalle.Comentarios; let i = index">
           <div class="comentario-header">
             <span class="autor">{{ c.autor }}</span>
             <span class="fecha-com">{{ formatFecha(c.fecha) }}</span>
@@ -128,7 +128,7 @@
           </div>
         </div>
 
-        <p class="sin-comentarios" *ngIf="vistaDetalle.comentarios.length === 0">Sé la primera en responder.</p>
+        <p class="sin-comentarios" *ngIf="vistaDetalle.Comentarios.length === 0">Sé la primera en responder.</p>
       </div>
 
       <div class="responder-seccion" *ngIf="getRol() !== 'moderador' && vistaDetalle.titulo">
@@ -194,7 +194,7 @@
           <h3 class="titulo">{{ pub.titulo }}</h3>
           <p class="preview" style="white-space: pre-wrap;">{{ pub.contenido }}</p>
           <div class="card-footer">
-            <span class="comentarios">{{ pub.comentarios.length }} comentarios</span>
+            <span class="comentarios">{{ pub.Comentarios.length }} Comentarios</span>
             <span class="ver-mas">Ver más</span>
           </div>
         </div>

@@ -93,6 +93,7 @@ export class ModeracionComponent {
       .agregarComentario(this.vistaDetalle.id, {
         texto: this.nuevoComentario,
         autor: 'Moderador',
+        autorUid: '', // Moderador no tiene uid, pero se requiere el campo
         rol: 'moderador',
         fecha: new Date(),
         reportado: false

@@ -35,7 +35,7 @@ export class Layout implements OnInit, OnDestroy {
             // Calculamos el total de comentarios reportados de forma segura
             this.reportesPendientes = pubs.reduce((total, pub) => {
                 // El ?. asegura que si no hay comentarios, no explote el código
-                const reportadosEnEstaPub = pub.comentarios?.filter(c => c.reportado).length || 0;
+                const reportadosEnEstaPub = pub.Comentarios?.filter(c => c.reportado).length || 0;
                 return total + reportadosEnEstaPub;
             }, 0);
 

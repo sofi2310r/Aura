@@ -201,6 +201,7 @@ export class ForoAdmin2 {
       .agregarComentario(this.vistaDetalle.id, {
         texto: textoParaEnviar,
         autor: this.getNombre(),
+        autorUid: this.authService.getCurrentUser()?.uid || '',
         rol: this.getRol(),
         fecha: new Date(),
         reportado: false
@@ -222,8 +223,8 @@ export class ForoAdmin2 {
   reportar(index: number): void {
     if (!this.vistaDetalle) return;
 
-    const comentario = this.vistaDetalle.comentarios[index];
-    const nombreAutor = comentario.autor;
+    const Comentario = this.vistaDetalle.Comentarios[index];
+    const nombreAutor = Comentario.autor;
 
     Swal.fire({
       title: '¿Reportar comentario?',

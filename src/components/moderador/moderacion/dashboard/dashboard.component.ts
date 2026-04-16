@@ -32,7 +32,7 @@ export class Dashboard implements OnInit {
 
             // Contamos todos los comentarios que tengan la bandera 'reportado: true'
             this.reportes = pubs.reduce((total, pub) => {
-                const reportadosEnPub = pub.comentarios?.filter(c => c.reportado).length || 0;
+                const reportadosEnPub = pub.Comentarios?.filter(c => c.reportado).length || 0;
                 return total + reportadosEnPub;
             }, 0);
         });
