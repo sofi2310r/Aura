@@ -1,0 +1,51 @@
+<div class="page">
+	<!-- NAVBAR -->
+	<app-navbar-psicologo [titulo]="'Panel de Psicólogo'"></app-navbar-psicologo>
+
+	<div class="layout">
+		<!-- SIDEBAR -->
+		<aside class="sidebar">
+			<h2 class="logo">
+				<span class="logo-icon">🧠</span>
+				<span class="logo-text">AURA</span>
+			</h2>
+
+			<nav class="menu">
+				<a class="menu-item" routerLink="/psicologo" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+					<span class="menu-icon">🏡</span>
+					<span class="menu-text">Panel</span>
+				</a>
+				<a class="menu-item" routerLink="/psicologo/citas" routerLinkActive="active">
+					<span class="menu-icon">📅</span>
+					<span class="menu-text">Citas</span>
+				</a>
+				<a class="menu-item" routerLink="/psicologo/pacientes" routerLinkActive="active">
+					<span class="menu-icon">👥</span>
+					<span class="menu-text">Pacientes</span>
+				</a>
+				<a class="menu-item" routerLink="/psicologo/chat" routerLinkActive="active">
+					<span class="menu-icon">💬</span>
+					<span class="menu-text">Chat</span>
+				</a>
+				<a class="menu-item" routerLink="/psicologo/foro" routerLinkActive="active">
+					<span class="menu-icon">🗨</span>
+					<span class="menu-text">Foro</span>
+				</a>
+			</nav>
+		</aside>
+
+		<!-- CONTENIDO -->
+		<div class="main">
+			<!-- CONTENIDO DINAMICO -->
+			<div class="content">
+				<router-outlet></router-outlet>
+			</div>
+
+			<!-- FOOTER -->
+			<footer>
+				<p>© 2026 AURA - Panel de Psicologo</p>
+				<p>Todos los derechos reservados</p>
+			</footer>
+		</div>
+	</div>
+</div>

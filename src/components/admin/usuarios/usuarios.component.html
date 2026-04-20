@@ -1,0 +1,270 @@
+<!-- MODAL DE HISTORIAL -->
+      <div *ngIf="mostrarModalHistorial && usuarioHistorial" class="modal-overlay" (click)="cerrarModalHistorial()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Historial y Documentos</h2>
+            <button class="btn-cerrar" (click)="cerrarModalHistorial()">✕</button>
+          </div>
+          <div class="modal-body">
+            <h3 class="modal-section-title">👤 Datos del Usuario</h3>
+            <div class="info-item"><label>Nombre:</label> <span>{{ usuarioHistorial.nombre }} {{ usuarioHistorial.apellido }}</span></div>
+            <div class="info-item"><label>Correo:</label> <span>{{ usuarioHistorial.correo }}</span></div>
+            <div class="info-item"><label>Teléfono:</label> <span>{{ usuarioHistorial.telefono || 'No especificado' }}</span></div>
+            <div class="info-item"><label>Rol:</label> <span>{{ usuarioHistorial.rol }}</span></div>
+            <div class="info-item"><label>Estado:</label> <span [ngClass]="usuarioHistorial.activo ? 'activo' : 'inactivo'">{{ usuarioHistorial.activo ? '🟢 Activo' : '🔴 Inactivo' }}</span></div>
+            <div class="info-item" *ngIf="usuarioHistorial.edad"><label>Edad:</label> <span><span class="edad-badge">{{ usuarioHistorial.edad }} años</span></span></div>
+            
+            <!-- DATOS DEL PADRE/TUTOR (Solo para menores de edad y pacientes) -->
+            <div *ngIf="usuarioHistorial.rol === 'paciente' && usuarioHistorial.edad !== undefined && usuarioHistorial.edad < 18">
+              <h3 class="modal-section-title">👨‍👩‍👧 Datos del Padre/Tutor Legal</h3>
+              <div class="info-item" data-padre><label>👤 Nombre Padre/Tutor:</label> <span>{{ usuarioHistorial.nombrePadre || 'No especificado' }}</span></div>
+              <div class="info-item" data-padre><label>🔗 Parentesco:</label> <span>{{ usuarioHistorial.parentescoPadre || 'No especificado' }}</span></div>
+              <div class="info-item" data-padre><label>📝 Observaciones:</label> <span>{{ usuarioHistorial.observacionesPadres || 'Sin observaciones' }}</span></div>
+            </div>
+
+            <h3 class="modal-section-title">📄 Documento</h3>
+            <div *ngIf="usuarioHistorial.documentoUrl; else noDoc">
+              <a [href]="usuarioHistorial.documentoUrl" target="_blank" rel="noopener" class="doc-link">Ver documento</a>
+              <div *ngIf="usuarioHistorial.documentoUrl.endsWith('.pdf')">
+                <iframe [src]="usuarioHistorial.documentoUrl" width="100%" height="400px"></iframe>
+              </div>
+            </div>
+            <ng-template #noDoc>
+              <span class="no-doc">No hay documento subido.</span>
+            </ng-template>
+            <h3 class="modal-section-title">📋 Historial (próximamente)</h3>
+            <div class="no-doc">Aquí se mostrará el historial de acciones del usuario.</div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-cancelar" (click)="cerrarModalHistorial()">✕ Cerrar</button>
+          </div>
+        </div>
+      </div>
+<div class="page">
+
+  <!-- NAVBAR COMPARTIDO -->
+  <app-navbar-admin [titulo]="'Gestión de Usuarios'"></app-navbar-admin>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="perfil-mini">
+        <p class="perfil-nombre">Admin</p>
+        <small class="perfil-correo">administrador</small>
+      </div>
+
+      <ul class="menu">
+        <li class="menu-item" title="Panel">
+          <a routerLink="/admin" routerLinkActive="active" >
+            <span class="menu-icon">✌️</span>
+            <span class="menu-text">Panel</span>
+          </a>
+        </li>
+        <li class="menu-item active" title="Usuarios">
+          <a routerLink="/admin/usuarios" routerLinkActive="active"[routerLinkActiveOptions]="{ exact: true }">
+            <span class="menu-icon">👩‍🦰</span>
+            <span class="menu-text">Usuarios</span>
+          </a>
+        </li>
+          <li class="menu-item" title="Foro">
+          <a routerLink="/admin/foro" routerLinkActive="active">
+            <span class="menu-icon">💬</span>
+            <span class="menu-text">Foro</span>
+          </a>
+        </li>
+
+        <li class="menu-item" title="Reportes">
+          <span class="menu-icon">👌</span>
+          <span class="menu-text">Reportes</span>
+        </li>
+        <li class="menu-item" title="Configuración">
+          <span class="menu-icon">⚙️</span>
+          <span class="menu-text">Configuración</span>
+        </li>
+      </ul>
+
+      <img src="assets/logo.png" class="logo">
+
+    </div>
+
+    <!-- CONTENIDO -->
+    <div class="contenido">
+
+      <!-- MENSAJE -->
+      <div *ngIf="mensaje" class="mensaje" [ngClass]="mensaje.includes('✅') ? 'exito' : 'error'">
+        {{ mensaje }}
+      </div>
+
+      <!-- FILTROS Y BÚSQUEDA -->
+      <div class="filtros-contenedor">
+        <div class="buscador">
+          <input
+            type="text"
+            placeholder="🔍 Buscar por nombre, apellido o correo..."
+            [(ngModel)]="busqueda"
+            (input)="filtrar()"
+            class="input-busqueda"
+          />
+        </div>
+
+        <div class="filtro-rol">
+          <label>Filtro por Rol:</label>
+          <select [(ngModel)]="rolFiltro" (change)="filtrar()" class="select-rol">
+            <option value="">Todos los roles</option>
+            <option value="administrador">Administrador</option>
+            <option value="psicologo">Psicólogo</option>
+            <option value="moderador">Moderador</option>
+            <option value="paciente">Paciente</option>
+          </select>
+        </div>
+
+        <div class="contador">
+          {{ usuariosFiltrados.length }} usuario(s) encontrado(s)
+        </div>
+      </div>
+
+      <!-- GRID DE USUARIOS -->
+      <div class="usuarios-grid">
+        <div *ngFor="let usuario of usuariosFiltrados" class="usuario-card">
+          <div class="card-header">
+            <div class="usuario-avatar">
+              {{ usuario.nombre.charAt(0).toUpperCase() }}{{ usuario.apellido.charAt(0).toUpperCase() }}
+            </div>
+            <div class="usuario-info-header">
+              <h3>{{ usuario.nombre }} {{ usuario.apellido }}</h3>
+              <span class="badge-rol" [ngClass]="'rol-' + usuario.rol">{{ usuario.rol }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="info-item">
+              <label>Correo:</label>
+              <span>{{ usuario.correo }}</span>
+            </div>
+            <div class="info-item">
+              <label>Estado:</label>
+              <span [ngClass]="usuario.activo ? 'activo' : 'inactivo'">
+                {{ usuario.activo ? '🟢 Activo' : '🔴 Inactivo' }}
+              </span>
+              <ng-container *ngIf="esAdmin()">
+                <label class="switch-aprobacion" title="Aprobar o desactivar cuenta">
+                  <input type="checkbox" [checked]="usuario.activo" (change)="cambiarAprobacion(usuario, $event.target.checked)" />
+                  <span class="slider"></span>
+                </label>
+              </ng-container>
+            </div>
+            
+          </div>
+
+          <div class="card-actions">
+            <button 
+              class="btn-editar" 
+              (click)="abrirModalEditar(usuario)"
+              [disabled]="!esAdmin()"
+              [title]="esAdmin() ? 'Editar usuario' : 'Requiere rol de administrador'">
+              ✏️ Editar
+            </button>
+            <button 
+              class="btn-historial" 
+              (click)="abrirModalHistorial(usuario)"
+              [title]="'Ver historial y documento'">
+              📄 Historial
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL DE EDICIÓN -->
+      <div *ngIf="mostrarModal" class="modal-overlay" (click)="cerrarModal()">
+        <div class="modal-contenido" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Editar Usuario</h2>
+            <button class="btn-cerrar" (click)="cerrarModal()">✕</button>
+          </div>
+
+          <div class="modal-body">
+            <!-- INFORMACIÓN BÁSICA -->
+            <h3 class="modal-section-title">Información Básica</h3>
+            
+            <div class="form-group">
+              <label>Nombre:</label>
+              <input type="text" [(ngModel)]="nombre" placeholder="Nombre" />
+            </div>
+
+            <div class="form-group">
+              <label>Apellido:</label>
+              <input type="text" [(ngModel)]="apellido" placeholder="Apellido" />
+            </div>
+
+            <div class="form-group">
+              <label>Correo:</label>
+              <input type="email" [(ngModel)]="correo" placeholder="Correo" />
+            </div>
+
+            <div class="form-group">
+              <label>Rol:</label>
+              <select [(ngModel)]="rol">
+                <option value="administrador">Administrador</option>
+                <option value="psicologo">Psicólogo</option>
+                <option value="moderador">Moderador</option>
+                <option value="paciente">Paciente</option>
+              </select>
+            </div>
+
+            <!-- INFORMACIÓN PERSONAL -->
+            <h3 class="modal-section-title">Información Personal</h3>
+            
+            <div class="form-group">
+              <label>Fecha de Nacimiento:</label>
+              <input 
+                type="date" 
+                [(ngModel)]="fechaNacimiento" 
+                (change)="actualizarEdad()"
+                placeholder="YYYY-MM-DD" />
+            </div>
+
+            <div class="form-group">
+              <label>Edad (Calculada):</label>
+              <input type="number" [(ngModel)]="edad" readonly placeholder="Se calcula automáticamente" />
+            </div>
+
+            <div class="form-group">
+              <label>Teléfono:</label>
+              <input type="tel" [(ngModel)]="telefono" placeholder="Teléfono" />
+            </div>
+
+            <!-- INFORMACIÓN ADICIONAL -->
+            <h3 class="modal-section-title">Información Adicional</h3>
+            
+            <div class="form-group">
+              <label>Reporte:</label>
+              <textarea [(ngModel)]="reporte" placeholder="Reporte o notas adicionales" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <input type="checkbox" [(ngModel)]="activo" />
+                Usuario Activo
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+
+            <button class="btn-guardar" (click)="guardarCambios()">Guardar Cambios</button>
+            <button class="btn-eliminar-modal" (click)="eliminarUsuario(usuarioEditar)" *ngIf="esAdmin()">🗑️ Eliminar</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER COMPARTIDO -->
+  <app-footer-admin [titulo]="'Gestión de Usuarios'"></app-footer-admin>
+
+</div>

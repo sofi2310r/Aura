@@ -1,0 +1,84 @@
+.usuarios-container {
+    padding: 20px;
+}
+
+.table-wrapper {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th {
+    background: #f8f9fa;
+    color: #636e72;
+    padding: 15px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+td {
+    padding: 15px;
+    border-bottom: 1px solid #f1f2f6;
+    color: #2d3436;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+/* Badges de Estado */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.status-badge.active {
+    background: #e8f5e9;
+    color: #2ecc71;
+}
+
+.status-badge.blocked {
+    background: #ffebee;
+    color: #e74c3c;
+}
+
+/* Alerta de Reportes */
+.high-reports {
+    color: #e74c3c;
+    font-weight: 800;
+}
+
+/* Botones Estilizados */
+.btn-action {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-action.block {
+    background: #fff5f5;
+    color: #e74c3c;
+}
+
+.btn-action.unblock {
+    background: #f0fff4;
+    color: #27ae60;
+}
+
+.btn-action:hover {
+    filter: brightness(0.9);
+    transform: translateY(-2px);
+}

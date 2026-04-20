@@ -1,0 +1,76 @@
+<div class="citas-container">
+
+    <h2>Gestión de Citas</h2>
+    <p class="subtitulo">Organiza tus citas y monitorea su estado en tiempo real.</p>
+
+    <div class="dashboard-resumen" *ngIf="citas.length > 0">
+        <div class="card-contador">
+            <span class="dot"></span>
+            <span class="label">Citas por confirmar:</span>
+            <span class="count">{{ totalPendientes }}</span>
+        </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="card formulario">
+
+        <div class="card-head">
+            <h3>Nueva Cita</h3>
+            <span class="badge">Agenda</span>
+        </div>
+
+        <label>Paciente</label>
+        <select [(ngModel)]="pacienteSeleccionado">
+            <option [ngValue]="null">Selecciona un paciente</option>
+            <option *ngFor="let p of pacientes" [ngValue]="p">
+                {{ p.nombre || p.correo || 'Paciente sin nombre' }}
+            </option>
+        </select>
+
+        <label>Fecha</label>
+        <input type="datetime-local" [(ngModel)]="fecha" [min]="minFecha" />
+
+        <label>Motivo</label>
+        <textarea [(ngModel)]="motivo" placeholder="Describe el motivo..."></textarea>
+
+        <button class="btn-crear" (click)="crearCita()">Crear cita</button>
+
+    </div>
+
+    <!-- LISTA -->
+    <div class="card lista">
+
+        <div class="card-head">
+            <h3>Mis Citas</h3>
+            <span class="badge secondary">{{ citas.length }} total</span>
+        </div>
+
+        <div *ngIf="citas.length === 0" class="empty">
+            No tienes citas aún
+        </div>
+
+        <div *ngFor="let c of citas" class="cita-item">
+
+            <div class="cita-top">
+                <strong>{{ c.paciente }}</strong>
+                <span class="estado" [ngClass]="c.estado">{{ c.estado }}</span>
+            </div>
+
+            <span class="fecha">{{ c.fecha | date:'fullDate' }} - {{ c.fecha | date:'shortTime' }}</span>
+
+            <p>{{ c.motivo }}</p>
+
+            <small class="estado-ayuda" *ngIf="c.estado === 'pendiente'">
+                En espera de confirmación del usuario
+            </small>
+
+            <button class="delete" (click)="eliminar(c.id)">
+                Eliminar
+            </button>
+
+        </div>
+
+    </div>
+
+
+</div>
