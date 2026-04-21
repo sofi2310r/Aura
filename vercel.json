@@ -1,5 +1,5 @@
 {
   "routes": [
-    { "src": "/(.*)", "dest": "/dist/aura/index.html" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
