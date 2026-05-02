@@ -281,7 +281,14 @@ export class AuthService {
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
+    localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+
     this.currentUserSubject.next(null);
+
+    this.router.navigate(['/login'], { replaceUrl: true }).then(() => {
+
+      window.location.reload();
+    })
     this.clearStoredUser();
     
     // Redirige a login y reemplaza el historial del navegador
