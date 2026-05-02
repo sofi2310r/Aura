@@ -16,6 +16,7 @@ import { Usuarios } from '../components/moderador/moderacion/usuarios/usuarios';
 import { Reportes } from '../components/moderador/reportes/reporte';
 import { Dashboard } from '../components/moderador/moderacion/dashboard/dashboard.component';
 import { NotFoundComponent } from '../components/shared/not-found/not-found.component';
+import { NotasClinicasComponent } from '../components/notas-clinicas/notas-clinicas.component';
 import { AuthGuard } from '../services/auth.guard';
 import { QuienesSomos } from './quienes-somos/quienes-somos';
 const routes: Routes = [
@@ -24,15 +25,20 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'quienes-somos', component: QuienesSomos },
   { path: 'foro', component: ForoComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'administrador'] } },
-  { path: 'admin/usuarios', component: UsuariosComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'administrador'] } },
-  { path: 'admin/foro', component: ForoComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'administrador'] } },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'administrador'] },
+    children: [
+      { path: 'usuarios', component: UsuariosComponent },
+      { path: 'foro', component: ForoComponent },
+      { path: 'notas-clinicas', component: NotasClinicasComponent },
+    ]
+  },
   { path: 'psicologo', component: LayoutComponent, canActivate: [AuthGuard], data: { roles: ['psicologo'] },
     children: [
       { path: '', component: DashboardComponent },
       { path: 'citas', component: CitasComponent },
       { path: 'pacientes', component: PacientesComponent },
       { path: 'chat', component: ChatComponent },
+      { path: 'notas-clinicas', component: NotasClinicasComponent },
       { path: 'foro', component: ForoComponent }
     ]
   },
@@ -41,9 +47,11 @@ const routes: Routes = [
       { path: '', component: Dashboard },
       { path: 'usuarios', component: Usuarios },
       { path: 'reportes', component: Reportes },
+      { path: 'notas-clinicas', component: NotasClinicasComponent },
       { path: 'foro', component: ForoComponent }
     ]
   },
+  { path: 'notas-clinicas', component: NotasClinicasComponent, canActivate: [AuthGuard] },
   { path: '404', component: NotFoundComponent },
   { path: '**', component: NotFoundComponent },
   { path: 'psicologo/chat', component: ChatComponent},

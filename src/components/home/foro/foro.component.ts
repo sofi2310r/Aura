@@ -78,8 +78,8 @@ export class ForoComponent {
     const esRutaPsicologo = this.router.url.startsWith('/psicologo');
     const esRutaModerador = this.router.url.startsWith('/moderador');
 
-    this.mostrarNavbarAdmin = esRutaAdmin || rol === 'admin' || rol === 'administrador';
-    this.mostrarNavegacionPublica = !(this.mostrarNavbarAdmin || esRutaPsicologo || esRutaModerador || rol === 'psicologo' || rol === 'moderador');
+    this.mostrarNavbarAdmin = !esRutaAdmin && (rol === 'admin' || rol === 'administrador');
+    this.mostrarNavegacionPublica = !(this.mostrarNavbarAdmin || esRutaPsicologo || esRutaModerador || esRutaAdmin || rol === 'psicologo' || rol === 'moderador');
 
     if (esRutaAdmin || rol === 'admin' || rol === 'administrador') {
       this.rutaSalida = '/admin';

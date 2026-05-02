@@ -1,0 +1,175 @@
+<div class="notas-clinicas-page">
+  <div class="page-header">
+    <div>
+      <h1>Historial Clínico</h1>
+      <p *ngIf="rol === 'psicologo'">Aquí verás las notas clínicas de tus pacientes.</p>
+      <p *ngIf="rol === 'paciente'">Aquí está tu historial clínico.</p>
+      <p *ngIf="rol !== 'psicologo' && rol !== 'paciente'">Aquí puedes consultar todas las notas clínicas registradas.</p>
+    </div>
+
+    <button *ngIf="puedeCrearNota" type="button" class="btn-primary" (click)="toggleFormulario()">
+      {{ mostrarFormulario ? 'Cancelar' : 'Nueva nota clínica' }}
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-box">
+    {{ errorMessage }}
+  </div>
+
+  <section *ngIf="mostrarFormulario" class="nota-form">
+    <h2>{{ notaEditando ? 'Editar nota clínica' : 'Crear nota clínica' }}</h2>
+    <div class="form-grid">
+      <label>
+        Paciente
+        <select [(ngModel)]="nuevaNota.pacienteUid">
+          <option value="">Selecciona un paciente</option>
+          <option *ngFor="let paciente of pacientes" [value]="paciente.uid">
+            {{ paciente.nombre || paciente.correo }}
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Fecha
+        <input type="date" [(ngModel)]="nuevaNota.fecha" />
+      </label>
+
+      <label>
+        Categoría
+        <input type="text" [(ngModel)]="nuevaNota.categoria" placeholder="Ej: Ansiedad" />
+      </label>
+
+      <label class="full-width">
+        Diagnóstico
+        <textarea rows="3" [(ngModel)]="nuevaNota.diagnostico"></textarea>
+      </label>
+
+      <label class="full-width">
+        Síntomas
+        <textarea rows="2" [(ngModel)]="nuevaNota.sintomas"></textarea>
+      </label>
+
+      <label class="full-width">
+        Plan de tratamiento
+        <textarea rows="2" [(ngModel)]="nuevaNota.planTratamiento"></textarea>
+      </label>
+
+      <label class="full-width">
+        Observaciones
+        <textarea rows="2" [(ngModel)]="nuevaNota.observaciones"></textarea>
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-primary" type="button" [disabled]="guardando" (click)="crearNotaClinica()">
+        {{ guardando ? 'Guardando...' : 'Guardar nota' }}
+      </button>
+      <button class="btn-secondary" type="button" (click)="toggleFormulario()">Cerrar formulario</button>
+    </div>
+  </section>
+
+  <section class="search-bar">
+    <input
+      [(ngModel)]="filtroTexto"
+      (input)="actualizarFiltro()"
+      type="text"
+      placeholder="Buscar por paciente, psicólogo (nombre o UID), diagnóstico o categoría"
+    />
+  </section>
+
+  <div class="info-bar" *ngIf="!cargando && notas.length > 0">
+    Se encontraron {{ notasFiltradas.length }} nota(s) clínicas.
+  </div>
+
+  <section class="notas-list">
+    <div class="nota-card" *ngFor="let nota of notasFiltradas">
+      <div class="nota-header">
+        <div>
+          <strong>{{ nota.categoria || 'Sin categoría' }}</strong>
+          <span>{{ formatFecha(nota.fecha) }}</span>
+        </div>
+        <span class="badge">{{ nota.pacienteNombre }}</span>
+      </div>
+
+      <div class="nota-field">
+        <strong>Diagnóstico</strong>
+        <p>{{ nota.diagnostico || 'No especificado' }}</p>
+      </div>
+
+      <div class="nota-field">
+        <strong>Síntomas</strong>
+        <p>{{ nota.sintomas || 'No especificado' }}</p>
+      </div>
+
+      <div class="nota-field">
+        <strong>Plan de tratamiento</strong>
+        <p>{{ nota.planTratamiento || 'No especificado' }}</p>
+      </div>
+
+      <div class="nota-field">
+        <strong>Observaciones</strong>
+        <p>{{ nota.observaciones || 'No especificado' }}</p>
+      </div>
+
+      <div class="nota-actions">
+        <button type="button" class="btn-card btn-view" (click)="abrirModalDetalle(nota)">
+          Ver más
+        </button>
+        <button type="button" class="btn-card btn-edit" *ngIf="puedeEditarNota(nota)" (click)="editarNotaClinica(nota)">
+          Editar
+        </button>
+        <button type="button" class="btn-card btn-delete" *ngIf="puedeEliminarNota(nota)" (click)="eliminarNotaClinica(nota)">
+          Eliminar
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!cargando && notasFiltradas.length === 0" class="empty-state">
+      No se encontraron notas clínicas.
+    </div>
+
+    <div *ngIf="cargando && notas.length === 0" class="loading-state">
+      Cargando historial clínico...
+    </div>
+  </section>
+
+  <div *ngIf="mostrarModalDetalle && notaDetalle" class="modal-overlay" (click)="cerrarModalDetalle()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Historial completo</h2>
+        <button type="button" class="btn-close" (click)="cerrarModalDetalle()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-meta">
+          <div><strong>Paciente:</strong> {{ notaDetalle.pacienteNombre || notaDetalle.pacienteUid }}</div>
+          <div><strong>Psicólogo:</strong> {{ notaDetalle.psicologoNombre ? (notaDetalle.psicologoNombre + (notaDetalle.psicologoUid ? ' (' + notaDetalle.psicologoUid + ')' : '')) : notaDetalle.psicologoUid || 'No especificado' }}</div>
+          <div><strong>Fecha:</strong> {{ formatFecha(notaDetalle.fecha) }}</div>
+          <div><strong>Categoría:</strong> {{ notaDetalle.categoria || 'Sin categoría' }}</div>
+        </div>
+
+        <div class="nota-field modal-field">
+          <strong>Diagnóstico</strong>
+          <p>{{ notaDetalle.diagnostico || 'No especificado' }}</p>
+        </div>
+
+        <div class="nota-field modal-field">
+          <strong>Síntomas</strong>
+          <p>{{ notaDetalle.sintomas || 'No especificado' }}</p>
+        </div>
+
+        <div class="nota-field modal-field">
+          <strong>Plan de tratamiento</strong>
+          <p>{{ notaDetalle.planTratamiento || 'No especificado' }}</p>
+        </div>
+
+        <div class="nota-field modal-field">
+          <strong>Observaciones</strong>
+          <p>{{ notaDetalle.observaciones || 'No especificado' }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="cerrarModalDetalle()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

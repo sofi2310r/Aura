@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { finalize } from 'rxjs';
+import { finalize, map } from 'rxjs';
 import { User } from '../../../models/user.model';
 import { AuthService } from '../../../services/auth.service';
 import { ChatConversation, ChatMessage, ChatService } from '../../../services/chat.service';
@@ -487,10 +487,14 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   private cargarUsuariosDisponibles(): void {
-    this.userService.getUsersByRole('usuario').subscribe((users) => {
-      this.usuariosUsuario = users
-        .filter((user) => !!(user.documento || '').trim())
-        .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es'));
+    this.userService.getUsers().pipe(
+      map((users) =>
+        users
+          .filter((user) => ['usuario', 'paciente'].includes(user.rol || ''))
+          .filter((user) => !!(user.documento || '').trim()),
+      ),
+    ).subscribe((users) => {
+      this.usuariosUsuario = users.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es'));
       this.scheduleViewUpdate();
     });
   }

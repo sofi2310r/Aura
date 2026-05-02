@@ -2,18 +2,16 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { forkJoin, lastValueFrom, Observable } from 'rxjs';
 import Swal from 'sweetalert2';
 import { User, UserRole } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
-import { NavbarAdminComponent } from '../../shared/navbar-admin/navbar-admin.component';
-import { FooterAdminComponent } from '../../shared/footer-admin/footer-admin.component';
-
+import { NotasClinicasService, NotaClinica } from '../../../services/notas-clinicas.service';
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, NavbarAdminComponent, FooterAdminComponent],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css',
 })
@@ -47,15 +45,57 @@ export class UsuariosComponent implements OnInit {
       }
     mostrarModalHistorial = false;
     usuarioHistorial: User | null = null;
+    notasHistorial: NotaClinica[] = [];
+    cargandoHistorial = false;
     abrirModalHistorial(usuario: User): void {
       this.usuarioHistorial = usuario;
       this.mostrarModalHistorial = true;
+      this.cargarHistorialUsuario(usuario);
     }
 
     cerrarModalHistorial(): void {
       this.mostrarModalHistorial = false;
       this.usuarioHistorial = null;
+      this.notasHistorial = [];
+      this.cargandoHistorial = false;
     }
+
+    cargarHistorialUsuario(usuario: User): void {
+      const uid = usuario.uid || usuario.id;
+      if (!uid) {
+        this.notasHistorial = [];
+        this.cargandoHistorial = false;
+        return;
+      }
+
+      this.cargandoHistorial = true;
+      this.notasHistorial = [];
+
+      this.notasClinicasService.getNotasClinicas({ field: 'pacienteUid', value: uid }).subscribe({
+        next: (notas) => {
+          this.notasHistorial = notas.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
+          this.cargandoHistorial = false;
+        },
+        error: () => {
+          this.notasHistorial = [];
+          this.cargandoHistorial = false;
+        },
+      });
+    }
+
+    mostrarModalDetalles = false;
+    usuarioDetalle: User | null = null;
+
+    abrirModalDetalles(usuario: User): void {
+      this.usuarioDetalle = usuario;
+      this.mostrarModalDetalles = true;
+    }
+
+    cerrarModalDetalles(): void {
+      this.mostrarModalDetalles = false;
+      this.usuarioDetalle = null;
+    }
+
   usuarios: User[] = [];
   usuariosFiltrados: User[] = [];
   usuarioAutenticado: User | null = null;
@@ -83,6 +123,7 @@ export class UsuariosComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
+    private notasClinicasService: NotasClinicasService,
     public _router: Router,
     public _location: Location,
     private cdr: ChangeDetectorRef
@@ -259,8 +300,32 @@ export class UsuariosComponent implements OnInit {
     this.edad = this.calcularEdad(this.fechaNacimiento);
   }
 
+  formatFecha(fecha: string): string {
+    const date = new Date(fecha);
+    return isNaN(date.getTime()) ? fecha : date.toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
 
-  
+  private async eliminarHistorialUsuario(uid: string): Promise<void> {
+    try {
+      const notas = await lastValueFrom(this.notasClinicasService.getNotasClinicas({ field: 'pacienteUid', value: uid }));
+      if (!notas || notas.length === 0) {
+        return;
+      }
+
+      const eliminaciones = notas.map((nota) =>
+        lastValueFrom(this.notasClinicasService.deleteNotaClinica(nota.id)).catch(() => null),
+      );
+
+      await Promise.all(eliminaciones);
+    } catch {
+      // Si no se puede cargar o eliminar historial, seguimos con la eliminación del usuario.
+    }
+  }
+
   eliminarUsuario(usuario: User | null): void {
     if (!usuario) return;
     if (!this.esAdmin()) return;
@@ -275,15 +340,17 @@ export class UsuariosComponent implements OnInit {
       cancelButtonText: 'Cancelar',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // Cerrar el modal de edición si está abierto
         this.cerrarModal();
-        // Eliminar usuario de autenticación
         if (usuario.uid) {
           await this.authService.deleteAuthUserByUid(usuario.uid);
         }
+
+        const uid = usuario.uid || usuario.id;
+        await this.eliminarHistorialUsuario(uid);
+
         this.userService.removeUser(usuario.id).subscribe({
           next: () => {
-            this.usuarios = this.usuarios.filter(u => u.id !== usuario.id);
+            this.usuarios = this.usuarios.filter((u) => u.id !== usuario.id);
             this.filtrar();
             this.cdr.detectChanges();
             Swal.fire({

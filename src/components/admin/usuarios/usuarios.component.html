@@ -32,66 +32,57 @@
             <ng-template #noDoc>
               <span class="no-doc">No hay documento subido.</span>
             </ng-template>
-            <h3 class="modal-section-title">📋 Historial (próximamente)</h3>
-            <div class="no-doc">Aquí se mostrará el historial de acciones del usuario.</div>
+            <h3 class="modal-section-title">📋 Historial de notas clínicas</h3>
+            <div *ngIf="cargandoHistorial" class="historial-loading">Cargando historial clínico...</div>
+            <div *ngIf="!cargandoHistorial && notasHistorial.length > 0" class="historial-list">
+              <div *ngFor="let nota of notasHistorial" class="historial-item">
+                <div class="historial-item-header">
+                  <strong>{{ nota.categoria || 'Sin categoría' }}</strong>
+                  <span>{{ formatFecha(nota.fecha) }}</span>
+                </div>
+                <div class="historial-item-field"><strong>Diagnóstico:</strong> <span>{{ nota.diagnostico || 'No especificado' }}</span></div>
+                <div class="historial-item-field"><strong>Plan de tratamiento:</strong> <span>{{ nota.planTratamiento || 'No especificado' }}</span></div>
+              </div>
+            </div>
+            <div *ngIf="!cargandoHistorial && notasHistorial.length === 0" class="no-doc">No se encontraron notas clínicas para este usuario.</div>
           </div>
           <div class="modal-footer">
             <button class="btn-cancelar" (click)="cerrarModalHistorial()">✕ Cerrar</button>
           </div>
         </div>
       </div>
-<div class="page">
 
-  <!-- NAVBAR COMPARTIDO -->
-  <app-navbar-admin [titulo]="'Gestión de Usuarios'"></app-navbar-admin>
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <div class="layout">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-
-      <div class="perfil-mini">
-        <p class="perfil-nombre">Admin</p>
-        <small class="perfil-correo">administrador</small>
+      <!-- MODAL DE DETALLES -->
+      <div *ngIf="mostrarModalDetalles && usuarioDetalle" class="modal-overlay" (click)="cerrarModalDetalles()">
+        <div class="modal-contenido modal-detalle" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Detalles de {{ usuarioDetalle.nombre }} {{ usuarioDetalle.apellido }}</h2>
+            <button class="btn-cerrar" (click)="cerrarModalDetalles()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="detail-grid">
+              <div class="info-item"><label>Nombre</label><span>{{ usuarioDetalle.nombre }} {{ usuarioDetalle.apellido }}</span></div>
+              <div class="info-item"><label>Correo</label><span>{{ usuarioDetalle.correo }}</span></div>
+              <div class="info-item"><label>Rol</label><span>{{ usuarioDetalle.rol }}</span></div>
+              <div class="info-item"><label>Estado</label><span [ngClass]="usuarioDetalle.activo ? 'activo' : 'inactivo'">{{ usuarioDetalle.activo ? '🟢 Activo' : '🔴 Inactivo' }}</span></div>
+              <div class="info-item"><label>Teléfono</label><span>{{ usuarioDetalle.telefono || 'No especificado' }}</span></div>
+              <div class="info-item"><label>Fecha de nacimiento</label><span>{{ usuarioDetalle.fechaNacimiento || 'No definido' }}</span></div>
+              <div class="info-item"><label>Edad</label><span>{{ usuarioDetalle.edad || '—' }}</span></div>
+              <div class="info-item"><label>Reporte</label><span>{{ usuarioDetalle.reporte || 'Sin reporte' }}</span></div>
+              <div class="info-item"><label>UID</label><span class="uid">{{ usuarioDetalle.uid || usuarioDetalle.id }}</span></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-guardar" (click)="abrirModalEditar(usuarioDetalle)">Editar</button>
+            <button class="btn-historial" (click)="abrirModalHistorial(usuarioDetalle)">Historial</button>
+            <button class="btn-cancelar" (click)="cerrarModalDetalles()">Cerrar</button>
+          </div>
+        </div>
       </div>
 
-      <ul class="menu">
-        <li class="menu-item" title="Panel">
-          <a routerLink="/admin" routerLinkActive="active" >
-            <span class="menu-icon">✌️</span>
-            <span class="menu-text">Panel</span>
-          </a>
-        </li>
-        <li class="menu-item active" title="Usuarios">
-          <a routerLink="/admin/usuarios" routerLinkActive="active"[routerLinkActiveOptions]="{ exact: true }">
-            <span class="menu-icon">👩‍🦰</span>
-            <span class="menu-text">Usuarios</span>
-          </a>
-        </li>
-          <li class="menu-item" title="Foro">
-          <a routerLink="/admin/foro" routerLinkActive="active">
-            <span class="menu-icon">💬</span>
-            <span class="menu-text">Foro</span>
-          </a>
-        </li>
-
-        <li class="menu-item" title="Reportes">
-          <span class="menu-icon">👌</span>
-          <span class="menu-text">Reportes</span>
-        </li>
-        <li class="menu-item" title="Configuración">
-          <span class="menu-icon">⚙️</span>
-          <span class="menu-text">Configuración</span>
-        </li>
-      </ul>
-
-      <img src="assets/logo.png" class="logo">
-
-    </div>
-
-    <!-- CONTENIDO -->
-    <div class="contenido">
+<div class="usuarios-page">
+  <!-- CONTENIDO -->
+  <div class="contenido">
 
       <!-- MENSAJE -->
       <div *ngIf="mensaje" class="mensaje" [ngClass]="mensaje.includes('✅') ? 'exito' : 'error'">
@@ -139,34 +130,21 @@
             </div>
           </div>
 
-          <div class="card-body">
+          <div class="card-body compact">
             <div class="info-item">
-              <label>Correo:</label>
+              <label>Correo</label>
               <span>{{ usuario.correo }}</span>
             </div>
             <div class="info-item">
-              <label>Estado:</label>
+              <label>Estado</label>
               <span [ngClass]="usuario.activo ? 'activo' : 'inactivo'">
                 {{ usuario.activo ? '🟢 Activo' : '🔴 Inactivo' }}
               </span>
-              <ng-container *ngIf="esAdmin()">
-                <label class="switch-aprobacion" title="Aprobar o desactivar cuenta">
-                  <input type="checkbox" [checked]="usuario.activo" (change)="cambiarAprobacion(usuario, $event.target.checked)" />
-                  <span class="slider"></span>
-                </label>
-              </ng-container>
             </div>
-            
           </div>
 
           <div class="card-actions">
-            <button 
-              class="btn-editar" 
-              (click)="abrirModalEditar(usuario)"
-              [disabled]="!esAdmin()"
-              [title]="esAdmin() ? 'Editar usuario' : 'Requiere rol de administrador'">
-              ✏️ Editar
-            </button>
+            <button class="btn-detalles" (click)="abrirModalDetalles(usuario)">Ver detalles</button>
             <button 
               class="btn-historial" 
               (click)="abrirModalHistorial(usuario)"
@@ -264,7 +242,3 @@
 
   </div>
 
-  <!-- FOOTER COMPARTIDO -->
-  <app-footer-admin [titulo]="'Gestión de Usuarios'"></app-footer-admin>
-
-</div>

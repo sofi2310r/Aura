@@ -34,8 +34,10 @@
         </li>
 
         <li class="menu-item" title="Reportes">
-          <span class="menu-icon">👌</span>
-          <span class="menu-text">Reportes</span>
+          <a routerLink="/admin/notas-clinicas" routerLinkActive="active">
+            <span class="menu-icon">📋</span>
+            <span class="menu-text">Notas clínicas</span>
+          </a>
         </li>
         <li class="menu-item" title="Configuración">
           <span class="menu-icon">⚙️</span>
@@ -47,19 +49,22 @@
     <!-- CONTENIDO -->
     <div class="contenido">
 
-      <!-- TITULO PRINCIPAL -->
-      <div class="header-section">
-        <h1 class="titulo-principal">Panel de Administración - {{ adminUser?.nombre || 'Admin' }}</h1>
-        <p class="subtitle">Bienvenido al centro de control de AURA</p>
-      </div>
+      <router-outlet *ngIf="!isAdminHomeRoute"></router-outlet>
 
-      <div class="error-box" *ngIf="errorMessage">
-        <p>❌ {{ errorMessage }}</p>
-        <a routerLink="/login">Volver a iniciar sesión</a>
-      </div>
+      <ng-container *ngIf="isAdminHomeRoute">
+        <!-- TITULO PRINCIPAL -->
+        <div class="header-section">
+          <h1 class="titulo-principal">Panel de Administración - {{ adminUser?.nombre || 'Admin' }}</h1>
+          <p class="subtitle">Bienvenido al centro de control de AURA</p>
+        </div>
 
-      <!-- ESTADISTICAS -->
-      <div class="stats-container">
+        <div class="error-box" *ngIf="errorMessage">
+          <p>❌ {{ errorMessage }}</p>
+          <a routerLink="/login">Volver a iniciar sesión</a>
+        </div>
+
+        <!-- ESTADISTICAS -->
+        <div class="stats-container">
         <div class="stat-card">
           <div class="stat-icon usuarios">👥</div>
           <div class="stat-content">
@@ -100,7 +105,8 @@
           </div>
         </div>
       </div>
-    </div>
+    </ng-container>
+  </div>
   </div>
 
   <!-- FOOTER COMPARTIDO -->

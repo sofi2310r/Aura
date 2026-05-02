@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Observable, Subscription, interval, first } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { User, UserRole } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
@@ -29,6 +30,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   rol: UserRole = 'paciente';
   mensaje = '';
   errorMessage = '';
+  isAdminHomeRoute = true;
 
   // Estadísticas
   totalUsuarios = 0;
@@ -62,11 +64,21 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     });
     
     this.cargarAdminActual();
+    this.updateRouteState(this.router.url);
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+    ).subscribe((event) => {
+      this.updateRouteState((event as NavigationEnd).urlAfterRedirects);
+    });
 
     // Auto-refresh every 30 seconds
     this.refreshSubscription = interval(30000).subscribe(() => {
       this.userService.refresh();
     });
+  }
+
+  private updateRouteState(url: string): void {
+    this.isAdminHomeRoute = url === '/admin';
   }
 
   cargarAdminActual(): void {

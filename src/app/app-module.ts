@@ -23,6 +23,7 @@ import { ChatComponent } from '../components/psicologo/chat/chat.component';
 import { LayoutComponent } from '../components/psicologo/layout/layout';
 import { CitasComponent } from '../components/psicologo/citas/citas.component';
 import { PacientesComponent } from '../components/psicologo/pacientes/pacientes.component';
+import { NotasClinicasComponent } from '../components/notas-clinicas/notas-clinicas.component';
 import { RouterModule } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular'
 import { Dashboard } from '../components/moderador/moderacion/dashboard/dashboard.component';
@@ -63,6 +64,7 @@ import { AuthTokenInterceptor } from '../services/auth-token.interceptor';
     FullCalendarModule,
     NavbarPsicologoComponent,
     NavbarAdminComponent,
+    NotasClinicasComponent,
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
