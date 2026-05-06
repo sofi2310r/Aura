@@ -31,6 +31,7 @@ import { QuienesSomos } from './quienes-somos/quienes-somos';
 import { NavbarPsicologoComponent } from '../components/shared/navbar-psicologo/navbar-psicologo.component';
 import { NavbarAdminComponent } from '../components/shared/navbar-admin/navbar-admin.component';
 import { AuthTokenInterceptor } from '../services/auth-token.interceptor';
+import { DashboardComponent } from '../components/psicologo/dashboard/dashboard';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { AuthTokenInterceptor } from '../services/auth-token.interceptor';
     LayoutComponent,
     CitasComponent,
     PacientesComponent,
+    DashboardComponent,
     Layout,
     Reportes,
     Usuarios,

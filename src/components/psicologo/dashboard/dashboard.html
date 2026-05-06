@@ -1,10 +1,11 @@
 <div class="dashboard-home">
+    <!-- Sección Hero -->
     <section class="hero card">
         <div>
-            <p class="hero-kicker">Panel de Psicologo</p>
+            <p class="hero-kicker">Panel de Psicólogo</p>
             <h2>{{ saludo }}</h2>
             <p class="hero-sub">{{ fechaActualTexto }}</p>
-            <p class="hero-copy">Este espacio te ayuda a organizar pacientes, citas y seguimiento diario desde un solo lugar.</p>
+            <p class="hero-copy">Organiza tus pacientes, revisa tus citas y gestiona el seguimiento clínico desde un solo lugar.</p>
         </div>
         <div class="hero-chip">
             <span class="chip-label">Pendientes hoy</span>
@@ -12,68 +13,83 @@
         </div>
     </section>
 
+    <!-- Rejilla de Métricas -->
     <section class="cards-grid">
         <article class="metric-card">
             <span class="metric-title">Pacientes</span>
             <strong class="metric-value">{{ totalPacientes }}</strong>
-            <small class="metric-helper">Personas registradas a seguimiento</small>
+            <small class="metric-helper">Seguimiento activo</small>
         </article>
 
         <article class="metric-card">
             <span class="metric-title">Citas</span>
             <strong class="metric-value">{{ totalCitas }}</strong>
-            <small class="metric-helper">Citas cargadas en el sistema</small>
+            <small class="metric-helper">Registradas en sistema</small>
         </article>
 
         <article class="metric-card">
             <span class="metric-title">Pendientes</span>
             <strong class="metric-value">{{ totalPendientes }}</strong>
-            <small class="metric-helper">Esperando confirmacion del usuario</small>
+            <small class="metric-helper">Por confirmar</small>
         </article>
 
         <article class="metric-card">
             <span class="metric-title">Mensajes</span>
             <strong class="metric-value">{{ totalMensajes }}</strong>
-            <small class="metric-helper">Conversaciones activas de chat</small>
+            <small class="metric-helper">Chats activos</small>
         </article>
     </section>
 
+    <!-- Accesos Rápidos (Actualizado con Foro y Notas) -->
     <section class="card quick-actions">
         <div class="quick-head">
-            <h3>Accesos rapidos</h3>
-            <span class="badge">Productividad</span>
+            <h3>Accesos rápidos</h3>
+            <span class="badge">Gestión</span>
         </div>
 
         <div class="quick-grid">
+            <!-- Citas -->
             <a routerLink="/psicologo/citas" class="quick-item">
                 <span class="quick-icon">📅</span>
                 <div>
                     <strong>Citas</strong>
-                    <p>Agenda, valida horarios y da seguimiento.</p>
+                    <p>Agenda y horarios.</p>
                 </div>
             </a>
 
+            <!-- Notas Clínicas -->
+            <a routerLink="/psicologo/notas" class="quick-item">
+                <span class="quick-icon">📝</span>
+                <div>
+                    <strong>Notas Clínicas</strong>
+                    <p>Seguimiento clínico.</p>
+                </div>
+            </a>
+
+            <!-- Pacientes -->
             <a routerLink="/psicologo/pacientes" class="quick-item">
                 <span class="quick-icon">🧑‍🤝‍🧑</span>
                 <div>
                     <strong>Pacientes</strong>
-                    <p>Revisa informacion y gestiona registros.</p>
+                    <p>Registros detallados.</p>
                 </div>
             </a>
 
+            <!-- Chat -->
             <a routerLink="/psicologo/chat" class="quick-item">
                 <span class="quick-icon">💬</span>
                 <div>
                     <strong>Chat</strong>
-                    <p>Responde mensajes de forma centralizada.</p>
+                    <p>Mensajería directa.</p>
                 </div>
             </a>
 
+            <!-- Foro -->
             <a routerLink="/psicologo/foro" class="quick-item">
                 <span class="quick-icon">🛡️</span>
                 <div>
                     <strong>Foro</strong>
-                    <p>Participa y modera conversaciones del espacio.</p>
+                    <p>Moderación y comunidad.</p>
                 </div>
             </a>
         </div>

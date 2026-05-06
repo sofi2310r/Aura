@@ -43,8 +43,8 @@
         </textarea>
         <div class="text-end">
           <!-- Agregué una validación simple para evitar errores si diagnostico es null -->
-          <small [style.color]="(nuevaNota.diagnostico?.length || 0) >= 500 ? 'red' : '#718096'">
-            {{ nuevaNota.diagnostico?.length || 0 }} / 500 caracteres
+          <small [style.color]="(nuevaNota.diagnostico.length || 0) >= 500 ? 'red' : '#718096'">
+            {{ nuevaNota.diagnostico.length || 0 }} / 500 caracteres
           </small>
         </div>
       </label>
