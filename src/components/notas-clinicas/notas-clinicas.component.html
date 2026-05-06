@@ -42,8 +42,8 @@
         placeholder="Escriba aquí...">
       </textarea>
       <div class="text-end">
-        <small [style.color]="(nuevaNota.diagnostico?.length || 0) >= 500 ? 'red' : '#718096'">
-          {{ nuevaNota.diagnostico?.length || 0 }} / 500 caracteres
+        <small [style.color]="(nuevaNota.diagnostico.length || 0) >= 500 ? 'red' : '#718096'">
+          {{ nuevaNota.diagnostico.length || 0 }} / 500 caracteres
         </small>
       </div>
     </label>

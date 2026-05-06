@@ -5,7 +5,7 @@ import { CitaService } from '../../../services/cita.service';
 
 @Component({
     selector: 'app-dashboard',
-    standalone: false,
+    standalone: false, // Declarado como no-standalone
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css'
 })
@@ -32,45 +32,34 @@ export class DashboardComponent implements OnInit {
             day: 'numeric'
         });
 
+        this.cargarEstadisticas();
+    }
+
+    private cargarEstadisticas(): void {
         // 1. Escuchar cambios en las CITAS y PENDIENTES
         this.citaService.getCitas().subscribe(citas => {
             this.totalCitas = citas.length;
-            // Filtramos las pendientes en tiempo real
+            // Filtramos las citas con estado pendiente en tiempo real
             this.totalPendientes = citas.filter(c => c.estado === 'pendiente').length;
         });
 
         // 2. Escuchar cambios en los PACIENTES
         this.userService.getUsers().subscribe(users => {
             this.totalPacientes = users.filter(u => {
+                // Manejamos 'rol' o 'role' para evitar errores de consistencia
                 const role = (u.rol || u.role || '').toString().toLowerCase();
                 return role === 'paciente' || role === 'usuario';
             }).length;
         });
 
-        // Placeholder temporal hasta integrar contador real desde backend de chats
+        // Placeholder para mensajes (puedes conectar tu servicio de chat aquí más adelante)
         this.totalMensajes = 0;
     }
 
     private obtenerSaludo(): string {
         const hora = new Date().getHours();
-        if (hora < 12) return 'Buenos dias';
+        if (hora < 12) return 'Buenos días';
         if (hora < 18) return 'Buenas tardes';
         return 'Buenas noches';
-    }
-
-    cargarDatos() {
-        this.userService.getUsers
-            ().subscribe(users => {
-                const pacientes = users.filter(u => u.rol === 'paciente');
-
-                this.totalPacientes = pacientes.length;
-                this.totalPendientes = pacientes.filter(p => !p.activo).length;
-            });
-
-        this.citaService.getCitas().subscribe(citas => {
-            this.totalCitas = citas.length;
-        });
-
-        this.totalMensajes = 2;
     }
 }

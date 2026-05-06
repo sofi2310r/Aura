@@ -66,7 +66,7 @@ export class AuthService {
   constructor(
     /** Servicio para operaciones relacionadas con usuarios */
     private readonly userService: UserService,
-    
+
     /** Servicio para hacer llamadas HTTP al backend */
     private readonly backend: BackendService,
 
@@ -104,10 +104,10 @@ export class AuthService {
     if (this.sessionTimeout) {
       clearTimeout(this.sessionTimeout);
     }
-    
+
     const expiryTime = new Date().getTime() + this.SESSION_DURATION;
     localStorage.setItem(this.SESSION_EXPIRY_KEY, expiryTime.toString());
-    
+
     this.sessionTimeout = setTimeout(() => {
       this.logout();
       console.log('🔐 Sesión expirada por inactividad');
@@ -142,10 +142,33 @@ export class AuthService {
     );
   }
 
-
-
-  public getAllUsers(): Observable<User[]>{
+  public getAllUsers(): Observable<User[]> {
     return this.backend.get<User[]>('/api/users');
+  }
+
+  /**
+   * Envía una solicitud al backend para actualizar la contraseña del usuario actual
+   * @param nuevaClave La nueva contraseña
+   */
+  async updatePassword(nuevaClave: string): Promise<void> {
+    const user = this.getCurrentUser();
+    if (!user || !user.uid) {
+      throw new Error('No hay una sesión activa para realizar esta acción.');
+    }
+
+    try {
+      // Realizamos el PUT al endpoint del backend
+      await firstValueFrom(
+        this.backend.put<{ message: string }>('/api/auth/update-password', {
+          uid: user.uid,
+          password: nuevaClave,
+        })
+      );
+      console.log('✅ Contraseña actualizada en el servidor');
+    } catch (error: any) {
+      console.error('❌ Error actualizando contraseña:', error);
+      throw new Error(error.error?.message || 'Error al actualizar la contraseña');
+    }
   }
 
   async login(correo: string, password: string): Promise<User | null> {
@@ -286,13 +309,11 @@ export class AuthService {
     this.currentUserSubject.next(null);
 
     this.router.navigate(['/login'], { replaceUrl: true }).then(() => {
-
       window.location.reload();
     })
     this.clearStoredUser();
-    
+
     // Redirige a login y reemplaza el historial del navegador
-    // Esto previene que el botón atrás vuelva a las páginas protegidas
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 
@@ -315,7 +336,6 @@ export class AuthService {
       return 'moderador';
     }
 
-    // Si no coincide con ningún rol específico, asignar rol paciente por defecto
     return 'paciente';
   }
 
@@ -342,7 +362,7 @@ export class AuthService {
 
     if (!stored) return null;
 
-    try{
+    try {
       const parsedValue = JSON.parse(stored) as Partial<User>;
 
       console.log('Usuario recuperado:', parsedValue);
@@ -384,10 +404,8 @@ export class AuthService {
     localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
   }
 
-
   private async rollbackRegisteredUser(uid: string): Promise<void> {
     try {
-
       await firstValueFrom(this.backend.delete<{ message: string }>(`/api/auth/user/${encodeURIComponent(uid)}`));
     } catch {
       return;
@@ -402,11 +420,9 @@ export class AuthService {
         )
       );
       console.log('🗑️ Usuario eliminado correctamente en Auth');
-    }catch (error: any) {
+    } catch (error: any) {
       console.error('❌ Error eliminando usuario en Auth:', error);
-      throw new Error(
-        
-      )
+      throw new Error('ERROR_ELIMINANDO_USUARIO');
     }
   }
 }

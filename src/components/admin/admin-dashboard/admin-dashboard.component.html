@@ -3,22 +3,23 @@
   <!-- NAVBAR COMPARTIDO -->
   <app-navbar-admin [titulo]="'Panel de Administración - ' + (adminUser?.nombre || 'Admin')"></app-navbar-admin>
 
-  <!-- CONTENIDO PRINCIPAL -->
   <div class="layout">
 
-    <!-- navbar con opciones  -->
+    <!-- Sidebar (Menú Lateral) -->
     <div class="sidebar">
       <div class="perfil-mini">
         <p class="perfil-nombre">{{ adminUser?.nombre || 'Admin' }}</p>
         <small class="perfil-correo">{{ adminUser?.correo || 'administrador' }}</small>
       </div>
+
       <ul class="menu">
-        <li class="menu-item active" title="Panel">
+        <li class="menu-item" title="Panel">
           <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
             <span class="menu-icon">✌️</span>
             <span class="menu-text">Panel</span>
           </a>
         </li>
+
         <li class="menu-item" title="Usuarios">
           <a routerLink="/admin/usuarios" routerLinkActive="active">
             <span class="menu-icon">👩‍🦰</span>
@@ -39,74 +40,121 @@
             <span class="menu-text">Notas clínicas</span>
           </a>
         </li>
+
         <li class="menu-item" title="Configuración">
-          <span class="menu-icon">⚙️</span>
-          <span class="menu-text">Configuración</span>
+          <a routerLink="/admin/configuracion" routerLinkActive="active">
+            <span class="menu-icon">⚙️</span>
+            <span class="menu-text">Configuración</span>
+          </a>
         </li>
       </ul>
     </div>
 
-    <!-- CONTENIDO -->
+    <!-- ÁREA DE CONTENIDO -->
     <div class="contenido">
 
-      <router-outlet *ngIf="!isAdminHomeRoute"></router-outlet>
+      <!-- 1. VISTAS DINÁMICAS -->
+      <router-outlet *ngIf="!isAdminHomeRoute && !router.url.includes('configuracion')"></router-outlet>
 
+      <!-- 2. SECCIÓN DE CONFIGURACIÓN (CORREGIDA PARA UN SOLO CLIC) -->
+      <div *ngIf="router.url.includes('configuracion')" class="config-container">
+        <div class="header-section">
+          <h1 class="titulo-principal">Configuración de Perfil</h1>
+          <p class="subtitle">Actualiza tu información de administrador</p>
+        </div>
+
+        <!-- Formulario de Datos Personales -->
+        <form (submit)="guardarCambiosPerfil(); $event.preventDefault()" class="card-edit">
+          <h3>Datos Personales</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre" name="nombre" [(ngModel)]="nombre" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="apellido">Apellido</label>
+              <input type="text" id="apellido" name="apellido" [(ngModel)]="apellido" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Correo Electrónico</label>
+              <input type="email" [value]="adminUser?.correo" disabled class="form-control disabled">
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Guardar Cambios</button>
+        </form>
+
+        <!-- Formulario de Seguridad -->
+        <form (submit)="actualizarPassword(); $event.preventDefault()" class="card-edit mt-4">
+          <h3>Seguridad</h3>
+          <div class="form-group">
+            <label for="password">Nueva Contraseña</label>
+            <input type="password" id="password" name="nuevaClave" [(ngModel)]="nuevaClave"
+              placeholder="Mínimo 6 caracteres" class="form-control" required>
+          </div>
+          <button type="submit" class="btn-secondary">Actualizar Contraseña</button>
+        </form>
+
+        <!-- Mensajes de Feedback -->
+        <div class="alert success" *ngIf="mensaje">✅ {{ mensaje }}</div>
+        <div class="alert danger" *ngIf="errorMessage">❌ {{ errorMessage }}</div>
+      </div>
+
+      <!-- 3. VISTA PRINCIPAL (ESTADÍSTICAS) -->
       <ng-container *ngIf="isAdminHomeRoute">
-        <!-- TITULO PRINCIPAL -->
         <div class="header-section">
           <h1 class="titulo-principal">Panel de Administración - {{ adminUser?.nombre || 'Admin' }}</h1>
           <p class="subtitle">Bienvenido al centro de control de AURA</p>
         </div>
 
-        <div class="error-box" *ngIf="errorMessage">
+        <div class="error-box" *ngIf="errorMessage && !router.url.includes('configuracion')">
           <p>❌ {{ errorMessage }}</p>
           <a routerLink="/login">Volver a iniciar sesión</a>
         </div>
 
-        <!-- ESTADISTICAS -->
         <div class="stats-container">
-        <div class="stat-card">
-          <div class="stat-icon usuarios">👥</div>
-          <div class="stat-content">
-            <p class="stat-label">Usuarios Totales</p>
-            <p class="stat-number">{{ totalUsuarios }}</p>
+          <div class="stat-card">
+            <div class="stat-icon usuarios">👥</div>
+            <div class="stat-content">
+              <p class="stat-label">Usuarios Totales</p>
+              <p class="stat-number">{{ totalUsuarios }}</p>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card">
-          <div class="stat-icon psicologos">🧠</div>
-          <div class="stat-content">
-            <p class="stat-label">Psicólogos Activos</p>
-            <p class="stat-number">{{ psicologosActivos }}</p>
+          <div class="stat-card">
+            <div class="stat-icon psicologos">🧠</div>
+            <div class="stat-content">
+              <p class="stat-label">Psicólogos Activos</p>
+              <p class="stat-number">{{ psicologosActivos }}</p>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card">
-          <div class="stat-icon moderadores">👮</div>
-          <div class="stat-content">
-            <p class="stat-label">Moderadores</p>
-            <p class="stat-number">{{ moderadores }}</p>
+          <div class="stat-card">
+            <div class="stat-icon moderadores">👮</div>
+            <div class="stat-content">
+              <p class="stat-label">Moderadores</p>
+              <p class="stat-number">{{ moderadores }}</p>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card">
-          <div class="stat-icon pacientes">🏥</div>
-          <div class="stat-content">
-            <p class="stat-label">Pacientes Activos</p>
-            <p class="stat-number">{{ pacientesActivos }}</p>
+          <div class="stat-card">
+            <div class="stat-icon pacientes">🏥</div>
+            <div class="stat-content">
+              <p class="stat-label">Pacientes Activos</p>
+              <p class="stat-number">{{ pacientesActivos }}</p>
+            </div>
           </div>
-        </div>
 
-        <div class="stat-card foro-card" routerLink="/admin/foro" style="cursor: pointer;">
-          <div class="stat-icon foro">💬</div>
-          <div class="stat-content">
-            <p class="stat-label">Publicaciones Foro</p>
-            <p class="stat-number">{{ totalPublicaciones }}</p>
+          <div class="stat-card foro-card" routerLink="/admin/foro" style="cursor: pointer;">
+            <div class="stat-icon foro">💬</div>
+            <div class="stat-content">
+              <p class="stat-label">Publicaciones Foro</p>
+              <p class="stat-number">{{ totalPublicaciones }}</p>
+            </div>
           </div>
         </div>
-      </div>
-    </ng-container>
-  </div>
+      </ng-container>
+
+    </div>
   </div>
 
   <!-- FOOTER COMPARTIDO -->
