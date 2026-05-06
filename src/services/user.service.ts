@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, firstValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
 import { User, UserRole } from '../models/user.model';
 import { BackendService, extractBackendErrorMessage } from './backend.service';
-import { take } from 'rxjs';
+import { take } from 'rxjs'; // CORRECCIÓN: Importación necesaria para sumarReporte
 
 interface FirestoreUserDocument {
   id: string;
@@ -84,7 +84,7 @@ export class UserService {
     return this.usersSubject.asObservable();
   }
 
-  getUsersByRole(role: UserRole): Observable<User[]> {
+  getByRole(role: UserRole): Observable<User[]> {
     return this.getUsers().pipe(map((users) => users.filter((user) => user.rol === role)));
   }
 
@@ -131,7 +131,7 @@ export class UserService {
       return this.backend
         .put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(documentId)}`, payload)
         .pipe(
-          map((response) => ({ id: response.id, ...payload })),
+          map((response) => ({ id: response.id, ...payload } as User)),
           tap((createdUser) => {
             const remainingUsers = this.usersSubject.value.filter((item) => item.id !== createdUser.id);
             this.usersSubject.next(this.sortUsers([...remainingUsers, createdUser]));
@@ -156,7 +156,7 @@ export class UserService {
           }
           return this.backend.post<FirestoreCreateResponse>(this.usersUrl, payload);
         }),
-        map((response) => ({ id: response.id, ...payload })),
+        map((response) => ({ id: response.id, ...payload } as User)),
         tap((createdUser) => {
           const remainingUsers = this.usersSubject.value.filter((item) => item.id !== createdUser.id);
           this.usersSubject.next(this.sortUsers([...remainingUsers, createdUser]));
@@ -188,26 +188,44 @@ export class UserService {
     );
   }
 
-  updateUser(user: User): Observable<User> {
-    const payload = this.toPayload(user);
+  updateUser(user: User): Observable<User>;
+  updateUser(id: string, data: Partial<User>): Observable<User>;
+  updateUser(user: Partial<User> & { id?: string }): Observable<User>; // Firma flexible
 
+  updateUser(idOrUser: any, data?: Partial<User>): Observable<User> {
+    let id: string;
+    let payload: any;
+
+    if (typeof idOrUser === 'string') {
+      id = idOrUser;
+      payload = data; // Si pasas ID y Data, el payload es el objeto parcial
+    } else {
+      id = (idOrUser.id || idOrUser.uid) as string;
+      payload = idOrUser.correo ? this.toPayload(idOrUser as User) : idOrUser;
+    }
+
+    // Importante: encodeURIComponent para evitar errores de caracteres en el ID
     return this.backend
-      .put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(user.id)}`, payload)
+      .put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(id)}`, payload)
       .pipe(
-        map(() => user),
+        // Forzamos a que el observable devuelva el resultado y se complete
+        map(() => (typeof idOrUser === 'object' ? idOrUser : { id, ...payload } as User)),
         tap((updatedUser) => {
-          const users = this.usersSubject.value.map((u) => (u.id === updatedUser.id ? updatedUser : u));
-          this.usersSubject.next(this.sortUsers(users));
+          const currentUsers = this.usersSubject.value;
+          const updatedList = currentUsers.map((u) =>
+            (u.id === id || u.uid === id) ? { ...u, ...payload } : u
+          );
+          this.usersSubject.next(this.sortUsers(updatedList));
         }),
         catchError((error: unknown) =>
-          throwError(() => new Error(extractBackendErrorMessage(error, 'No se pudo actualizar el usuario.'))),
-        ),
+          throwError(() => new Error(extractBackendErrorMessage(error, 'No se pudo actualizar.')))
+        )
       );
   }
 
   bloquearUsuario(uid: string) {
-    return this.backend.patch(`/api/users/${uid}`, {
-      bloqueado: true
+    return this.backend.patch(`${this.usersUrl}/${uid}`, {
+      activo: false
     });
   }
 

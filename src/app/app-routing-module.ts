@@ -56,8 +56,12 @@ const routes: Routes = [
       { path: 'chat', component: ChatComponent },
       { path: 'notas-clinicas', component: NotasClinicasComponent },
       { path: 'foro', component: ForoComponent },
+<<<<<<< HEAD
       { path: 'configuracion', component: LayoutComponent } 
 
+=======
+      { path: 'notas', component: NotasClinicasComponent }
+>>>>>>> e483819 (Fix -f Boton de configuración en moderador)
     ]
   },
 
