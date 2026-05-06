@@ -23,7 +23,7 @@ export interface NotaClinica {
 export class NotasClinicasService {
   private readonly collection = 'notasClinicas';
 
-  constructor(private readonly backend: BackendService) {}
+  constructor(private readonly backend: BackendService) { }
 
   getNotasClinicas(filter?: { field: 'psicologoUid' | 'pacienteUid'; value: string }): Observable<NotaClinica[]> {
     if (filter?.value) {
@@ -33,11 +33,13 @@ export class NotasClinicasService {
           operator: '==',
           value: filter.value,
         })
-        .pipe(map((docs) => docs.map((doc) => this.mapNota(doc))));
+        // Agrega (docs || []) para evitar el colapso si llega nulo
+        .pipe(map((docs) => (docs || []).map((doc) => this.mapNota(doc))));
     }
 
     return this.backend.get<NotaClinica[]>(`/api/firestore/${this.collection}`).pipe(
-      map((docs) => docs.map((doc) => this.mapNota(doc))),
+      // Agrega (docs || []) aquí también
+      map((docs) => (docs || []).map((doc) => this.mapNota(doc))),
     );
   }
 

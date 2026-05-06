@@ -14,50 +14,52 @@
 
   <!-- FORMULARIO -->
   <section class="nota-form" *ngIf="mostrarFormulario">
-  <h3 class="mb-4">{{ notaEditando ? 'Editar Nota' : 'Nueva Nota Clínica' }}</h3>
+    <h3 class="mb-4">{{ notaEditando ? 'Editar Nota' : 'Nueva Nota Clínica' }}</h3>
 
-  <form (ngSubmit)="crearNotaClinica()" class="form-grid">
-    <!-- Fila 1: Paciente y Categoría -->
-    <label>
-      Paciente
-      <select [(ngModel)]="nuevaNota.pacienteUid" name="paciente" required>
-        <option value="">Seleccione...</option>
-        <option *ngFor="let p of pacientes" [value]="p.uid">{{ p.nombre }}</option>
-      </select>
-    </label>
+    <form (ngSubmit)="crearNotaClinica()" class="form-grid">
+      <!-- Fila 1: Paciente y Categoría -->
+      <label>
+        Paciente
+        <select [(ngModel)]="nuevaNota.pacienteUid" name="paciente" required>
+          <option value="">Seleccione...</option>
+          <option *ngFor="let p of pacientes" [value]="p.uid">{{ p.nombre }}</option>
+        </select>
+      </label>
 
-    <label>
-      Categoría
-      <input type="text" [(ngModel)]="nuevaNota.categoria" name="categoria" placeholder="Ej: Ansiedad">
-    </label>
+      <label>
+        Categoría
+        <input type="text" [(ngModel)]="nuevaNota.categoria" name="categoria" placeholder="Ej: Ansiedad">
+      </label>
 
-    <!-- Fila 2: Diagnóstico (Ancho completo) -->
-    <label class="full-width">
-      Diagnóstico (Máximo 500 caracteres)
-      <textarea 
-        [(ngModel)]="nuevaNota.diagnostico" 
-        name="diagnostico" 
-        rows="4" 
-        maxlength="500" 
-        placeholder="Escriba aquí...">
-      </textarea>
-      <div class="text-end">
-        <small [style.color]="(nuevaNota.diagnostico.length || 0) >= 500 ? 'red' : '#718096'">
-          {{ nuevaNota.diagnostico.length || 0 }} / 500 caracteres
-        </small>
+      <!-- Fila 2: Diagnóstico (Ancho completo) -->
+      <label class="full-width">
+        Diagnóstico (Máximo 500 caracteres)
+        <textarea 
+          [(ngModel)]="nuevaNota.diagnostico" 
+          name="diagnostico" 
+          rows="4" 
+          maxlength="500" 
+          placeholder="Escriba aquí...">
+        </textarea>
+        <div class="text-end">
+          <!-- Agregué una validación simple para evitar errores si diagnostico es null -->
+          <small [style.color]="(nuevaNota.diagnostico?.length || 0) >= 500 ? 'red' : '#718096'">
+            {{ nuevaNota.diagnostico?.length || 0 }} / 500 caracteres
+          </small>
+        </div>
+      </label>
+
+      <!-- Fila 3: Botón de Guardar -->
+      <div class="full-width mt-3">
+        <button type="submit" class="btn-save" [disabled]="guardando">
+          <span *ngIf="!guardando">💾 Guardar Nota Clínica</span>
+          <span *ngIf="guardando">⏳ Procesando...</span>
+        </button>
       </div>
-    </label>
+    </form>
+  </section>
 
-    <!-- Fila 3: Botón de Guardar (Ancho completo) -->
-    <div class="full-width mt-3">
-      <button type="submit" class="btn-save" [disabled]="guardando">
-        <span *ngIf="!guardando">💾 Guardar Nota Clínica</span>
-        <span *ngIf="guardando">⏳ Procesando...</span>
-      </button>
-    </div>
-  </form>
-</section>
-  <!-- BUSCADOR (Siempre visible fuera del form) -->
+  <!-- BUSCADOR -->
   <section class="search-bar">
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
@@ -65,13 +67,19 @@
     </div>
   </section>
 
-  <!-- LISTADO -->
+  <!-- CARGANDO -->
+  <div class="info-bar text-center" *ngIf="cargando">
+    <span class="spinner-border spinner-border-sm"></span> Cargando notas...
+  </div>
+
+  <!-- LISTADO (Con trackBy para forzar el refresco) -->
   <div class="info-bar text-center" *ngIf="!cargando && notasFiltradas.length === 0">
     No se encontraron notas clínicas registradas.
   </div>
 
   <section class="notas-list" *ngIf="!cargando">
-    <div class="nota-card-v2" *ngFor="let nota of notasFiltradas">
+    <!-- El trackBy: trackByNota ayuda a Angular a detectar cambios de ID -->
+    <div class="nota-card-v2" *ngFor="let nota of notasFiltradas; trackBy: trackByNota">
       <div class="nota-header">
         <strong>{{ nota.pacienteNombre }}</strong>
         <span class="badge">{{ nota.categoria || 'Sin categoría' }}</span>

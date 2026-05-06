@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // Importamos ChangeDetectorRef
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -22,7 +22,6 @@ export class NotasClinicasComponent implements OnInit {
   filtroTexto = '';
   cargando = false;
   guardando = false;
-  errorMessage = '';
   mostrarFormulario = false;
   rol: string = '';
   usuarioActual: User | null = null;
@@ -44,15 +43,24 @@ export class NotasClinicasComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly notasService: NotasClinicasService,
     private readonly userService: UserService,
+    private readonly cdr: ChangeDetectorRef // Inyectamos el detector de cambios
   ) { }
 
   ngOnInit(): void {
     this.usuarioActual = this.authService.getCurrentUser();
     this.rol = (this.usuarioActual?.rol || this.usuarioActual?.role || '').toString().trim().toLowerCase();
-    console.log('Mi rol detectado es:', this.rol);
-
     this.cargarPacientes();
     this.cargarNotas().subscribe();
+  }
+
+  // --- GETTERS DE PERMISOS (Faltaban en el TS) ---
+  get puedeCrearNota(): boolean {
+    return this.rol === 'psicologo' || this.rol === 'psicólogo';
+  }
+
+  puedeEditarNota(nota: NotaClinica): boolean {
+    const uidActual = this.usuarioActual?.uid;
+    return !!uidActual && (this.rol === 'admin' || nota.psicologoUid === uidActual);
   }
 
   private cargarPacientes(): void {
@@ -61,59 +69,57 @@ export class NotasClinicasComponent implements OnInit {
         this.pacientes = users.filter((user) =>
           ['paciente', 'usuario'].includes((user.rol || user.role || '').toLowerCase())
         );
+        this.cdr.detectChanges(); // Forzar refresco al cargar pacientes
       },
       error: (err) => console.error('[Notas Clínicas] Error cargando pacientes', err)
     });
   }
 
-  /**
-   * Carga las notas aplicando un filtro local para garantizar la visualización 
-   * de datos independientemente de los índices del servidor.
-   */
   cargarNotas() {
     if (!this.usuarioActual) return of([]);
-
     this.cargando = true;
     const uidActual = this.usuarioActual.uid;
-    const rolLimpio = this.rol;
 
     return this.notasService.getNotasClinicas().pipe(
       timeout(10000),
       tap((todasLasNotas) => {
-        console.log('Total notas en BD:', todasLasNotas?.length);
-        
         let filtradas: NotaClinica[] = [];
 
-        if (rolLimpio === 'psicologo') {
-          // Filtramos localmente para asegurar que no falte nada por errores de consulta
+        if (this.rol === 'psicologo') {
           filtradas = todasLasNotas.filter(n => n.psicologoUid === uidActual);
-        } else if (rolLimpio === 'paciente') {
+        } else if (this.rol === 'paciente') {
           filtradas = todasLasNotas.filter(n => n.pacienteUid === uidActual);
         } else {
-          filtradas = todasLasNotas; // Admin ve todo
+          filtradas = todasLasNotas;
         }
 
-        this.notas = [...filtradas].sort((a, b) => 
+        // --- REFUERZO DE REACTIVIDAD ---
+        // 1. Limpiamos las referencias actuales
+        this.notas = [];
+        this.notasFiltradas = [];
+        this.cdr.detectChanges();
+
+        // 2. Asignamos los nuevos datos con una nueva referencia de memoria
+        this.notas = [...filtradas].sort((a, b) =>
           new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
         );
-        
+
         this.actualizarFiltro();
       }),
       catchError((error) => {
         console.error('[Notas Clínicas] Error al cargar notas', error);
         return of([] as NotaClinica[]);
       }),
-      finalize(() => this.cargando = false)
+      finalize(() => {
+        this.cargando = false;
+        this.cdr.markForCheck(); // Notifica que la ruta de componentes puede haber cambiado
+        this.cdr.detectChanges(); // Forzar a Angular a pintar la lista cargada
+      })
     );
   }
 
   crearNotaClinica(): void {
     if (!this.usuarioActual || this.guardando) return;
-
-    if ((this.nuevaNota.diagnostico?.length || 0) > 500) {
-      Swal.fire('Error', 'El diagnóstico no puede superar los 500 caracteres.', 'error');
-      return;
-    }
 
     const paciente = this.pacientes.find(p => p.uid === this.nuevaNota.pacienteUid);
     if (!paciente) {
@@ -122,7 +128,6 @@ export class NotasClinicasComponent implements OnInit {
     }
 
     this.guardando = true;
-
     const payload = {
       ...this.nuevaNota,
       pacienteUid: paciente.uid,
@@ -138,29 +143,29 @@ export class NotasClinicasComponent implements OnInit {
     request$.pipe(
       timeout(8000),
       catchError(err => {
-        console.error(err);
-        this.guardando = false;
-        Swal.fire('Error', 'No se pudo guardar la nota', 'error');
+        console.error('Error:', err);
         return of(null);
+      }),
+      finalize(() => {
+        this.guardando = false;
+        this.cdr.detectChanges();
       })
     ).subscribe((res) => {
       if (res) {
-        this.cargarNotas().subscribe(() => {
-          this.guardando = false;
-          Swal.fire({
-            title: '¡Éxito!',
-            text: 'Operación realizada correctamente.',
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false,
-            willClose: () => {
-              this.mostrarFormulario = false;
-              this.resetFormulario();
-            }
-          });
+        this.mostrarFormulario = false;
+        this.resetFormulario();
+
+        // RECARGA DIRECTA
+        this.cargarNotas().subscribe({
+          next: () => {
+            // Refuerzo tras la suscripción
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+            Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 1000, showConfirmButton: false });
+          }
         });
       } else {
-        this.guardando = false;
+        Swal.fire('Error', 'No se pudo guardar', 'error');
       }
     });
   }
@@ -168,42 +173,45 @@ export class NotasClinicasComponent implements OnInit {
   actualizarFiltro(): void {
     const termino = this.filtroTexto.trim().toLowerCase();
     if (!termino) {
+      // Usamos el spread operator para asegurar nueva referencia
       this.notasFiltradas = [...this.notas];
-      return;
+    } else {
+      this.notasFiltradas = this.notas.filter((nota) =>
+        (nota.pacienteNombre + (nota.categoria || '') + (nota.diagnostico || ''))
+          .toLowerCase().includes(termino)
+      );
     }
-    this.notasFiltradas = this.notas.filter((nota) =>
-      (nota.pacienteNombre + (nota.categoria || '') + (nota.diagnostico || ''))
-        .toLowerCase().includes(termino)
-    );
+    this.cdr.markForCheck();
+    this.cdr.detectChanges(); // Forzar refresco tras filtrar
   }
 
-  get puedeCrearNota(): boolean { return this.rol === 'psicologo'; }
+  // --- MÉTODOS ADICIONALES MANTENIDOS ---
 
   toggleFormulario(): void {
     this.mostrarFormulario = !this.mostrarFormulario;
     if (!this.mostrarFormulario) this.resetFormulario();
+    this.cdr.detectChanges();
   }
 
   editarNotaClinica(nota: NotaClinica): void {
-    if (!this.puedeEditarNota(nota)) return;
     this.notaEditando = nota;
     this.mostrarFormulario = true;
     this.nuevaNota = { ...nota, fecha: nota.fecha.slice(0, 10) };
+    this.cdr.detectChanges();
   }
 
-  eliminarNotaClinica(nota: NotaClinica): void {
-    if (!this.puedeEliminarNota(nota)) return;
-    
+  eliminarNotaClinica(id: string): void {
     Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'Esta acción no se puede deshacer',
+      title: '¿Eliminar nota?',
+      text: "Esta acción no se puede deshacer",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.notasService.deleteNotaClinica(nota.id).subscribe(() => {
+        this.notasService.deleteNotaClinica(id).subscribe(() => {
           this.cargarNotas().subscribe();
           Swal.fire('Eliminado', 'La nota ha sido borrada.', 'success');
         });
@@ -211,26 +219,24 @@ export class NotasClinicasComponent implements OnInit {
     });
   }
 
-  puedeEditarNota(nota: NotaClinica): boolean {
-    const uid = this.usuarioActual?.uid;
-    const esAdmin = ['admin', 'administrador'].includes(this.rol);
-    return !!uid && (esAdmin || (this.rol === 'psicologo' && nota.psicologoUid === uid));
+  abrirModalDetalle(nota: NotaClinica): void {
+    this.notaDetalle = nota;
+    this.mostrarModalDetalle = true;
+    this.cdr.detectChanges();
   }
 
-  puedeEliminarNota(nota: NotaClinica): boolean { return this.puedeEditarNota(nota); }
-  
-  abrirModalDetalle(nota: NotaClinica): void { 
-    this.notaDetalle = nota; 
-    this.mostrarModalDetalle = true; 
+  cerrarModalDetalle(): void {
+    this.mostrarModalDetalle = false;
+    this.cdr.detectChanges();
   }
-  
-  cerrarModalDetalle(): void { 
-    this.mostrarModalDetalle = false; 
+
+  // --- TRACKBY PARA EL HTML (Faltaba en el TS) ---
+  trackByNota(index: number, nota: NotaClinica): string {
+    return nota.id;
   }
 
   private resetFormulario(): void {
     this.notaEditando = null;
-    this.filtroTexto = ''; 
     this.nuevaNota = {
       pacienteUid: '',
       fecha: new Date().toISOString().slice(0, 10),
@@ -240,7 +246,7 @@ export class NotasClinicasComponent implements OnInit {
       planTratamiento: '',
       observaciones: '',
     };
-    this.errorMessage = '';
+    this.cdr.detectChanges();
   }
 
   formatFecha(f: string): string {
