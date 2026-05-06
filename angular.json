@@ -32,16 +32,16 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "node_modules/animate.css/animate.min.css"
-            ]
+              "src/styles.css"
+            ],
+          "allowedCommonJsDependencies": ["sweetalert2"]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "800kB",
                   "maximumError": "1MB"
                 },
                 {
