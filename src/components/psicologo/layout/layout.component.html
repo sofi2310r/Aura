@@ -15,41 +15,120 @@
 					<span class="menu-icon">🏡</span>
 					<span class="menu-text">Panel</span>
 				</a>
+
 				<a class="menu-item" routerLink="/psicologo/citas" routerLinkActive="active">
 					<span class="menu-icon">📅</span>
 					<span class="menu-text">Citas</span>
 				</a>
+
 				<a class="menu-item" routerLink="/psicologo/pacientes" routerLinkActive="active">
 					<span class="menu-icon">👥</span>
 					<span class="menu-text">Pacientes</span>
 				</a>
+
 				<a class="menu-item" routerLink="/psicologo/chat" routerLinkActive="active">
 					<span class="menu-icon">💬</span>
 					<span class="menu-text">Chat</span>
 				</a>
+
 				<a class="menu-item" routerLink="/psicologo/notas-clinicas" routerLinkActive="active">
-				<span class="menu-icon">📋</span>
-				<span class="menu-text">Notas clínicas</span>
-			</a>
-			<a class="menu-item" routerLink="/psicologo/foro" routerLinkActive="active">
+					<span class="menu-icon">📋</span>
+					<span class="menu-text">Notas clínicas</span>
+				</a>
+
+				<a class="menu-item" routerLink="/psicologo/foro" routerLinkActive="active">
 					<span class="menu-icon">🗨</span>
 					<span class="menu-text">Foro</span>
+				</a>
+
+				<a class="menu-item" routerLink="/psicologo/configuracion" routerLinkActive="active">
+					<span class="menu-icon">⚙️</span>
+					<span class="menu-text">Configuración</span>
 				</a>
 			</nav>
 		</aside>
 
 		<!-- CONTENIDO -->
 		<div class="main">
-			<!-- CONTENIDO DINAMICO -->
-			<div class="content">
-				<router-outlet></router-outlet>
+
+			<!-- VISTAS -->
+			<router-outlet *ngIf="!router.url.includes('configuracion')"></router-outlet>
+
+			<!-- CONFIGURACIÓN -->
+			<div *ngIf="router.url.includes('configuracion')" class="config-container">
+
+				<div class="header-section">
+					<h1 class="titulo-principal">Configuración de Perfil</h1>
+					<p class="subtitle">Actualiza tu información de psicólogo</p>
+				</div>
+
+				<!-- 🧠 LÁPIZ -->
+				<div class="edit-header">
+					<h3>Datos Personales</h3>
+
+					<button type="button" class="edit-icon" (click)="activarEdicion()">
+						✏️
+					</button>
+				</div>
+
+				<!-- FORM -->
+				<form (submit)="guardarCambiosPerfil(); $event.preventDefault()" class="card-edit">
+
+					<div class="form-grid">
+
+						<div class="form-group">
+							<label>Nombre</label>
+							<input type="text"
+								name="nombre"
+								[(ngModel)]="nombre"
+								class="form-control"
+								[disabled]="!editMode">
+						</div>
+
+						<div class="form-group">
+							<label>Apellido</label>
+							<input type="text"
+								name="apellido"
+								[(ngModel)]="apellido"
+								class="form-control"
+								[disabled]="!editMode">
+						</div>
+
+						<div class="form-group">
+							<label>Correo Electrónico</label>
+							<input type="email"
+								[value]="psicologoUser?.correo"
+								disabled
+								class="form-control disabled">
+						</div>
+
+					</div>
+
+					<button type="submit" class="btn-primary">
+						Guardar Cambios
+					</button>
+
+				</form>
+
+				
+
+				<!-- MENSAJES -->
+				<div class="alert success" *ngIf="mensaje">
+					✅ {{ mensaje }}
+				</div>
+
+				<div class="alert danger" *ngIf="errorMessage">
+					❌ {{ errorMessage }}
+				</div>
+
 			</div>
 
 			<!-- FOOTER -->
 			<footer>
-				<p>© 2026 AURA - Panel de Psicologo</p>
+				<p>© 2026 AURA - Panel de Psicólogo</p>
 				<p>Todos los derechos reservados</p>
 			</footer>
+
 		</div>
 	</div>
 </div>

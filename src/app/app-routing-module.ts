@@ -55,7 +55,9 @@ const routes: Routes = [
       { path: 'pacientes', component: PacientesComponent },
       { path: 'chat', component: ChatComponent },
       { path: 'notas-clinicas', component: NotasClinicasComponent },
-      { path: 'foro', component: ForoComponent }
+      { path: 'foro', component: ForoComponent },
+      { path: 'configuracion', component: LayoutComponent } 
+
     ]
   },
 
