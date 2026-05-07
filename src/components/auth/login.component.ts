@@ -281,26 +281,10 @@ export class LoginComponent implements OnInit {
 
       console.log('✅ Respuesta recibida del backend, UID:', registerUid);
 
-      if (!registerUid) {
-        // ERROR EN EL REGISTRO - MOSTRAR ALERTA DE ERROR Y RETORNAR
-        this.ngZone.run(() => {
-          this.cargandoReg = false;
-          this.cdr.markForCheck();
-        });
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al registrarse',
-          text: 'No se pudo registrar el usuario',
-          confirmButtonText: 'Intentar de nuevo',
-          confirmButtonColor: '#9b59b6',
-        });
-        console.log('❌ Error mostrado: registro fallido');
-        return;
-      }
-
       // Detener loading
       this.ngZone.run(() => {
         this.cargandoReg = false;
+        this.registroExitoso = true;
         this.cdr.markForCheck();
       });
 
@@ -325,24 +309,36 @@ export class LoginComponent implements OnInit {
         this.fechaNacimiento = '';
         this.telefono = '';
         this.correo = '';
-        // this.documentoUrl = ''; // No es necesario limpiar, ya que no se usa para el documento
         this.reporte = '';
         this.permisos = 'paciente';
         this.passwordReg = '';
         this.documentoFile = null;
+        this.errorReg = '';
+        this.exitoReg = '';
         // Navegar a Inicio
         this.router.navigate(['/home']);
       });
-    } catch (error) {
+    } catch (error: any) {
       this.ngZone.run(() => {
         this.cargandoReg = false;
         this.cdr.markForCheck();
       });
+
+      const rawMessage = typeof error === 'string' ? error : error?.message || '';
+      let mensaje = 'Error al registrar. Intenta de nuevo.';
+
+      if (rawMessage.includes('already in use') || rawMessage.includes('ya está en uso')) {
+        mensaje = 'Este correo ya está registrado. Usa otro correo o inicia sesión.';
+      } else if (rawMessage.includes('contraseña') || rawMessage.includes('La contraseña debe tener al menos')) {
+        mensaje = rawMessage;
+      }
+
+      this.errorReg = mensaje;
       console.error('❌ Exception en registrarUsuario:', error);
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Error al registrar. Intenta de nuevo.',
+        title: 'Error al registrarse',
+        text: mensaje,
         confirmButtonText: 'Aceptar',
         confirmButtonColor: '#9b59b6',
       });

@@ -231,12 +231,12 @@ export class AuthService {
     }
   }
 
-  async register(data: RegisterRequest): Promise<string | null> {
+  async register(data: RegisterRequest): Promise<string> {
     const normalizedEmail = data.correo.trim().toLowerCase();
     const trimmedPassword = data.password.trim();
 
     if (trimmedPassword.length < 4) {
-      return 'La contrasena debe tener al menos 4 caracteres.';
+      throw new Error('La contraseña debe tener al menos 4 caracteres.');
     }
 
     try {
@@ -280,14 +280,15 @@ export class AuthService {
         // PASO 4: Si falla Firestore, eliminar user de Auth (rollback)
         console.error('❌ PASO 3 falló. Haciendo rollback...', profileError);
         await this.rollbackRegisteredUser(createdUser.uid);
-        return null;
+        throw new Error('No se pudo completar el registro. Intenta nuevamente.');
       }
 
       console.log('✅ REGISTRO COMPLETADO EXITOSAMENTE');
       return createdUser.uid;
     } catch (error) {
-      console.error('❌ ERROR EN REGISTRO:', error);
-      return null;
+      const mensaje = extractBackendErrorMessage(error, 'No se pudo registrar el usuario.');
+      console.error('❌ ERROR EN REGISTRO:', error, mensaje);
+      throw new Error(mensaje);
     }
   }
 
