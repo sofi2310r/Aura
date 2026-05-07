@@ -300,20 +300,15 @@ export class AuthService {
     if (this.sessionTimeout) {
       clearTimeout(this.sessionTimeout);
     }
+
     localStorage.removeItem(this.SESSION_EXPIRY_KEY);
     localStorage.removeItem(AUTH_TOKEN_STORAGE_KEY);
     localStorage.removeItem('token');
     localStorage.removeItem('authToken');
-    localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+    this.clearStoredUser();
 
     this.currentUserSubject.next(null);
 
-    this.router.navigate(['/login'], { replaceUrl: true }).then(() => {
-      window.location.reload();
-    })
-    this.clearStoredUser();
-
-    // Redirige a login y reemplaza el historial del navegador
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 

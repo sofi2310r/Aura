@@ -351,7 +351,7 @@ export class LoginComponent implements OnInit {
 
   private resolveRoute(role: UserRole): string {
     if (role === 'administrador' || role === 'admin') return '/admin';
-    if (role === 'psicologo') return '/psicologo/citas';
+    if (role === 'psicologo') return '/psicologo';
     if (role === 'moderador') return '/moderador';
     return '/home';
   }

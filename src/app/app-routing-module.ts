@@ -21,7 +21,7 @@ import { QuienesSomos } from './quienes-somos/quienes-somos';
 
 const routes: Routes = [
   // 1. Redirección inicial (Dejar siempre al inicio)
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
 
   // 2. Rutas públicas
   { path: 'login', component: LoginComponent },
@@ -56,12 +56,8 @@ const routes: Routes = [
       { path: 'chat', component: ChatComponent },
       { path: 'notas-clinicas', component: NotasClinicasComponent },
       { path: 'foro', component: ForoComponent },
-<<<<<<< HEAD
-      { path: 'configuracion', component: LayoutComponent } 
-
-=======
+      { path: 'configuracion', component: LayoutComponent },
       { path: 'notas', component: NotasClinicasComponent }
->>>>>>> e483819 (Fix -f Boton de configuración en moderador)
     ]
   },
 
