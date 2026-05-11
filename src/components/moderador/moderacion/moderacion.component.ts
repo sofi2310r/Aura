@@ -43,6 +43,8 @@ export class ModeracionComponent {
   }
 
   publicar(): void {
+    if (this.publicando) return;
+
     if (!this.titulo.trim() || !this.contenido.trim()) {
       this.mensaje = 'Escribe un titulo y un contenido antes de publicar.';
       return;
@@ -81,6 +83,8 @@ export class ModeracionComponent {
   }
 
   responder(): void {
+    if (this.enviando) return;
+
     if (!this.vistaDetalle || !this.nuevoComentario.trim()) {
       this.mensaje = 'Escribe un comentario antes de enviarlo.';
       return;
@@ -114,6 +118,12 @@ export class ModeracionComponent {
 
   reportar(index: number): void {
     if (!this.vistaDetalle) {
+      return;
+    }
+
+    const Comentario = this.vistaDetalle.Comentarios[index];
+    if (Comentario.reportado) {
+      this.mensaje = 'Este comentario ya está reportado.';
       return;
     }
 

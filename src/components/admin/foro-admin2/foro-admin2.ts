@@ -141,6 +141,8 @@ export class ForoAdmin2 {
   }
 
   publicar(): void {
+    if (this.publicando) return;
+
     // RESTRICCIÓN: Solo Admin/Psicólogo pueden crear el foro. Usuario y Moderador NO.
     if (!this.puedeCrearPublicacion()) {
       Swal.fire('Acceso Restringido', 'No tienes permisos para crear nuevas publicaciones.', 'error');
@@ -185,6 +187,8 @@ export class ForoAdmin2 {
   }
 
   responder(): void {
+    if (this.enviando) return;
+
     // RESTRICCIÓN: Los moderadores NO comentan, solo moderan.
     if (this.getRol() === 'moderador') {
       Swal.fire('Modo Moderación', 'Los moderadores no pueden participar en las discusiones.', 'info');
@@ -224,6 +228,11 @@ export class ForoAdmin2 {
     if (!this.vistaDetalle) return;
 
     const Comentario = this.vistaDetalle.Comentarios[index];
+    if (Comentario.reportado) {
+      this.mensaje = 'Este comentario ya está reportado.';
+      return;
+    }
+
     const nombreAutor = Comentario.autor;
 
     Swal.fire({
@@ -247,8 +256,8 @@ export class ForoAdmin2 {
         // 2. Suma el reporte al perfil del usuario en la tabla de gestión
         if (nombreAutor) {
           this.userService.sumarReportePorNombre(nombreAutor).subscribe({
-            next: (user) => console.log(`Contador actualizado para ${user.nombre}`),
-            error: (err) => console.warn('No se pudo actualizar contador de usuario:', err.message)
+            next: () => {},
+            error: () => {}
           });
         }
       }
@@ -256,6 +265,8 @@ export class ForoAdmin2 {
   }
 
   responderComentario(index: number): void {
+    if (this.enviando) return;
+
     // RESTRICCIÓN: Los moderadores NO responden comentarios.
     if (this.getRol() === 'moderador') return;
 

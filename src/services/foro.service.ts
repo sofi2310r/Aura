@@ -69,7 +69,7 @@ interface FirestoreCreateResponse {
 export class ForoService {
   private readonly publicacionesSubject = new BehaviorSubject<Publicacion[]>([]);
   private readonly publicacionesUrl = '/api/firestore/ForoPublicaciones';
-  private readonly refreshIntervalMs = 2000; // Reducido de 6000 a 2000 ms para actualizaciones más rápidas
+  private readonly refreshIntervalMs = 30000; // 30 segundos para reducir carga en el backend gratuito
   private lastPublicacionesSignature = '';
 
   constructor(private readonly backend: BackendService,
@@ -78,7 +78,7 @@ export class ForoService {
     // Cargar datos iniciales inmediatamente
     this.forceRefresh();
     
-    // Luego iniciar auto-refresh cada 2 segundos
+    // Luego iniciar auto-refresh cada 30 segundos
     this.startAutoRefresh();
   }
 
@@ -199,7 +199,13 @@ export class ForoService {
     );
   }
 
-  actualizarPublicacion(id: string, cambios: { titulo: string, contenido: string }): Observable<any> {
+  actualizarPublicacion(id: string, cambios: { titulo: string, contenido: string }): Observable<any> {    const publicacionActual = this.publicacionesSubject.value.find((pub) => pub.id === id);
+    if (publicacionActual) {
+      const sinCambios = publicacionActual.titulo === cambios.titulo && publicacionActual.contenido === cambios.contenido;
+      if (sinCambios) {
+        return of(publicacionActual);
+      }
+    }
     return this.backend.patch(`${this.publicacionesUrl}/${encodeURIComponent(id)}`, cambios).pipe(
       tap(() => {
         const listaActual = this.publicacionesSubject.value.map(pub =>
@@ -290,9 +296,7 @@ export class ForoService {
 
           this.publicacionesSubject.next(this.sortPublicaciones(actualizadas));
 
-          // Forzar una actualización inmediata desde Firestore para asegurar sincronización
-          this.forceRefresh();
-        }),
+          }),
         catchError((error: unknown) =>
           throwError(() => new Error(extractBackendErrorMessage(error, fallbackMessage))),
         ),
@@ -327,7 +331,6 @@ export class ForoService {
   }
 
   private mapComentario(Comentario: FirestoreComentario): Comentario {
-      console.log('[DEBUG comentario recibido]', Comentario);
     return {
       texto: typeof Comentario.texto === 'string' && Comentario.texto.trim() ? Comentario.texto.trim() : '',
       autor: typeof Comentario.autor === 'string' && Comentario.autor.trim() ? Comentario.autor.trim() : 'Usuario Aura',

@@ -196,6 +196,7 @@ export class UserService {
   updateUser(idOrUser: any, data?: Partial<User>): Observable<User> {
     let id: string;
     let payload: any;
+    let isFullUpdate = false;
 
     if (typeof idOrUser === 'string') {
       id = idOrUser;
@@ -203,6 +204,20 @@ export class UserService {
     } else {
       id = (idOrUser.id || idOrUser.uid) as string;
       payload = idOrUser.correo ? this.toPayload(idOrUser as User) : idOrUser;
+      isFullUpdate = true;
+    }
+
+    const existingUser = this.usersSubject.value.find((u) => u.id === id || u.uid === id);
+    if (existingUser && payload && Object.keys(payload).length > 0) {
+      const hasChanges = Object.entries(payload).some(([key, value]) => {
+        const existingValue = (existingUser as any)[key];
+        return value !== existingValue;
+      });
+
+      if (!hasChanges) {
+        // No hay cambios reales: devolvemos el usuario actual sin escribir en Firestore.
+        return of(isFullUpdate ? (idOrUser as User) : ({ id, ...payload } as User));
+      }
     }
 
     // Importante: encodeURIComponent para evitar errores de caracteres en el ID

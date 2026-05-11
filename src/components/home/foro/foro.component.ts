@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, DestroyRef, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ForoService, Publicacion } from '../../../services/foro.service';
 import { AuthService } from '../../../services/auth.service';
@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
   styleUrl: './foro.component.css',
 })
 
-export class ForoComponent {
+export class ForoComponent implements OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   publicaciones: Publicacion[] = [];
   vistaDetalle: Publicacion | null = null;
@@ -30,6 +30,7 @@ export class ForoComponent {
   mostrarNavbarAdmin = false;
   mostrarNavegacionPublica = true;
   rutaSalida = '/home';
+  private isDestroyed = false;
 
   constructor(
     private readonly foroService: ForoService,
@@ -45,16 +46,14 @@ export class ForoComponent {
       .getPublicaciones()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((publicaciones) => {
-        console.log('[FORO] Publicaciones recibidas:', publicaciones);
         this.publicaciones = [...publicaciones];
-        this.cdr.detectChanges();
+        this.safeDetectChanges();
 
         if (this.vistaDetalle) {
           const actualizada = publicaciones.find((pub) => pub.id === this.vistaDetalle?.id);
           if (actualizada) {
             this.vistaDetalle = actualizada;
-            console.log('[FORO] Vista detalle actualizada:', this.vistaDetalle);
-            this.cdr.detectChanges();
+            this.safeDetectChanges();
           }
         }
       });
@@ -131,7 +130,7 @@ export class ForoComponent {
         this.foroService.eliminarPublicacion(pub.id).subscribe({
           next: () => {
             this.mensaje = 'Publicación eliminada correctamente.';
-            this.cdr.detectChanges();
+            this.safeDetectChanges();
 
             Swal.fire({
               icon: 'success',
@@ -183,7 +182,7 @@ export class ForoComponent {
           if (this.vistaDetalle?.id === pubActualizada.id) {
             this.vistaDetalle = pubActualizada;
           }
-          this.cdr.detectChanges();
+          this.safeDetectChanges();
           Swal.fire('¡Éxito!', 'Publicación actualizada correctamente.', 'success');
         },
         error: (error: any) => Swal.fire('Error', error.message, 'error')
@@ -237,7 +236,7 @@ export class ForoComponent {
           this.mostrarFormulario = false;
           this.publicando = false;
           this.publicaciones = [publicacionCreada, ...this.publicaciones];
-          this.cdr.detectChanges();
+          this.safeDetectChanges();
           Swal.fire({
             icon: 'success',
             title: 'Publicación creada',
@@ -257,12 +256,33 @@ export class ForoComponent {
 
   abrirDetalle(pub: Publicacion): void {
     this.vistaDetalle = pub;
-    console.log('[FORO] abrirDetalle -> vistaDetalle:', this.vistaDetalle);
   }
 
   volverLista(): void {
     this.vistaDetalle = null;
     this.nuevoComentario = '';
+  }
+
+  ngOnDestroy(): void {
+    this.isDestroyed = true;
+  }
+
+  private safeDetectChanges(): void {
+    if (this.isDestroyed) {
+      return;
+    }
+
+    setTimeout(() => {
+      try {
+        this.cdr.detectChanges();
+      } catch {
+        try {
+          this.cdr.markForCheck();
+        } catch {
+          // Ignorar errores de ciclo de detección de cambios.
+        }
+      }
+    }, 0);
   }
 
   responder(): void {
@@ -300,7 +320,7 @@ export class ForoComponent {
             pub.id === publicacionActualizada.id ? publicacionActualizada : pub
           );
           this.enviando = false;
-          this.cdr.detectChanges();
+          this.safeDetectChanges();
           Swal.fire({
             icon: 'success',
             title: 'Comentario agregado',
@@ -340,7 +360,7 @@ export class ForoComponent {
             this.publicaciones = this.publicaciones.map((pub) =>
               pub.id === publicacion.id ? publicacion : pub
             );
-            this.cdr.detectChanges();
+            this.safeDetectChanges();
             Swal.fire({ icon: 'success', title: 'Reportado', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
           },
           error: (error: any) => {
@@ -351,21 +371,20 @@ export class ForoComponent {
         // 2. Suma el reporte al perfil del usuario en la tabla de gestión
         if (Comentario.autorUid) {
           this.userService.sumarReportePorUid(Comentario.autorUid).subscribe({
-            next: (user) => console.log(`Contador actualizado para ${user.nombre}`),
-            error: (err) => {
-              console.warn('No se pudo actualizar contador por UID:', err.message);
+            next: () => {},
+            error: () => {
               if (nombreAutor) {
                 this.userService.sumarReportePorNombre(nombreAutor).subscribe({
-                  next: (userByName) => console.log(`Contador actualizado por nombre para ${userByName.nombre}`),
-                  error: (errByName) => console.warn('No se pudo actualizar contador por nombre:', errByName.message)
+                  next: () => {},
+                  error: () => {}
                 });
               }
             }
           });
         } else if (nombreAutor) {
           this.userService.sumarReportePorNombre(nombreAutor).subscribe({
-            next: (user) => console.log(`Contador actualizado para ${user.nombre}`),
-            error: (err) => console.warn('No se pudo actualizar contador de usuario por nombre:', err.message)
+            next: () => {},
+            error: () => {}
           });
         }
       }
@@ -391,7 +410,7 @@ export class ForoComponent {
         next: (publicacionActualizada) => {
           this.vistaDetalle = publicacionActualizada;
           this.enviando = false;
-          this.cdr.detectChanges();
+          this.safeDetectChanges();
         },
         error: (error: Error) => {
           this.enviando = false;

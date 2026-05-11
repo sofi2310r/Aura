@@ -137,7 +137,9 @@ export class NotasClinicasComponent implements OnInit {
     };
 
     const request$ = this.notaEditando
-      ? this.notasService.updateNotaClinica(this.notaEditando.id, payload)
+      ? this.notasIgual(this.notaEditando, payload)
+        ? of(this.notaEditando)
+        : this.notasService.updateNotaClinica(this.notaEditando.id, payload)
       : this.notasService.createNotaClinica(payload);
 
     request$.pipe(
@@ -152,18 +154,37 @@ export class NotasClinicasComponent implements OnInit {
       })
     ).subscribe((res) => {
       if (res) {
+        const notaGuardada: NotaClinica = {
+          id: this.notaEditando ? this.notaEditando.id : res.id,
+          pacienteUid: payload.pacienteUid,
+          fecha: payload.fecha,
+          categoria: payload.categoria,
+          diagnostico: payload.diagnostico,
+          sintomas: payload.sintomas,
+          planTratamiento: payload.planTratamiento,
+          observaciones: payload.observaciones,
+          pacienteNombre: payload.pacienteNombre,
+          psicologoUid: payload.psicologoUid,
+          psicologoNombre: payload.psicologoNombre,
+          createdAt: this.notaEditando?.createdAt || new Date().toISOString(),
+        };
+
+        if (this.notaEditando) {
+          this.notas = this.notas.map((nota) =>
+            nota.id === this.notaEditando?.id ? notaGuardada : nota
+          );
+        } else {
+          this.notas = [notaGuardada, ...this.notas];
+        }
+
         this.mostrarFormulario = false;
         this.resetFormulario();
+        this.actualizarFiltro();
 
-        // RECARGA DIRECTA
-        this.cargarNotas().subscribe({
-          next: () => {
-            // Refuerzo tras la suscripción
-            this.cdr.markForCheck();
-            this.cdr.detectChanges();
-            Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 1000, showConfirmButton: false });
-          }
-        });
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
+
+        Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 1000, showConfirmButton: false });
       } else {
         Swal.fire('Error', 'No se pudo guardar', 'error');
       }
@@ -212,7 +233,8 @@ export class NotasClinicasComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.notasService.deleteNotaClinica(id).subscribe(() => {
-          this.cargarNotas().subscribe();
+          this.notas = this.notas.filter((nota) => nota.id !== id);
+          this.actualizarFiltro();
           Swal.fire('Eliminado', 'La nota ha sido borrada.', 'success');
         });
       }
@@ -253,5 +275,17 @@ export class NotasClinicasComponent implements OnInit {
   formatFecha(f: string): string {
     const d = new Date(f);
     return isNaN(d.getTime()) ? f : d.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  private notasIgual(nota: NotaClinica, payload: any): boolean {
+    return (
+      nota.pacienteUid === payload.pacienteUid &&
+      nota.fecha === payload.fecha &&
+      nota.categoria === payload.categoria &&
+      nota.diagnostico === payload.diagnostico &&
+      nota.sintomas === payload.sintomas &&
+      nota.planTratamiento === payload.planTratamiento &&
+      nota.observaciones === payload.observaciones
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
-import { timeout } from 'rxjs/operators';
+import { retry, timeout } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User, UserRole } from '../models/user.model';
 import { BackendService, extractBackendErrorMessage } from './backend.service';
@@ -68,6 +68,7 @@ export class AuthService {
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
   private sessionTimeout: any;
+  private readonly BACKEND_TIMEOUT_MS = 60000; // 60 segundos para backends free/latentes
   private readonly SESSION_DURATION = 30 * 60 * 1000; // 30 minutos en milisegundos
   private readonly SESSION_EXPIRY_KEY = 'aura.session-expiry';
 
@@ -259,7 +260,7 @@ export class AuthService {
           email: normalizedEmail,
           password: trimmedPassword,
           displayName: data.nombre.trim(),
-        }).pipe(timeout(15000)),
+        }).pipe(timeout(this.BACKEND_TIMEOUT_MS), retry(1)),
       );
       console.log('✅ PASO 1 completado. UID:', createdUser.uid);
 
@@ -287,25 +288,37 @@ export class AuthService {
         updatedAt: new Date().toISOString(),
       };
 
+      let rollbackSucceeded = true;
       try {
         // PASO 3: Guardar perfil en Firestore
         console.log('💾 PASO 3: Guardando perfil en Firestore...');
-        await firstValueFrom(this.userService.addUser(profile, createdUser.uid).pipe(timeout(15000)));
+        await firstValueFrom(this.userService.addUser(profile, createdUser.uid).pipe(timeout(this.BACKEND_TIMEOUT_MS), retry(1)));
         console.log('✅ PASO 3 completado. Perfil guardado en Firestore');
       } catch (profileError) {
         // PASO 4: Si falla Firestore, eliminar user de Auth (rollback)
         console.error('❌ PASO 3 falló. Haciendo rollback...', profileError);
-        await this.rollbackRegisteredUser(createdUser.uid);
-        throw new Error('No se pudo completar el registro. Intenta nuevamente.');
+        rollbackSucceeded = await this.rollbackRegisteredUser(createdUser.uid);
+        const rollbackMsg = rollbackSucceeded
+          ? ''
+          : ' No se pudo completar el rollback en Auth, por lo que la cuenta puede ya existir.';
+        throw new Error(`No se pudo completar el registro. Intenta nuevamente más tarde.${rollbackMsg}`);
       }
 
       console.log('✅ REGISTRO COMPLETADO EXITOSAMENTE');
       return createdUser.uid;
     } catch (error: any) {
-      const timeoutError = error?.name === 'TimeoutError' || error?.message?.toString().toLowerCase().includes('timeout');
-      const mensaje = timeoutError
-        ? 'El servidor no respondió a tiempo. Intenta nuevamente.'
-        : extractBackendErrorMessage(error, 'No se pudo registrar el usuario.');
+      const messageText = error?.message?.toString() || '';
+      const timeoutError = error?.name === 'TimeoutError' || messageText.toLowerCase().includes('timeout');
+      const quotaError = /resource_exhausted|quota|exceeded|cuota/i.test(messageText);
+      let mensaje: string;
+
+      if (quotaError) {
+        mensaje = 'La cuota de Firestore está saturada. El registro no pudo completarse. Intenta nuevamente más tarde o contacta al administrador.';
+      } else if (timeoutError) {
+        mensaje = 'El servidor no respondió a tiempo. El backend gratuito puede tardar más en despertar; espera unos segundos y vuelve a intentarlo.';
+      } else {
+        mensaje = extractBackendErrorMessage(error, 'No se pudo registrar el usuario.');
+      }
       console.error('❌ ERROR EN REGISTRO:', error, mensaje);
       throw new Error(mensaje);
     }
@@ -419,11 +432,13 @@ export class AuthService {
     localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
   }
 
-  private async rollbackRegisteredUser(uid: string): Promise<void> {
+  private async rollbackRegisteredUser(uid: string): Promise<boolean> {
     try {
       await firstValueFrom(this.backend.delete<{ message: string }>(`/api/auth/user/${encodeURIComponent(uid)}`));
-    } catch {
-      return;
+      return true;
+    } catch (error: unknown) {
+      console.error('❌ No se pudo completar el rollback de Auth:', error);
+      return false;
     }
   }
 

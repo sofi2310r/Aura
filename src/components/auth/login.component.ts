@@ -4,7 +4,7 @@ import { BackendService } from '../../services/backend.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
-import { timeout } from 'rxjs/operators';
+import { retry, timeout } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -249,7 +249,7 @@ export class LoginComponent implements OnInit {
         try {
           const destination = `documentos/${this.documento}_${Date.now()}_${this.documentoFile?.name}`;
           const response: any = await firstValueFrom(
-            this.backend.uploadFile('/api/storage/upload', this.documentoFile!, { destination }).pipe(timeout(15000))
+            this.backend.uploadFile('/api/storage/upload', this.documentoFile!, { destination }).pipe(timeout(60000), retry(1))
           );
           documentoUrl = response.url || response.publicUrl || '';
           if (!documentoUrl) throw new Error('No se recibió URL del backend');
@@ -332,11 +332,17 @@ export class LoginComponent implements OnInit {
       });
 
       const rawMessage = typeof error === 'string' ? error : error?.message || '';
+      const matchedMessage = rawMessage.toString().toLowerCase();
       let mensaje = 'Error al registrar. Intenta de nuevo.';
 
-      if (rawMessage.includes('already in use') || rawMessage.includes('ya está en uso')) {
+      if (
+        matchedMessage.includes('already in use') ||
+        matchedMessage.includes('ya está en uso') ||
+        matchedMessage.includes('email address is already in use') ||
+        matchedMessage.includes('auth/email-already-in-use')
+      ) {
         mensaje = 'Este correo ya está registrado. Usa otro correo o inicia sesión.';
-      } else if (rawMessage.includes('contraseña') || rawMessage.includes('La contraseña debe tener al menos')) {
+      } else if (matchedMessage.includes('contraseña') || matchedMessage.includes('la contraseña debe tener al menos')) {
         mensaje = rawMessage;
       }
 

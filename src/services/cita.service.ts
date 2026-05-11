@@ -43,7 +43,7 @@ export class CitaService {
   private lastSignature = '';
 
   constructor(private readonly backend: BackendService) {
-    interval(5000)
+    interval(30000)
       .pipe(startWith(0))
       .subscribe(() => this.refreshCitas());
   }
@@ -197,6 +197,18 @@ export class CitaService {
   }
 
   updateCita(id: string, data: any): Observable<any> {
+    const existingCita = this.citasSubject.value.find((c) => c.id === id);
+    if (existingCita) {
+      const hasChanges = Object.entries(data).some(([key, value]) => {
+        const existingValue = (existingCita as any)[key];
+        return value !== existingValue;
+      });
+
+      if (!hasChanges) {
+        return of(existingCita);
+      }
+    }
+
     // USAR LA MISMA URL: this.citasUrl
     return this.backend.patch(`${this.citasUrl}/${encodeURIComponent(id)}`, data).pipe(
       tap(() => {
