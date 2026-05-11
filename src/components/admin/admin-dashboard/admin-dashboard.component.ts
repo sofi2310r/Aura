@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core'; // <-- 1. IMPORTADO AQUÍ
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
+import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Observable, Subscription, interval } from 'rxjs';
@@ -32,6 +33,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   errorMessage = '';
   isAdminHomeRoute = true;
 
+  // Dashboard friendly
+  saludo = 'Bienvenido';
+  fechaActual = new Date();
+  fechaActualTexto = '';
+
   // Variables para la edición en Configuración
   nuevaClave = '';
 
@@ -56,6 +62,15 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userService.refresh();
+
+    this.fechaActualTexto = this.fechaActual.toLocaleDateString('es-CO', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    this.saludo = this.obtenerSaludo();
 
     // Carga de Publicaciones
     this.subscriptions.add(
@@ -133,20 +148,31 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       this.userService.updateUser(usuarioActualizado).subscribe({
         next: (user) => {
           this.adminUser = user;
-          this.mensaje = '✅ Perfil actualizado correctamente.';
+          this.nombre = user.nombre;
+          this.apellido = user.apellido;
           this.errorMessage = '';
-          this.cdr.detectChanges(); // <-- 3. MAGIA AQUÍ
+          this.cdr.detectChanges();
 
-          // Limpiamos el mensaje después de 3 segundos
-          setTimeout(() => {
-            this.mensaje = '';
-            this.cdr.detectChanges(); // Actualizamos la vista de nuevo al ocultar el mensaje
-          }, 3000);
+          this.authService.updateCurrentUser(user);
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Perfil actualizado',
+            text: 'Tus datos se guardaron correctamente.',
+            confirmButtonColor: '#5b3a7d',
+          });
         },
         error: (err) => {
           this.errorMessage = 'Error al actualizar: ' + err.message;
           this.mensaje = '';
-          this.cdr.detectChanges(); // <-- 4. Y AQUÍ
+          this.cdr.detectChanges();
+
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo actualizar',
+            text: this.errorMessage,
+            confirmButtonColor: '#d33',
+          });
         }
       })
     );
@@ -191,6 +217,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.psicologosActivos = users.filter(u => u.rol === 'psicologo' && u.activo).length;
     this.moderadores = users.filter(u => u.rol === 'moderador').length;
     this.pacientesActivos = users.filter(u => u.rol === 'paciente' && u.activo).length;
+  }
+
+  private obtenerSaludo(): string {
+    const hora = new Date().getHours();
+    if (hora < 12) return 'Buenos días';
+    if (hora < 18) return 'Buenas tardes';
+    return 'Buenas noches';
   }
 
   cerrarSesion(): void {

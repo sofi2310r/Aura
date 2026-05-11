@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { User, UserRole } from '../models/user.model';
 import { BackendService, extractBackendErrorMessage } from './backend.service';
@@ -24,6 +25,13 @@ interface RegisterRequest {
   documentoUrl?: string;
   reporte?: string;
   permisos: string;
+  nombrePadre?: string;
+  parentescoPadre?: string;
+  observacionesPadres?: string;
+  autorizacionPadres?: {
+    estado?: string;
+    requiereAutorizacion?: boolean;
+  };
 }
 
 /**
@@ -131,6 +139,10 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  updateCurrentUser(user: User): void {
+    this.persistUser(user);
+  }
+
   getAuthToken(): string | null {
     if (typeof localStorage === 'undefined') {
       return null;
@@ -186,7 +198,7 @@ export class AuthService {
           this.backend.post<LoginResponse>('/api/auth/login', {
             email: normalizedEmail,
             password: trimmedPassword,
-          }),
+          }).pipe(timeout(15000)),
         );
 
         const token = loginResponse?.token || loginResponse?.idToken || loginResponse?.accessToken;
@@ -247,7 +259,7 @@ export class AuthService {
           email: normalizedEmail,
           password: trimmedPassword,
           displayName: data.nombre.trim(),
-        }),
+        }).pipe(timeout(15000)),
       );
       console.log('✅ PASO 1 completado. UID:', createdUser.uid);
 
@@ -259,7 +271,7 @@ export class AuthService {
         apellido: data.apellido.trim(),
         correo: normalizedEmail,
         role: this.resolveRole(data.permisos),
-        activo: true,
+        activo: false,
         documento: data.documento.trim(),
         fechaNacimiento: data.fechaNacimiento,
         edad: data.edad,
@@ -267,6 +279,10 @@ export class AuthService {
         documentoUrl: data.documentoUrl?.trim() || '',
         reporte: Number(data.reporte) || 0,
         permisos: data.permisos.trim(),
+        nombrePadre: data.nombrePadre?.trim() || undefined,
+        parentescoPadre: data.parentescoPadre?.trim() || undefined,
+        observacionesPadres: data.observacionesPadres?.trim() || undefined,
+        autorizacionPadres: data.autorizacionPadres,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -274,7 +290,7 @@ export class AuthService {
       try {
         // PASO 3: Guardar perfil en Firestore
         console.log('💾 PASO 3: Guardando perfil en Firestore...');
-        await firstValueFrom(this.userService.addUser(profile, createdUser.uid));
+        await firstValueFrom(this.userService.addUser(profile, createdUser.uid).pipe(timeout(15000)));
         console.log('✅ PASO 3 completado. Perfil guardado en Firestore');
       } catch (profileError) {
         // PASO 4: Si falla Firestore, eliminar user de Auth (rollback)
@@ -285,8 +301,11 @@ export class AuthService {
 
       console.log('✅ REGISTRO COMPLETADO EXITOSAMENTE');
       return createdUser.uid;
-    } catch (error) {
-      const mensaje = extractBackendErrorMessage(error, 'No se pudo registrar el usuario.');
+    } catch (error: any) {
+      const timeoutError = error?.name === 'TimeoutError' || error?.message?.toString().toLowerCase().includes('timeout');
+      const mensaje = timeoutError
+        ? 'El servidor no respondió a tiempo. Intenta nuevamente.'
+        : extractBackendErrorMessage(error, 'No se pudo registrar el usuario.');
       console.error('❌ ERROR EN REGISTRO:', error, mensaje);
       throw new Error(mensaje);
     }

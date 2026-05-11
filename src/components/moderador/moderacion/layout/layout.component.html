@@ -98,21 +98,8 @@
 
                     <hr class="separator">
 
-                    <section class="config-section">
-                        <h3>Seguridad</h3>
-                        <div class="input-group">
-                            <label>Nueva Contraseña</label>
-                            <input type="password" [(ngModel)]="nuevaClave" placeholder="Mínimo 6 caracteres">
-                        </div>
-                        <button class="btn-outline" (click)="actualizarPassword()">
-                            Actualizar Contraseña
-                        </button>
-                    </section>
+                   
 
-                    <div class="status-messages">
-                        <p *ngIf="mensaje" class="success-msg">{{ mensaje }}</p>
-                        <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
-                    </div>
                 </div>
             </div>
         </div>

@@ -209,6 +209,22 @@
               <input type="number" [(ngModel)]="edad" readonly placeholder="Se calcula automáticamente" />
             </div>
 
+            <div *ngIf="edad < 18" class="minor-info">
+              <h4>Datos de Padre/Madre o Tutor</h4>
+              <div class="form-group">
+                <label>Nombre del padre/tutor:</label>
+                <input type="text" [(ngModel)]="nombrePadre" placeholder="Nombre del padre o tutor" />
+              </div>
+              <div class="form-group">
+                <label>Parentesco:</label>
+                <input type="text" [(ngModel)]="parentescoPadre" placeholder="Parentesco con el menor" />
+              </div>
+              <div class="form-group">
+                <label>Observaciones:</label>
+                <textarea [(ngModel)]="observacionesPadres" placeholder="Observaciones del tutor" rows="2"></textarea>
+              </div>
+            </div>
+
             <div class="form-group">
               <label>Teléfono:</label>
               <input type="tel" [(ngModel)]="telefono" placeholder="Teléfono" />
@@ -222,11 +238,13 @@
               <textarea [(ngModel)]="reporte" placeholder="Reporte o notas adicionales" rows="3"></textarea>
             </div>
 
-            <div class="form-group">
-              <label>
+            <div class="form-group switch-group">
+              <label class="switch-label">Activo:</label>
+              <label class="switch-aprobacion">
                 <input type="checkbox" [(ngModel)]="activo" />
-                Usuario Activo
+                <span class="slider"></span>
               </label>
+              <span class="switch-text">{{ activo ? 'Activo' : 'Inactivo' }}</span>
             </div>
           </div>
 

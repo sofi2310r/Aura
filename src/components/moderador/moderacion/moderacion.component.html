@@ -56,7 +56,7 @@
       <textarea
         class="textarea-field"
         placeholder="Escribe tu respuesta..."
-        (ngModel)="nuevoComentario"
+        [(ngModel)]="nuevoComentario"
         rows="4"
       ></textarea>
 
@@ -71,24 +71,43 @@
       <button class="btn-nueva" (click)="toggleFormulario()">
         {{ mostrarFormulario ? 'Cancelar' : '+ Nueva Publicacion' }}
       </button>
-
-      <div class="formulario" *ngIf="mostrarFormulario">
-        <h3>Crear publicacion</h3>
-
-        <input class="input-field" type="text" placeholder="Titulo de tu publicacion" (ngModel)="titulo" />
-
-        <textarea
-          class="textarea-field"
-          placeholder="Comparte tu experiencia o pregunta..."
-          (ngModel)="contenido"
-          rows="5"
-        ></textarea>
-
-        <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
-          {{ publicando ? 'Publicando...' : 'Publicar' }}
-        </button>
-      </div>
     </div>
+
+    <section class="modal-overlay" *ngIf="mostrarFormulario" (click)="toggleFormulario()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div>
+            <h3>Crear publicación</h3>
+            <p class="modal-subtitle">Comparte una experiencia o mensaje para el foro.</p>
+          </div>
+          <button type="button" class="btn-close" (click)="toggleFormulario()">✕</button>
+        </header>
+
+        <form class="formulario" (ngSubmit)="publicar()">
+          <input
+            class="input-field"
+            type="text"
+            name="titulo"
+            placeholder="Titulo de tu publicacion"
+            [(ngModel)]="titulo"
+          />
+
+          <textarea
+            class="textarea-field"
+            name="contenido"
+            placeholder="Comparte tu experiencia o pregunta..."
+            [(ngModel)]="contenido"
+            rows="5"
+          ></textarea>
+
+          <div class="modal-actions">
+            <button class="btn-publicar" type="submit" [disabled]="publicando">
+              {{ publicando ? 'Publicando...' : 'Publicar' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
 
     <div class="lista">
       <div class="publicacion-card" *ngFor="let pub of publicaciones" (click)="abrirDetalle(pub)">

@@ -49,9 +49,13 @@ export class Reportes implements OnInit {
     eliminarComentario(pub: any, index: number) {
         Swal.fire({
             title: '¿Eliminar comentario?',
+            text: 'Esta acción borrará el comentario reportado permanentemente.',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sí, eliminar'
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280'
         }).then((result) => {
             if (result.isConfirmed) {
 
@@ -72,11 +76,15 @@ export class Reportes implements OnInit {
 
                 this.foroService.actualizarPublicacion(pub.id, payload).subscribe({
                     next: () => {
-                        this.notificacionExito('Eliminado');
+                        this.notificacionExito('Comentario eliminado');
                     },
                     error: () => {
-                        // Si falla, podrías recargar para que el usuario vea que no se borró
-                        Swal.fire('Error', 'No se pudo sincronizar con el servidor', 'error');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se pudo sincronizar con el servidor.',
+                            confirmButtonText: 'Aceptar'
+                        });
                     }
                 });
             }
@@ -98,7 +106,24 @@ export class Reportes implements OnInit {
             Comentarios: nuevosComentarios
         };
 
-        this.foroService.actualizarPublicacion(pub.id, payload).subscribe();
+        this.foroService.actualizarPublicacion(pub.id, payload).subscribe({
+            next: () => {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Reporte ignorado',
+                    text: 'El comentario ya no aparecerá como reportado.',
+                    timer: 1200,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+                this.cdr.detectChanges();
+            },
+            error: (err: any) => {
+                Swal.fire('Error', 'No se pudo actualizar el reporte', 'error');
+                console.error('[Reportes] Ignorar reporte falló:', err);
+            }
+        });
     }
 
     bloquearUsuario(autorId: string, pubId: string, index: number) {

@@ -24,4 +24,8 @@ export interface User {
   nombrePadre?: string;
   observacionesPadres?: string;
   parentescoPadre?: string;
+  autorizacionPadres?: {
+    estado?: string;
+    requiereAutorizacion?: boolean;
+  };
 }

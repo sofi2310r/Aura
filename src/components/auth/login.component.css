@@ -314,6 +314,26 @@ form {
   line-height: 1.5;
 }
 
+.minor-note {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  color: #4d3f6b;
+}
+
+.minor-note p {
+  margin: 4px 0;
+}
+
+.minor-note .warning-text {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+.minor-fields textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }

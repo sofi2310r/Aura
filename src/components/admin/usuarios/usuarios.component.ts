@@ -1,8 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { forkJoin, lastValueFrom, Observable } from 'rxjs';
+import { forkJoin, lastValueFrom, Observable, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { User, UserRole } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
@@ -17,7 +17,7 @@ import { NotasClinicasService, NotaClinica } from '../../../services/notas-clini
 })
 
 
-export class UsuariosComponent implements OnInit {
+export class UsuariosComponent implements OnInit, OnDestroy {
 
       cambiarAprobacion(usuario: User, aprobado: boolean): void {
         if (!this.esAdmin()) return;
@@ -100,6 +100,8 @@ export class UsuariosComponent implements OnInit {
   usuariosFiltrados: User[] = [];
   usuarioAutenticado: User | null = null;
 
+  private usuariosSubscription?: Subscription;
+
   busqueda = '';
   rolFiltro: UserRole | '' = '';
 
@@ -117,6 +119,9 @@ export class UsuariosComponent implements OnInit {
   edad = 0;
   telefono = '';
   reporte = 0;
+  nombrePadre = '';
+  parentescoPadre = '';
+  observacionesPadres = '';
 
   mensaje = '';
 
@@ -140,6 +145,10 @@ export class UsuariosComponent implements OnInit {
     // Forzar carga de datos frescos del servidor
   }
 
+  ngOnDestroy(): void {
+    this.usuariosSubscription?.unsubscribe();
+  }
+
   verificarAutenticacion(): void {
     const user = this.authService.getCurrentUser();
     if (user) {
@@ -154,7 +163,8 @@ export class UsuariosComponent implements OnInit {
   }
 
   cargarUsuarios(): void {
-    this.userService.getUsers().subscribe({
+    this.usuariosSubscription?.unsubscribe();
+    this.usuariosSubscription = this.userService.getUsers().subscribe({
       next: (users: User[]) => {
         this.usuarios = users;
         this.filtrar();
@@ -194,11 +204,14 @@ export class UsuariosComponent implements OnInit {
     this.apellido = usuario.apellido;
     this.correo = usuario.correo;
     this.rol = (usuario.rol ?? (usuario.role as UserRole) ?? 'paciente');
-    this.activo = usuario.activo || true;
-    this.fechaNacimiento = usuario.fechaNacimiento || '';
-    this.edad = usuario.edad || 0;
+    this.activo = usuario.activo ?? true;
+    this.fechaNacimiento = this.formatearFechaParaInput(usuario.fechaNacimiento || '');
+    this.edad = usuario.edad || this.calcularEdad(this.fechaNacimiento);
     this.telefono = usuario.telefono || '';
     this.reporte = usuario.reporte || 0;
+    this.nombrePadre = usuario.nombrePadre || '';
+    this.parentescoPadre = usuario.parentescoPadre || '';
+    this.observacionesPadres = usuario.observacionesPadres || '';
     this.mostrarModal = true;
   }
 
@@ -214,6 +227,9 @@ export class UsuariosComponent implements OnInit {
     this.edad = 0;
     this.telefono = '';
     this.reporte = 0;
+    this.nombrePadre = '';
+    this.parentescoPadre = '';
+    this.observacionesPadres = '';
   }
 
   guardarCambios(): void {
@@ -251,6 +267,9 @@ export class UsuariosComponent implements OnInit {
       edad: this.calcularEdad(this.fechaNacimiento),
       telefono: this.telefono,
       reporte: this.reporte,
+      nombrePadre: this.nombrePadre || undefined,
+      parentescoPadre: this.parentescoPadre || undefined,
+      observacionesPadres: this.observacionesPadres || undefined,
     };
 
     this.userService.updateUser(usuarioActualizado).subscribe({
@@ -294,6 +313,16 @@ export class UsuariosComponent implements OnInit {
       edad--;
     }
     return edad;
+  }
+
+  formatearFechaParaInput(fecha: string): string {
+    if (!fecha) return '';
+    const date = new Date(fecha);
+    if (isNaN(date.getTime())) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   actualizarEdad(): void {
@@ -340,7 +369,6 @@ export class UsuariosComponent implements OnInit {
       cancelButtonText: 'Cancelar',
     }).then(async (result) => {
       if (result.isConfirmed) {
-        this.cerrarModal();
         if (usuario.uid) {
           await this.authService.deleteAuthUserByUid(usuario.uid);
         }
@@ -350,17 +378,17 @@ export class UsuariosComponent implements OnInit {
 
         this.userService.removeUser(usuario.id).subscribe({
           next: () => {
-            this.usuarios = this.usuarios.filter((u) => u.id !== usuario.id);
-            this.filtrar();
-            this.cdr.detectChanges();
-            Swal.fire({
-              icon: 'success',
-              title: 'Eliminado',
-              text: 'Usuario eliminado correctamente',
-              confirmButtonColor: '#2fa98f',
-              timer: 1000,
-            });
-            this.cargarUsuarios();
+            setTimeout(() => {
+              this.cerrarModal();
+              this.filtrar();
+              Swal.fire({
+                icon: 'success',
+                title: 'Eliminado',
+                text: 'Usuario eliminado correctamente',
+                confirmButtonColor: '#2fa98f',
+                timer: 1000,
+              });
+            }, 0);
           },
           error: () => {
             Swal.fire({

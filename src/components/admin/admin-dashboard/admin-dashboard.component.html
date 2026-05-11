@@ -83,16 +83,6 @@
           <button type="submit" class="btn-primary">Guardar Cambios</button>
         </form>
 
-        <!-- Formulario de Seguridad -->
-        <form (submit)="actualizarPassword(); $event.preventDefault()" class="card-edit mt-4">
-          <h3>Seguridad</h3>
-          <div class="form-group">
-            <label for="password">Nueva Contraseña</label>
-            <input type="password" id="password" name="nuevaClave" [(ngModel)]="nuevaClave"
-              placeholder="Mínimo 6 caracteres" class="form-control" required>
-          </div>
-          <button type="submit" class="btn-secondary">Actualizar Contraseña</button>
-        </form>
 
         <!-- Mensajes de Feedback -->
         <div class="alert success" *ngIf="mensaje">✅ {{ mensaje }}</div>
@@ -101,57 +91,87 @@
 
       <!-- 3. VISTA PRINCIPAL (ESTADÍSTICAS) -->
       <ng-container *ngIf="isAdminHomeRoute">
-        <div class="header-section">
-          <h1 class="titulo-principal">Panel de Administración - {{ adminUser?.nombre || 'Admin' }}</h1>
-          <p class="subtitle">Bienvenido al centro de control de AURA</p>
-        </div>
-
-        <div class="error-box" *ngIf="errorMessage && !router.url.includes('configuracion')">
-          <p>❌ {{ errorMessage }}</p>
-          <a routerLink="/login">Volver a iniciar sesión</a>
-        </div>
-
-        <div class="stats-container">
-          <div class="stat-card">
-            <div class="stat-icon usuarios">👥</div>
-            <div class="stat-content">
-              <p class="stat-label">Usuarios Totales</p>
-              <p class="stat-number">{{ totalUsuarios }}</p>
+  
+          <section class="hero card">
+            <div>
+              <p class="hero-kicker">Panel de Administración</p>
+              <h2>{{ saludo }}, {{ adminUser?.nombre || 'Administrador' }}</h2>
+              <p class="hero-sub">{{ fechaActualTexto }}</p>
+              <p class="hero-copy">Administra usuarios, revisa el foro y controla las estadísticas de AURA desde un solo lugar.</p>
             </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon psicologos">🧠</div>
-            <div class="stat-content">
-              <p class="stat-label">Psicólogos Activos</p>
-              <p class="stat-number">{{ psicologosActivos }}</p>
+            <div class="hero-chip">
+              <span class="chip-label">Publicaciones Foro</span>
+              <span class="chip-value">{{ totalPublicaciones }}</span>
             </div>
-          </div>
+          </section>
 
-          <div class="stat-card">
-            <div class="stat-icon moderadores">👮</div>
-            <div class="stat-content">
-              <p class="stat-label">Moderadores</p>
-              <p class="stat-number">{{ moderadores }}</p>
-            </div>
-          </div>
+          <section class="cards-grid">
+            <article class="metric-card">
+              <span class="metric-title">Usuarios</span>
+              <strong class="metric-value">{{ totalUsuarios }}</strong>
+              <small class="metric-helper">Activos en la plataforma</small>
+            </article>
 
-          <div class="stat-card">
-            <div class="stat-icon pacientes">🏥</div>
-            <div class="stat-content">
-              <p class="stat-label">Pacientes Activos</p>
-              <p class="stat-number">{{ pacientesActivos }}</p>
-            </div>
-          </div>
+            <article class="metric-card">
+              <span class="metric-title">Pacientes</span>
+              <strong class="metric-value">{{ pacientesActivos }}</strong>
+              <small class="metric-helper">Con cuenta activa</small>
+            </article>
 
-          <div class="stat-card foro-card" routerLink="/admin/foro" style="cursor: pointer;">
-            <div class="stat-icon foro">💬</div>
-            <div class="stat-content">
-              <p class="stat-label">Publicaciones Foro</p>
-              <p class="stat-number">{{ totalPublicaciones }}</p>
+            <article class="metric-card">
+              <span class="metric-title">Psicólogos</span>
+              <strong class="metric-value">{{ psicologosActivos }}</strong>
+              <small class="metric-helper">Con actividad reciente</small>
+            </article>
+
+            <article class="metric-card">
+              <span class="metric-title">Moderadores</span>
+              <strong class="metric-value">{{ moderadores }}</strong>
+              <small class="metric-helper">Encargados de supervisión</small>
+            </article>
+          </section>
+
+          <section class="card quick-actions">
+            <div class="quick-head">
+              <h3>Accesos rápidos</h3>
+              <span class="badge">Administración</span>
             </div>
-          </div>
-        </div>
+
+            <div class="quick-grid">
+              <a routerLink="/admin/usuarios" class="quick-item">
+                <span class="quick-icon">👥</span>
+                <div>
+                  <strong>Usuarios</strong>
+                  <p>Gestiona cuentas y roles.</p>
+                </div>
+              </a>
+
+              <a routerLink="/admin/foro" class="quick-item">
+                <span class="quick-icon">💬</span>
+                <div>
+                  <strong>Foro</strong>
+                  <p>Revisa publicaciones y mensajes.</p>
+                </div>
+              </a>
+
+              <a routerLink="/admin/notas-clinicas" class="quick-item">
+                <span class="quick-icon">📋</span>
+                <div>
+                  <strong>Notas clínicas</strong>
+                  <p>Ver seguimiento profesional.</p>
+                </div>
+              </a>
+
+              <a routerLink="/admin/configuracion" class="quick-item">
+                <span class="quick-icon">⚙️</span>
+                <div>
+                  <strong>Configuración</strong>
+                  <p>Actualiza tu perfil.</p>
+                </div>
+              </a>
+            </div>
+          </section>
+
       </ng-container>
 
     </div>

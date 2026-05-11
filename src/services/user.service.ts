@@ -25,6 +25,7 @@ interface FirestoreUserDocument {
   nombrePadre?: unknown;
   observacionesPadres?: unknown;
   parentescoPadre?: unknown;
+  autorizacionPadres?: unknown;
 }
 
 interface FirestoreCreateResponse {
@@ -173,14 +174,14 @@ export class UserService {
 
     // 2. ACTUALIZACIÓN OPTIMISTA: Eliminamos de la memoria del servicio YA
     const nuevaLista = usuariosPrevios.filter((user) => user.id !== id);
-    this.usersSubject.next(nuevaLista);
+    setTimeout(() => this.usersSubject.next(nuevaLista), 0);
 
     // 3. Ejecutamos la petición al backend
     return this.backend.delete<{ deleted: boolean }>(`${this.usersUrl}/${encodeURIComponent(id)}`).pipe(
       map(() => undefined),
       catchError((error: unknown) => {
         // 4. ROLLBACK: Si el servidor da error, devolvemos el usuario a la lista
-        this.usersSubject.next(usuariosPrevios);
+        setTimeout(() => this.usersSubject.next(usuariosPrevios), 0);
 
         const mensaje = extractBackendErrorMessage(error, 'No se pudo eliminar el usuario.');
         return throwError(() => new Error(mensaje));
@@ -205,9 +206,11 @@ export class UserService {
     }
 
     // Importante: encodeURIComponent para evitar errores de caracteres en el ID
-    return this.backend
-      .put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(id)}`, payload)
-      .pipe(
+    const request$ = typeof idOrUser === 'string'
+      ? this.backend.patch<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(id)}`, payload)
+      : this.backend.put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(id)}`, payload);
+
+    return request$.pipe(
         // Forzamos a que el observable devuelva el resultado y se complete
         map(() => (typeof idOrUser === 'object' ? idOrUser : { id, ...payload } as User)),
         tap((updatedUser) => {
@@ -269,6 +272,7 @@ export class UserService {
       nombrePadre: typeof user.nombrePadre === 'string' && user.nombrePadre.trim() ? user.nombrePadre.trim() : undefined,
       observacionesPadres: typeof user.observacionesPadres === 'string' && user.observacionesPadres.trim() ? user.observacionesPadres.trim() : undefined,
       parentescoPadre: typeof user.parentescoPadre === 'string' && user.parentescoPadre.trim() ? user.parentescoPadre.trim() : undefined,
+      autorizacionPadres: typeof user.autorizacionPadres === 'object' ? user.autorizacionPadres : undefined,
     } as User;
   }
 
@@ -295,6 +299,7 @@ export class UserService {
       nombrePadre: user.nombrePadre?.trim() || undefined,
       observacionesPadres: user.observacionesPadres?.trim() || undefined,
       parentescoPadre: user.parentescoPadre?.trim() || undefined,
+      autorizacionPadres: user.autorizacionPadres,
     } as Omit<User, 'id'>;
   }
 
@@ -319,11 +324,30 @@ export class UserService {
     return [...users].sort((left, right) => left.nombre.localeCompare(right.nombre, 'es'));
   }
 
+  sumarReportePorUid(uid: string): Observable<User> {
+    return this.getUsers().pipe(
+      take(1),
+      switchMap(users => {
+        const usuario = users.find(u => u.uid === uid);
+
+        if (!usuario) {
+          return throwError(() => new Error('No se encontró un perfil de usuario con ese uid'));
+        }
+
+        const nuevosReportes = (usuario.reporte || 0) + 1;
+
+        return this.updateUser({
+          ...usuario,
+          reporte: nuevosReportes
+        });
+      })
+    );
+  }
+
   sumarReportePorNombre(nombreAutor: string): Observable<User> {
     return this.getUsers().pipe(
       take(1), // Tomamos la lista actual de usuarios una sola vez
       switchMap(users => {
-        // Buscamos al usuario cuyo nombre coincida con el del autor del comentario
         const usuario = users.find(u => u.nombre.trim().toLowerCase() === nombreAutor.trim().toLowerCase());
 
         if (!usuario) {
@@ -332,7 +356,6 @@ export class UserService {
 
         const nuevosReportes = (usuario.reporte || 0) + 1;
 
-        // Actualizamos el usuario encontrado
         return this.updateUser({
           ...usuario,
           reporte: nuevosReportes

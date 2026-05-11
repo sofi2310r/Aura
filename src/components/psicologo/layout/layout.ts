@@ -3,6 +3,8 @@ import { AuthService } from '../../../services/auth.service';
 import { Router } from '@angular/router';
 import { OnInit } from '@angular/core';
 import { User } from '../../../models/user.model';
+import { UserService } from '../../../services/user.service';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -26,6 +28,7 @@ export class LayoutComponent {
 
   constructor(
     private readonly authService: AuthService,
+    private readonly userService: UserService,
     public router: Router
   ) {}
 
@@ -50,24 +53,54 @@ export class LayoutComponent {
     try {
       const user = this.authService.getCurrentUser();
 
-      if (!user) {
+      if (!user || !user.uid) {
         this.errorMessage = 'No hay usuario activo';
         return;
       }
 
-      user.nombre = this.nombre;
-      user.apellido = this.apellido;
+      const dataToUpdate = {
+        nombre: this.nombre,
+        apellido: this.apellido,
+      };
 
-      (this.authService as any).persistUser(user);
+      this.userService.updateUser(user.uid, dataToUpdate).subscribe({
+        next: () => {
+          const updatedUser: User = {
+            ...user,
+            ...dataToUpdate,
+          };
 
-      this.mensaje = 'Cambios guardados correctamente';
-      this.errorMessage = '';
-      this.editMode = false;
+          this.authService.updateCurrentUser(updatedUser);
+          this.psicologoUser = updatedUser;
+          this.errorMessage = '';
+          this.editMode = false;
+          this.mensaje = '';
 
-      setTimeout(() => this.mensaje = '', 3000);
-
+          Swal.fire({
+            icon: 'success',
+            title: 'Perfil actualizado',
+            text: 'Tus datos se guardaron correctamente.',
+            confirmButtonColor: '#5b3a7d',
+          });
+        },
+        error: (err) => {
+          this.errorMessage = 'Error al guardar cambios';
+          Swal.fire({
+            icon: 'error',
+            title: 'No se pudo actualizar',
+            text: err?.message || 'Intenta nuevamente.',
+            confirmButtonColor: '#d33',
+          });
+        }
+      });
     } catch (error) {
       this.errorMessage = 'Error al guardar cambios';
+      Swal.fire({
+        icon: 'error',
+        title: 'No se pudo actualizar',
+        text: 'Ocurrió un error inesperado.',
+        confirmButtonColor: '#d33',
+      });
     }
   }
 

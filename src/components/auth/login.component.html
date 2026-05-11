@@ -7,7 +7,7 @@
     <!-- ═══ PANEL: INICIAR SESIÓN ═══ -->
     <div class="form-container login-container">
       <div class="brand-mobile">
-        <img src="assets/logo-grande.png" alt="AURA" />
+        <img src="https://mrarvcfgtnrdrepzzfnp.supabase.co/storage/v1/object/sign/Aura/image/aura.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xM2YxYTAyMy1kNTk4LTQ0OTAtYTg4Zi0xYWQ0NTE4M2JiOGMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBdXJhL2ltYWdlL2F1cmEucG5nIiwiaWF0IjoxNzc4NTM2NjQ4LCJleHAiOjE4MTAwNzI2NDh9.Zo-2Dprt_dLO2sYjL1s_wzr0j3kxJ2Rt1KPlYiXxicc" alt="AURA" />
         <span>AURA</span>
       </div>
       <h2 class="form-title">Bienvenido</h2>
@@ -46,7 +46,7 @@
     <!-- ═══ PANEL: REGISTRO ═══ -->
     <div class="form-container register-container">
       <div class="brand-mobile">
-        <img src="assets/logo-grande.png" alt="AURA" />
+        <img src="https://mrarvcfgtnrdrepzzfnp.supabase.co/storage/v1/object/sign/Aura/image/aura.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xM2YxYTAyMy1kNTk4LTQ0OTAtYTg4Zi0xYWQ0NTE4M2JiOGMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBdXJhL2ltYWdlL2F1cmEucG5nIiwiaWF0IjoxNzc4NTM2NjQ4LCJleHAiOjE4MTAwNzI2NDh9.Zo-2Dprt_dLO2sYjL1s_wzr0j3kxJ2Rt1KPlYiXxicc" alt="AURA" />
         <span>AURA</span>
       </div>
       <h2 class="form-title">Crear Cuenta</h2>
@@ -66,7 +66,7 @@
         </div>
 
         <div class="input-group">
-          <input type="date" [(ngModel)]="fechaNacimiento" name="fecha" [class.has-value]="!!fechaNacimiento" />
+          <input type="date" [(ngModel)]="fechaNacimiento" (ngModelChange)="actualizarEdadRegistro()" name="fecha" [class.has-value]="!!fechaNacimiento" />
         </div>
 
         <div class="input-group">

@@ -1,8 +1,10 @@
 import { Component, NgZone, ChangeDetectorRef, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { BackendService } from '../../services/backend.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '../../models/user.model';
+import { timeout } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -53,6 +55,8 @@ export class LoginComponent implements OnInit {
   exitoReg = '';
   registroExitoso = false;
   cargandoReg = false;
+
+  edad = 0;
 
   // ── Estado del panel deslizante ──
   mostrarRegistro = false;
@@ -232,11 +236,11 @@ export class LoginComponent implements OnInit {
       return;
     }
 
+    const edad = this.calcularEdad(this.fechaNacimiento);
+
     this.cargandoReg = true;
 
     try {
-      // Calcular edad desde fecha de nacimiento
-      const edad = this.calcularEdad(this.fechaNacimiento);
       console.log('📝 Iniciando registro...');
 
       // 1. Subir documento al backend (que lo sube a Supabase) - OPCIONAL
@@ -244,7 +248,9 @@ export class LoginComponent implements OnInit {
       if (this.documentoFile) {
         try {
           const destination = `documentos/${this.documento}_${Date.now()}_${this.documentoFile?.name}`;
-          const response: any = await this.backend.uploadFile('/api/storage/upload', this.documentoFile!, { destination }).toPromise();
+          const response: any = await firstValueFrom(
+            this.backend.uploadFile('/api/storage/upload', this.documentoFile!, { destination }).pipe(timeout(15000))
+          );
           documentoUrl = response.url || response.publicUrl || '';
           if (!documentoUrl) throw new Error('No se recibió URL del backend');
         } catch (uploadError) {
@@ -277,6 +283,7 @@ export class LoginComponent implements OnInit {
         reporte: this.reporte,
         permisos: this.permisos,
         documentoUrl: documentoUrl,
+        autorizacionPadres: edad < 18 ? { estado: 'pendiente_revision', requiereAutorizacion: true } : undefined,
       });
 
       console.log('✅ Respuesta recibida del backend, UID:', registerUid);
@@ -354,6 +361,10 @@ export class LoginComponent implements OnInit {
 
   private isValidEmail(email: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  actualizarEdadRegistro(): void {
+    this.edad = this.calcularEdad(this.fechaNacimiento);
   }
 
   private calcularEdad(fechaNacimiento: string): number {

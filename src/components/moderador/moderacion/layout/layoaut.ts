@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from "@angular/core";
 import { ForoService } from "../../../../services/foro.service";
 import { Router } from "@angular/router";
 import { AuthService } from "../../../../services/auth.service";
@@ -39,7 +39,8 @@ export class Layout implements OnInit, OnDestroy {
         private foroService: ForoService,
         private authService: AuthService,
         private userService: UserService,
-        private router: Router
+        private router: Router,
+        private cdr: ChangeDetectorRef
     ) { }
 
     toggleSidebar() {
@@ -62,10 +63,15 @@ export class Layout implements OnInit, OnDestroy {
     ngOnInit(): void {
         // 1. Suscripción a reportes (Foro)
         this.sub = this.foroService.getPublicaciones().subscribe(pubs => {
-            this.reportesPendientes = pubs.reduce((total, pub) => {
+            const pendientes = pubs.reduce((total, pub) => {
                 const reportadosEnEstaPub = pub.Comentarios?.filter(c => c.reportado).length || 0;
                 return total + reportadosEnEstaPub;
             }, 0);
+
+            Promise.resolve().then(() => {
+                this.reportesPendientes = pendientes;
+                this.cdr.markForCheck();
+            });
         });
 
         // 2. CARGA DE DATOS REALES
@@ -116,15 +122,36 @@ export class Layout implements OnInit, OnDestroy {
 
                 this.userService.updateUser(userDoc.id, dataToUpdate).pipe(take(1)).subscribe({
                     next: () => {
-                        this.mensaje = '¡Guardado!';
+                        const updatedUser = {
+                            ...currentUser,
+                            nombre: this.nombreEdit,
+                            apellido: this.apellidoEdit,
+                            correo: this.correoEdit,
+                        } as User;
+
+                        this.authService.updateCurrentUser(updatedUser);
+                        this.mensaje = '';
                         this.isSaving = false;
-                        setTimeout(() => this.mensaje = '', 2000);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Perfil actualizado',
+                            text: 'Tus datos se guardaron correctamente.',
+                            confirmButtonColor: '#5b3a7d',
+                        });
                     },
                     error: (err) => {
                         // 2. ROLLBACK: Si falla el servidor, devolvemos el nombre viejo
                         this.nombreDisplay = nombreAnterior;
                         this.errorMessage = 'Error al sincronizar';
                         this.isSaving = false;
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'No se pudo actualizar',
+                            text: err?.message || 'Intenta nuevamente.',
+                            confirmButtonColor: '#d33',
+                        });
                     }
                 });
             } else {

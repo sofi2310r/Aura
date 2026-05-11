@@ -8,6 +8,7 @@ import { PacientesComponent } from '../components/psicologo/pacientes/pacientes.
 import { LoginComponent } from '../components/auth/login.component';
 import { HomeComponent } from '../components/home/home.component';
 import { ForoComponent } from '../components/home/foro/foro.component';
+import { DownloadAppComponent } from '../components/home/download-app.component';
 import { AdminDashboardComponent } from '../components/admin/admin-dashboard/admin-dashboard.component';
 import { UsuariosComponent } from '../components/admin/usuarios/usuarios.component';
 import { Layout as ModeradorLayout } from '../components/moderador/moderacion/layout/layoaut';
@@ -26,6 +27,7 @@ const routes: Routes = [
   // 2. Rutas públicas
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent },
+  { path: 'descargar-app', component: DownloadAppComponent },
   { path: 'quienes-somos', component: QuienesSomos },
 
   // 3. Módulo de Administrador

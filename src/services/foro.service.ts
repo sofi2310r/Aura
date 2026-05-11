@@ -284,12 +284,11 @@ export class ForoService {
         tap((actualizada) => {
           this.notificacionService.enviar('🚨 Nuevo comentario reportado');
 
-          // Actualizar inmediatamente el BehaviorSubject con los datos locales
-          this.publicacionesSubject.next(
-            this.sortPublicaciones(
-              this.publicacionesSubject.value.map((item) => (item.id === actualizada.id ? actualizada : item)),
-            ),
+          const actualizadas = this.publicacionesSubject.value.map((item) =>
+            item.id === actualizada.id ? actualizada : item,
           );
+
+          this.publicacionesSubject.next(this.sortPublicaciones(actualizadas));
 
           // Forzar una actualización inmediata desde Firestore para asegurar sincronización
           this.forceRefresh();

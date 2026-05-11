@@ -227,6 +227,7 @@ export class NotasClinicasComponent implements OnInit {
 
   cerrarModalDetalle(): void {
     this.mostrarModalDetalle = false;
+    this.notaDetalle = null;
     this.cdr.detectChanges();
   }
 

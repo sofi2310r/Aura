@@ -46,14 +46,15 @@ export class ForoComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((publicaciones) => {
         console.log('[FORO] Publicaciones recibidas:', publicaciones);
-        this.publicaciones = publicaciones;
+        this.publicaciones = [...publicaciones];
+        this.cdr.detectChanges();
 
         if (this.vistaDetalle) {
           const actualizada = publicaciones.find((pub) => pub.id === this.vistaDetalle?.id);
           if (actualizada) {
             this.vistaDetalle = actualizada;
             console.log('[FORO] Vista detalle actualizada:', this.vistaDetalle);
-            this.cdr.markForCheck();
+            this.cdr.detectChanges();
           }
         }
       });
@@ -201,7 +202,10 @@ export class ForoComponent {
       return;
     }
 
-    if (!this.titulo.trim() || !this.contenido.trim()) return;
+    if (!this.titulo.trim() || !this.contenido.trim()) {
+      Swal.fire('Completa los campos', 'Debes escribir título y contenido.', 'warning');
+      return;
+    }
 
     // Limitar a 25 caracteres el título
     if (this.titulo.length > 25) {
@@ -227,16 +231,26 @@ export class ForoComponent {
         rol: this.getRol(),
       })
       .subscribe({
-        next: () => {
+        next: (publicacionCreada) => {
           this.titulo = '';
           this.contenido = '';
           this.mostrarFormulario = false;
           this.publicando = false;
+          this.publicaciones = [publicacionCreada, ...this.publicaciones];
           this.cdr.detectChanges();
+          Swal.fire({
+            icon: 'success',
+            title: 'Publicación creada',
+            text: 'Tu publicación se ha publicado en el foro.',
+            timer: 1400,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
         },
         error: (error: Error) => {
           this.publicando = false;
-          this.mensaje = error.message;
+          Swal.fire('Error', error.message, 'error');
         },
       });
   }
@@ -258,15 +272,16 @@ export class ForoComponent {
       return;
     }
 
-    if (!this.vistaDetalle || !this.nuevoComentario.trim()) return;
+    if (!this.vistaDetalle || !this.nuevoComentario.trim()) {
+      Swal.fire('Completa el comentario', 'Escribe algo antes de publicar.', 'warning');
+      return;
+    }
 
     this.enviando = true;
     const textoParaEnviar = this.nuevoComentario;
     this.nuevoComentario = '';
 
     const currentUser = this.authService.getCurrentUser();
-    console.log('[FORO] Usuario actual:', currentUser);
-    console.log('[FORO] UID del usuario:', currentUser?.uid);
 
     this.foroService
       .agregarComentario(this.vistaDetalle.id, {
@@ -281,8 +296,19 @@ export class ForoComponent {
       .subscribe({
         next: (publicacionActualizada) => {
           this.vistaDetalle = publicacionActualizada;
+          this.publicaciones = this.publicaciones.map((pub) =>
+            pub.id === publicacionActualizada.id ? publicacionActualizada : pub
+          );
           this.enviando = false;
           this.cdr.detectChanges();
+          Swal.fire({
+            icon: 'success',
+            title: 'Comentario agregado',
+            timer: 1200,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
         },
         error: () => {
           this.enviando = false;
@@ -311,16 +337,35 @@ export class ForoComponent {
         this.foroService.reportarComentario(this.vistaDetalle!.id, index).subscribe({
           next: (publicacion) => {
             this.vistaDetalle = publicacion;
+            this.publicaciones = this.publicaciones.map((pub) =>
+              pub.id === publicacion.id ? publicacion : pub
+            );
             this.cdr.detectChanges();
             Swal.fire({ icon: 'success', title: 'Reportado', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
+          },
+          error: (error: any) => {
+            Swal.fire('Error', error.message || 'No se pudo reportar el comentario', 'error');
           }
         });
 
         // 2. Suma el reporte al perfil del usuario en la tabla de gestión
-        if (nombreAutor) {
+        if (Comentario.autorUid) {
+          this.userService.sumarReportePorUid(Comentario.autorUid).subscribe({
+            next: (user) => console.log(`Contador actualizado para ${user.nombre}`),
+            error: (err) => {
+              console.warn('No se pudo actualizar contador por UID:', err.message);
+              if (nombreAutor) {
+                this.userService.sumarReportePorNombre(nombreAutor).subscribe({
+                  next: (userByName) => console.log(`Contador actualizado por nombre para ${userByName.nombre}`),
+                  error: (errByName) => console.warn('No se pudo actualizar contador por nombre:', errByName.message)
+                });
+              }
+            }
+          });
+        } else if (nombreAutor) {
           this.userService.sumarReportePorNombre(nombreAutor).subscribe({
             next: (user) => console.log(`Contador actualizado para ${user.nombre}`),
-            error: (err) => console.warn('No se pudo actualizar contador de usuario:', err.message)
+            error: (err) => console.warn('No se pudo actualizar contador de usuario por nombre:', err.message)
           });
         }
       }
