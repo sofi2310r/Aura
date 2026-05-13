@@ -92,3 +92,7 @@ Entre sus principales características se encuentran un sistema de registro e in
 Greylin Vanessa Martinez
 Brayan Alexander Mosos
 Evelin Baron
+
+## Despliegue
+
+https://aura45.netlify.app/
