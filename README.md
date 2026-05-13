@@ -1,6 +1,7 @@
 # AURA 
 ## Project Structure
 
+
 ```
 AuraWeb/
 ├── src/                    # Frontend (Angular)
@@ -75,3 +76,14 @@ This project AURA
 ## Support
 
 For issues and support, please contact the development team or open an issue in the project repository.
+
+## Caracteristicas
+
+AURA es una plataforma web y móvil dirigida a mujeres, diseñada para brindar un espacio seguro de apoyo, orientación e información frente a situaciones como violencia de género, salud emocional, apoyo comunitario y acceso a redes de ayuda. El proyecto busca fortalecer el bienestar y la seguridad de las usuarias mediante una comunidad digital donde puedan encontrar acompañamiento, compartir experiencias y acceder a recursos confiables.
+Entre sus principales características se encuentran un sistema de registro e inicio de sesión, un foro comunitario moderado, acceso a información sobre rutas y redes de apoyo, chat con psicólogos, paneles administrativos para moderadores, psicólogos y administradores, además de un asistente con inteligencia artificial que brindará orientación automática y responderá preguntas basadas en la información disponible en la plataforma. El sistema será desarrollado para web y móvil utilizando Angular, Flutter, Node.js y Firebase, priorizando la seguridad, accesibilidad y facilidad de uso.
+
+##  Integrantes
+
+Greylin Vanessa Martinez
+Brayan Alexander Mosos
+Evelin Baron
