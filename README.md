@@ -22,6 +22,11 @@ AuraWeb/
 - npm or yarn
 - Firebase account with Firestore configured
 
+## Frameworks
+
+-Angular
+-Flutter
+
 ## Installation
 
 ### 1. Install Frontend Dependencies
