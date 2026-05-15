@@ -41,6 +41,9 @@ interface RegisterResponse {
   uid: string;
   email: string;
   displayName?: string;
+  token?: string;
+  idToken?: string;
+  accessToken?: string;
 }
 
 interface LoginResponse {
@@ -262,7 +265,19 @@ export class AuthService {
           displayName: data.nombre.trim(),
         }).pipe(timeout(this.BACKEND_TIMEOUT_MS), retry(1)),
       );
+
+      const token = createdUser?.token || createdUser?.idToken || createdUser?.accessToken;
+      if (!token) {
+        throw new Error('TOKEN_NO_RECIBIDO');
+      }
+
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(AUTH_TOKEN_STORAGE_KEY, token);
+        localStorage.setItem('token', token);
+      }
+
       console.log('✅ PASO 1 completado. UID:', createdUser.uid);
+      console.log('[Auth] JWT token guardado tras registro:', token);
 
       // PASO 2: Preparar perfil para Firestore con todos los datos
       console.log('📝 PASO 2: Preparando perfil para Firestore...');
@@ -292,7 +307,11 @@ export class AuthService {
       try {
         // PASO 3: Guardar perfil en Firestore
         console.log('💾 PASO 3: Guardando perfil en Firestore...');
-        await firstValueFrom(this.userService.addUser(profile, createdUser.uid).pipe(timeout(this.BACKEND_TIMEOUT_MS), retry(1)));
+        await firstValueFrom(
+          this.userService
+            .addUser(profile, createdUser.uid, token)
+            .pipe(timeout(this.BACKEND_TIMEOUT_MS), retry(1))
+        );
         console.log('✅ PASO 3 completado. Perfil guardado en Firestore');
       } catch (profileError) {
         // PASO 4: Si falla Firestore, eliminar user de Auth (rollback)

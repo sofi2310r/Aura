@@ -78,7 +78,9 @@ export class UserService {
   private readonly usersUrl = '/api/firestore/usuarios';
 
   constructor(private readonly backend: BackendService) {
-    this.refreshUsers();
+    if (this.hasStoredAuthToken()) {
+      this.refreshUsers();
+    }
   }
 
   getUsers(): Observable<User[]> {
@@ -124,13 +126,16 @@ export class UserService {
     }
   }
 
-  addUser(user: Omit<User, 'id'>, documentId?: string): Observable<User> {
+  addUser(user: Omit<User, 'id'>, documentId?: string, authToken?: string): Observable<User> {
     const payload = this.toPayload(user);
+    const authHeaders = authToken ? { Authorization: `Bearer ${authToken}` } : undefined;
 
     // Si hay documentId (registro), guardar directamente sin query
     if (documentId) {
       return this.backend
-        .put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(documentId)}`, payload)
+        .put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(documentId)}`, payload, {
+          headers: authHeaders,
+        })
         .pipe(
           map((response) => ({ id: response.id, ...payload } as User)),
           tap((createdUser) => {
@@ -149,13 +154,17 @@ export class UserService {
         field: 'correo',
         operator: '==',
         value: payload.correo,
+      }, {
+        headers: authHeaders,
       })
       .pipe(
         switchMap((users) => {
           if (users.length > 0) {
             return throwError(() => new Error('Ese correo ya existe. Intenta con otro.'));
           }
-          return this.backend.post<FirestoreCreateResponse>(this.usersUrl, payload);
+          return this.backend.post<FirestoreCreateResponse>(this.usersUrl, payload, {
+            headers: authHeaders,
+          });
         }),
         map((response) => ({ id: response.id, ...payload } as User)),
         tap((createdUser) => {
@@ -249,6 +258,10 @@ export class UserService {
 
 
   private refreshUsers(): void {
+    if (!this.hasStoredAuthToken()) {
+      return;
+    }
+
     this.backend
       .get<FirestoreUserDocument[]>(this.usersUrl)
       .pipe(
@@ -337,6 +350,18 @@ export class UserService {
 
   private sortUsers(users: User[]): User[] {
     return [...users].sort((left, right) => left.nombre.localeCompare(right.nombre, 'es'));
+  }
+
+  private hasStoredAuthToken(): boolean {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    return Boolean(
+      localStorage.getItem('aura.auth-token') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('authToken')
+    );
   }
 
   sumarReportePorUid(uid: string): Observable<User> {
