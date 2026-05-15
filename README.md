@@ -94,5 +94,9 @@ Brayan Alexander Mosos
 Evelin Baron
 
 ## Despliegue
-
+z
 https://aura45.netlify.app/
+
+## Firebase / Firestore
+
+Descripción y estructura de las colecciones usadas por la aplicación: [docs/firebase-structure.md](docs/firebase-structure.md)
