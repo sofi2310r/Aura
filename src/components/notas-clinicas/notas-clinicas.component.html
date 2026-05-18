@@ -13,58 +13,50 @@
   </header>
 
   <!-- FORMULARIO -->
-  <section class="modal-overlay" *ngIf="mostrarFormulario" (click)="toggleFormulario()">
-    <div class="nota-form" (click)="$event.stopPropagation()">
-      <header class="modal-header">
-        <div>
-          <h3 class="mb-4">{{ notaEditando ? 'Editar Nota' : 'Nueva Nota Clínica' }}</h3>
-          <p class="modal-subtitle">{{ notaEditando ? 'Modifique la nota y guarde los cambios.' : 'Complete los datos para registrar una nueva nota clínica.' }}</p>
+  <section class="nota-form" *ngIf="mostrarFormulario">
+    <h3 class="mb-4">{{ notaEditando ? 'Editar Nota' : 'Nueva Nota Clínica' }}</h3>
+
+    <form (ngSubmit)="crearNotaClinica()" class="form-grid">
+      <!-- Fila 1: Paciente y Categoría -->
+      <label>
+        Paciente
+        <select [(ngModel)]="nuevaNota.pacienteUid" name="paciente" required>
+          <option value="">Seleccione...</option>
+          <option *ngFor="let p of pacientes" [value]="p.uid">{{ p.nombre }}</option>
+        </select>
+      </label>
+
+      <label>
+        Categoría
+        <input type="text" [(ngModel)]="nuevaNota.categoria" name="categoria" placeholder="Ej: Ansiedad">
+      </label>
+
+      <!-- Fila 2: Diagnóstico (Ancho completo) -->
+      <label class="full-width">
+        Diagnóstico (Máximo 500 caracteres)
+        <textarea 
+          [(ngModel)]="nuevaNota.diagnostico" 
+          name="diagnostico" 
+          rows="4" 
+          maxlength="500" 
+          placeholder="Escriba aquí...">
+        </textarea>
+        <div class="text-end">
+          <!-- Agregué una validación simple para evitar errores si diagnostico es null -->
+          <small [style.color]="(nuevaNota.diagnostico.length || 0) >= 500 ? 'red' : '#718096'">
+            {{ nuevaNota.diagnostico.length || 0 }} / 500 caracteres
+          </small>
         </div>
-        <button type="button" class="btn-close" (click)="toggleFormulario()">✕</button>
-      </header>
+      </label>
 
-      <form (ngSubmit)="crearNotaClinica()" class="form-grid">
-        <!-- Fila 1: Paciente y Categoría -->
-        <label>
-          Paciente
-          <select [(ngModel)]="nuevaNota.pacienteUid" name="paciente" required>
-            <option value="">Seleccione...</option>
-            <option *ngFor="let p of pacientes" [value]="p.uid">{{ p.nombre }}</option>
-          </select>
-        </label>
-
-        <label>
-          Categoría
-          <input type="text" [(ngModel)]="nuevaNota.categoria" name="categoria" placeholder="Ej: Ansiedad">
-        </label>
-
-        <!-- Fila 2: Diagnóstico (Ancho completo) -->
-        <label class="full-width">
-          Diagnóstico (Máximo 500 caracteres)
-          <textarea 
-            [(ngModel)]="nuevaNota.diagnostico" 
-            name="diagnostico" 
-            rows="4" 
-            maxlength="500" 
-            placeholder="Escriba aquí...">
-          </textarea>
-          <div class="text-end">
-            <!-- Agregué una validación simple para evitar errores si diagnostico es null -->
-            <small [style.color]="(nuevaNota.diagnostico.length || 0) >= 500 ? 'red' : '#718096'">
-              {{ nuevaNota.diagnostico.length || 0 }} / 500 caracteres
-            </small>
-          </div>
-        </label>
-
-        <!-- Fila 3: Botón de Guardar -->
-        <div class="full-width mt-3 actions-row">
-          <button type="submit" class="btn-save" [disabled]="guardando">
-            <span *ngIf="!guardando">💾 Guardar Nota Clínica</span>
-            <span *ngIf="guardando">⏳ Procesando...</span>
-          </button>
-        </div>
-      </form>
-    </div>
+      <!-- Fila 3: Botón de Guardar -->
+      <div class="full-width mt-3">
+        <button type="submit" class="btn-save" [disabled]="guardando">
+          <span *ngIf="!guardando">💾 Guardar Nota Clínica</span>
+          <span *ngIf="guardando">⏳ Procesando...</span>
+        </button>
+      </div>
+    </form>
   </section>
 
   <!-- BUSCADOR -->
@@ -102,43 +94,6 @@
           <button *ngIf="puedeEditarNota(nota)" class="btn-circle" (click)="editarNotaClinica(nota)">✏️</button>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section class="modal-overlay" *ngIf="mostrarModalDetalle && notaDetalle" (click)="cerrarModalDetalle()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <header class="modal-header">
-        <div>
-          <h2>Detalle de nota clínica</h2>
-          <small>{{ formatFecha(notaDetalle.fecha) }} · {{ notaDetalle.categoria || 'Sin categoría' }}</small>
-        </div>
-        <button class="btn-close" type="button" (click)="cerrarModalDetalle()">✕</button>
-      </header>
-
-      <div class="modal-body">
-        <p><strong>Paciente:</strong> {{ notaDetalle.pacienteNombre }}</p>
-        <p><strong>Psicólogo:</strong> {{ notaDetalle.psicologoNombre }}</p>
-        <div class="modal-section">
-          <h3>Diagnóstico</h3>
-          <p>{{ notaDetalle.diagnostico }}</p>
-        </div>
-        <div *ngIf="notaDetalle.sintomas" class="modal-section">
-          <h3>Síntomas</h3>
-          <p>{{ notaDetalle.sintomas }}</p>
-        </div>
-        <div *ngIf="notaDetalle.planTratamiento" class="modal-section">
-          <h3>Plan de tratamiento</h3>
-          <p>{{ notaDetalle.planTratamiento }}</p>
-        </div>
-        <div *ngIf="notaDetalle.observaciones" class="modal-section">
-          <h3>Observaciones</h3>
-          <p>{{ notaDetalle.observaciones }}</p>
-        </div>
-      </div>
-
-      <footer class="modal-footer">
-        <button class="btn-main btn-cancel" type="button" (click)="cerrarModalDetalle()">Cerrar</button>
-      </footer>
     </div>
   </section>
 </div>
