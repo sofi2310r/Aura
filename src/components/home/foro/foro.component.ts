@@ -42,7 +42,7 @@ export class ForoComponent implements OnDestroy {
   ) {
     this.aplicarContextoNavegacion();
 
-   this.foroService
+    this.foroService
       .getPublicaciones()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((publicaciones) => {
@@ -116,6 +116,7 @@ export class ForoComponent implements OnDestroy {
 
     if (!this.tienePermisosModerador()) return;
 
+    // 1. Pregunta de confirmación inicial
     Swal.fire({
       title: '¿Eliminar publicación?',
       text: `¿Estás seguro de eliminar "${pub.titulo}"? Esta acción no se puede deshacer.`,
@@ -127,28 +128,30 @@ export class ForoComponent implements OnDestroy {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-
-        Swal.showLoading();
+        // Bloquea la pantalla con un indicador de carga mientras procesa el backend
+        Swal.showLoading(); 
 
         this.foroService.eliminarPublicacion(pub.id).subscribe({
           next: () => {
-            this.mensaje = 'Publicación eliminada correctamente.';
-            this.safeDetectChanges();
+            // SOLUCIÓN: Vaciamos el mensaje inmediatamente
+            this.mensaje = ''; 
 
-            Swal.fire({
-              icon: 'success',
-              title: 'Eliminado',
-              toast: true,
-              position: 'top-end',
-              timer: 1000,
-              showConfirmButton: false,
-              timerProgressBar: true
-            });
+            // Si el admin estaba dentro del detalle de esa publicación, lo saca a la lista
+            if (this.vistaDetalle?.id === pub.id) {
+              this.vistaDetalle = null;
+            }
+
+            // Cierra la alerta de SweetAlert de golpe
+            Swal.close(); 
+
+            // FORZADO SÍNCRONO: Obliga a Angular a destruir el <p class="foro-status"> YA.
+            this.cdr.detectChanges(); 
           },
           error: (error: Error) => {
+            // Solo en caso de error llenamos la variable y notificamos
             this.mensaje = error.message;
-
-            Swal.fire('Error', 'No se puede eliminar la publicación', 'error');
+            this.cdr.detectChanges();
+            Swal.fire('Error', 'No se pudo eliminar la publicación', 'error');
           },
         });
       }
@@ -379,20 +382,20 @@ export class ForoComponent implements OnDestroy {
         // 2. Suma el reporte al perfil del usuario en la tabla de gestión
         if (Comentario.autorUid) {
           this.userService.sumarReportePorUid(Comentario.autorUid).subscribe({
-            next: () => {},
+            next: () => { },
             error: () => {
               if (nombreAutor) {
                 this.userService.sumarReportePorNombre(nombreAutor).subscribe({
-                  next: () => {},
-                  error: () => {}
+                  next: () => { },
+                  error: () => { }
                 });
               }
             }
           });
         } else if (nombreAutor) {
           this.userService.sumarReportePorNombre(nombreAutor).subscribe({
-            next: () => {},
-            error: () => {}
+            next: () => { },
+            error: () => { }
           });
         }
       }

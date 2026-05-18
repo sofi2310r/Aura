@@ -71,7 +71,7 @@
       <p>Un espacio seguro para compartir y apoyarnos</p>
     </div>
 
-    <p class="foro-status" *ngIf="mensaje">{{ mensaje }}</p>
+    <p class="foro-status" *ngIf="mensaje && mensaje.trim() !== ''">{{ mensaje }}</p>
 
     <div class="detalle" *ngIf="vistaDetalle">
       <button class="btn-volver" (click)="volverLista()">← Volver al foro</button>
