@@ -206,7 +206,6 @@ export class ForoComponent implements OnDestroy {
   }
 
   publicar(): void {
-    // RESTRICCIÓN: Solo Admin/Psicólogo pueden crear el foro. Usuario y Moderador NO.
     if (!this.puedeCrearPublicacion()) {
       Swal.fire('Acceso Restringido', 'No tienes permisos para crear nuevas publicaciones.', 'error');
       return;
@@ -217,14 +216,12 @@ export class ForoComponent implements OnDestroy {
       return;
     }
 
-    // Limitar a 25 caracteres el título
     if (this.titulo.length > 25) {
       Swal.fire('Límite de caracteres', 'El título no puede superar los 25 caracteres.', 'warning');
       this.publicando = false;
       return;
     }
 
-    // Limitar a 200 caracteres
     if (this.contenido.length > 200) {
       Swal.fire('Límite de caracteres', 'El contenido no puede superar los 200 caracteres.', 'warning');
       this.publicando = false;
@@ -232,6 +229,7 @@ export class ForoComponent implements OnDestroy {
     }
 
     this.publicando = true;
+    
     this.foroService
       .crearPublicacion({
         titulo: this.titulo,
@@ -241,17 +239,25 @@ export class ForoComponent implements OnDestroy {
         rol: this.getRol(),
       })
       .subscribe({
-        next: (publicacionCreada) => {
+        next: () => {
+          // 1. Limpiamos los campos del formulario
           this.titulo = '';
           this.contenido = '';
           this.mostrarFormulario = false;
           this.publicando = false;
-          this.publicaciones = [publicacionCreada, ...this.publicaciones];
-          this.safeDetectChanges();
+          this.mensaje = ''; // Aseguramos limpiar cualquier estado residual
+
+          // SOLUCIÓN: Quitamos la línea que duplicaba el array manualmente.
+          // El constructor recibirá el cambio de Firestore automáticamente.
+
+          // 2. Forzamos la actualización de la vista de forma síncrona
+          this.cdr.detectChanges();
+
+          // 3. Mostramos feedback rápido al usuario
           Swal.fire({
             icon: 'success',
             title: 'Publicación creada',
-            text: 'Tu publicación se ha publicado en el foro.',
+            text: 'Tu publicación se ha añadido al foro.',
             timer: 1400,
             showConfirmButton: false,
             toast: true,
@@ -260,6 +266,8 @@ export class ForoComponent implements OnDestroy {
         },
         error: (error: Error) => {
           this.publicando = false;
+          this.mensaje = error.message;
+          this.cdr.detectChanges();
           Swal.fire('Error', error.message, 'error');
         },
       });
