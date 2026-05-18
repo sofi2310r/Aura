@@ -178,39 +178,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     );
   }
 
-  // MÉTODO NUEVO: Cambiar contraseña
-  actualizarPassword(): void {
-  // 1. Validación básica
-  if (this.nuevaClave.length < 6) {
-    this.errorMessage = 'La clave debe tener al menos 6 caracteres.';
-    this.mensaje = '';
-    this.cdr.detectChanges();
-    return;
-  }
-
-  // 2. Llamada real al servicio de autenticación
-  // Usamos el método updatePassword de tu AuthService
-  this.authService.updatePassword(this.nuevaClave).then(() => {
-    // ÉXITO
-    this.mensaje = '✅ Contraseña actualizada correctamente en el sistema.';
-    this.errorMessage = '';
-    this.nuevaClave = ''; // Limpiamos el campo
-    this.cdr.detectChanges();
-
-    // Opcional: Cerrar sesión automáticamente para obligar al nuevo login
-    /*
-    setTimeout(() => {
-      this.cerrarSesion();
-    }, 2000);
-    */
-  }).catch((error: any) => {
-    // ERROR (ej: sesión expirada o requiere re-autenticación)
-    this.errorMessage = 'Error: ' + (error.message || 'No se pudo cambiar la contraseña');
-    this.mensaje = '';
-    this.cdr.detectChanges();
-  });
-}
-
   cargarEstadisticas(users: User[]): void {
     if (!users) return;
     this.totalUsuarios = users.length;
