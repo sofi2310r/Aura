@@ -127,6 +127,9 @@ export class ForoComponent implements OnDestroy {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
+
+        Swal.showLoading();
+
         this.foroService.eliminarPublicacion(pub.id).subscribe({
           next: () => {
             this.mensaje = 'Publicación eliminada correctamente.';
@@ -135,12 +138,17 @@ export class ForoComponent implements OnDestroy {
             Swal.fire({
               icon: 'success',
               title: 'Eliminado',
+              toast: true,
+              position: 'top-end',
               timer: 1000,
-              showConfirmButton: false
+              showConfirmButton: false,
+              timerProgressBar: true
             });
           },
           error: (error: Error) => {
             this.mensaje = error.message;
+
+            Swal.fire('Error', 'No se puede eliminar la publicación', 'error');
           },
         });
       }
