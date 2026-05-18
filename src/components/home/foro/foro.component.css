@@ -765,3 +765,25 @@ background: #72a29d;
 .publicacion-card {
   overflow-x: auto;
 }
+
+.btn-editar-detalle,
+.btn-editar-card {
+  background: transparent !important; /* Quita el fondo grisáceo */
+  border: none !important;             /* Elimina el recuadro/borde negro */
+  outline: none !important;            /* Quita el delineado de enfoque */
+  padding: 0 !important;               /* Resetea espacios internos molestos */
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;                   /* Ajusta el tamaño del emoji si lo deseas */
+  transition: transform 0.2s ease;
+}
+
+/* Efecto hover sutil para ambos botones (Lápiz y Basura) si quieres que jueguen igual */
+.btn-editar-detalle:hover,
+.btn-editar-card:hover {
+  transform: scale(1.15);              /* Crece un poquito de forma limpia al pasar el mouse */
+  background: transparent !important;
+}

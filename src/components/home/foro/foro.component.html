@@ -83,7 +83,7 @@
             <span class="autor-pub">Por {{ vistaDetalle.autor || 'Usuario Aura' }}</span>
           </div>
 
-          <div class="acciones-pub" style="display: flex; gap: 10px;">
+          <div class="acciones-pub">
             <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'"
                     class="btn-editar-detalle"
                     (click)="editarPublicacion($event, vistaDetalle)">
