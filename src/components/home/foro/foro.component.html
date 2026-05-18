@@ -83,17 +83,17 @@
             <span class="autor-pub">Por {{ vistaDetalle.autor || 'Usuario Aura' }}</span>
           </div>
 
-          <div class="acciones-pub">
+          <div class="acciones-botones-aura">
             <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'"
-                    class="btn-editar-detalle"
+                    class="btn-aura-accion btn-aura-editar"
                     (click)="editarPublicacion($event, vistaDetalle)">
-              Editar ✏️
+              ✏️
             </button>
 
             <button *ngIf="tienePermisosModerador()"
-                    class="btn-eliminar-detalle"
+                    class="btn-aura-accion btn-aura-eliminar"
                     (click)="eliminarPublicacion($event, vistaDetalle)">
-              Eliminar 🗑️
+              🗑️
             </button>
           </div>
         </div>
@@ -178,14 +178,14 @@
               <span class="autor-pub">Por {{ pub.autor || 'Usuario Aura' }}</span>
             </div>
 
-            <div class="acciones-card" style="display: flex; gap: 5px;">
+            <div class="acciones-botones-aura">
               <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'"
-                      class="btn-editar-card"
+                      class="btn-aura-accion btn-aura-editar"
                       (click)="editarPublicacion($event, pub)">
                 ✏️
               </button>
               <button *ngIf="tienePermisosModerador()"
-                      class="btn-eliminar-card"
+                      class="btn-aura-accion btn-aura-eliminar"
                       (click)="eliminarPublicacion($event, pub)">
                 🗑️
               </button>

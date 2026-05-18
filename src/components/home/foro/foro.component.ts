@@ -111,12 +111,12 @@ export class ForoComponent implements OnDestroy {
     return rolesCreadores.includes(this.getRol());
   }
 
-  eliminarPublicacion(event: Event, pub: Publicacion): void {
+ eliminarPublicacion(event: Event, pub: Publicacion): void {
     event.stopPropagation();
 
     if (!this.tienePermisosModerador()) return;
 
-    // 1. Pregunta de confirmación inicial
+    // 1. Alerta de confirmación
     Swal.fire({
       title: '¿Eliminar publicación?',
       text: `¿Estás seguro de eliminar "${pub.titulo}"? Esta acción no se puede deshacer.`,
@@ -128,27 +128,30 @@ export class ForoComponent implements OnDestroy {
       cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        // Bloquea la pantalla con un indicador de carga mientras procesa el backend
         Swal.showLoading(); 
 
         this.foroService.eliminarPublicacion(pub.id).subscribe({
           next: () => {
-            // SOLUCIÓN: Vaciamos el mensaje inmediatamente
             this.mensaje = ''; 
 
-            // Si el admin estaba dentro del detalle de esa publicación, lo saca a la lista
             if (this.vistaDetalle?.id === pub.id) {
               this.vistaDetalle = null;
             }
 
-            // Cierra la alerta de SweetAlert de golpe
-            Swal.close(); 
+            // 2. NUEVA ALERTA: Aviso rápido de éxito con la tipografía de Aura
+            Swal.fire({
+              icon: 'success',
+              title: 'Eliminado exitosamente',
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 1500, // Se cierra sola en 1.5 segundos
+              timerProgressBar: true
+            });
 
-            // FORZADO SÍNCRONO: Obliga a Angular a destruir el <p class="foro-status"> YA.
             this.cdr.detectChanges(); 
           },
           error: (error: Error) => {
-            // Solo en caso de error llenamos la variable y notificamos
             this.mensaje = error.message;
             this.cdr.detectChanges();
             Swal.fire('Error', 'No se pudo eliminar la publicación', 'error');
@@ -206,72 +209,77 @@ export class ForoComponent implements OnDestroy {
   }
 
   publicar(): void {
-    if (!this.puedeCrearPublicacion()) {
-      Swal.fire('Acceso Restringido', 'No tienes permisos para crear nuevas publicaciones.', 'error');
-      return;
-    }
-
-    if (!this.titulo.trim() || !this.contenido.trim()) {
-      Swal.fire('Completa los campos', 'Debes escribir título y contenido.', 'warning');
-      return;
-    }
-
-    if (this.titulo.length > 25) {
-      Swal.fire('Límite de caracteres', 'El título no puede superar los 25 caracteres.', 'warning');
-      this.publicando = false;
-      return;
-    }
-
-    if (this.contenido.length > 200) {
-      Swal.fire('Límite de caracteres', 'El contenido no puede superar los 200 caracteres.', 'warning');
-      this.publicando = false;
-      return;
-    }
-
-    this.publicando = true;
-    
-    this.foroService
-      .crearPublicacion({
-        titulo: this.titulo,
-        contenido: this.contenido,
-        autor: this.getNombre(),
-        autorUid: this.authService.getCurrentUser()?.uid || '',
-        rol: this.getRol(),
-      })
-      .subscribe({
-        next: () => {
-          // 1. Limpiamos los campos del formulario
-          this.titulo = '';
-          this.contenido = '';
-          this.mostrarFormulario = false;
-          this.publicando = false;
-          this.mensaje = ''; // Aseguramos limpiar cualquier estado residual
-
-          // SOLUCIÓN: Quitamos la línea que duplicaba el array manualmente.
-          // El constructor recibirá el cambio de Firestore automáticamente.
-
-          // 2. Forzamos la actualización de la vista de forma síncrona
-          this.cdr.detectChanges();
-
-          // 3. Mostramos feedback rápido al usuario
-          Swal.fire({
-            icon: 'success',
-            title: 'Publicación creada',
-            text: 'Tu publicación se ha añadido al foro.',
-            timer: 1400,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
-          });
-        },
-        error: (error: Error) => {
-          this.publicando = false;
-          this.mensaje = error.message;
-          this.cdr.detectChanges();
-          Swal.fire('Error', error.message, 'error');
-        },
-      });
+  if (!this.puedeCrearPublicacion()) {
+    Swal.fire('Acceso Restringido', 'No tienes permisos para crear nuevas publicaciones.', 'error');
+    return;
   }
+
+  if (!this.titulo.trim() || !this.contenido.trim()) {
+    Swal.fire('Completa los campos', 'Debes escribir título y contenido.', 'warning');
+    return;
+  }
+
+  if (this.titulo.length > 25) {
+    Swal.fire('Límite de caracteres', 'El título no puede superar los 25 caracteres.', 'warning');
+    return;
+  }
+
+  if (this.contenido.length > 200) {
+    Swal.fire('Límite de caracteres', 'El contenido no puede superar los 200 caracteres.', 'warning');
+    return;
+  }
+
+  // 1. Bloqueamos el botón para evitar doble clic accidental
+  this.publicando = true;
+
+  // Guardamos temporalmente los datos por si la petición falla y toca recuperarlos
+  const tituloRespando = this.titulo;
+  const contenidoRespaldo = this.contenido;
+
+  // 2. EFECTO INMEDIATO: Cerramos el formulario y limpiamos campos ya mismo
+  this.titulo = '';
+  this.contenido = '';
+  this.mostrarFormulario = false;
+  this.mensaje = '';
+  this.cdr.detectChanges(); // Pintamos el cierre rápido de la interfaz
+
+  // 3. Enviamos a la base de datos en segundo plano
+  this.foroService
+    .crearPublicacion({
+      titulo: tituloRespando,
+      contenido: contenidoRespaldo,
+      autor: this.getNombre(),
+      autorUid: this.authService.getCurrentUser()?.uid || '',
+      rol: this.getRol(),
+    })
+    .subscribe({
+      next: () => {
+        // Como la interfaz ya se actualizó al principio, solo liberamos la bandera por detrás
+        this.publicando = false;
+
+        // Opcional: Un mini-toast súper discreto que no bloquea la navegación
+        Swal.fire({
+          icon: 'success',
+          title: 'Publicado',
+          timer: 1000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+      },
+      error: (error: Error) => {
+        // 4. CONTROL DE ERRORES: Si falla, devolvemos todo a como estaba para que no pierda la información
+        this.publicando = false;
+        this.titulo = tituloRespando;
+        this.contenido = contenidoRespaldo;
+        this.mostrarFormulario = true; // Le reabrimos el cuadro
+        this.mensaje = error.message;
+        this.cdr.detectChanges();
+        
+        Swal.fire('Error al publicar', 'No se pudo guardar. Inténtalo de nuevo.', 'error');
+      },
+    });
+}
 
   abrirDetalle(pub: Publicacion): void {
     this.vistaDetalle = pub;

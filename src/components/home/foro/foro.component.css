@@ -766,6 +766,97 @@ background: #72a29d;
   overflow-x: auto;
 }
 
+/* Clase base para ambos botones interactivos */
+.btn-icon-action {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  padding: 8px !important;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem; /* Tamaño ideal para los emojis */
+  border-radius: 50%; /* Los hace perfectamente circulares */
+  width: 40px;
+  height: 40px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Efecto sutil para el Lápiz (Fondo morado pastel muy suave al pasar el mouse) */
+.btn-editar:hover {
+  background-color: rgba(155, 123, 184, 0.15) !important;
+  transform: scale(1.1);
+}
+
+/* Efecto sutil para la Basura (Fondo rojo pastel muy suave al pasar el mouse) */
+.btn-eliminar:hover {
+  background-color: rgba(220, 38, 38, 0.12) !important;
+  transform: scale(1.1);
+}
+
+/* Efecto visual cuando se hace clic */
+.btn-icon-action:active {
+  transform: scale(0.95);
+}
+
+/* BOTONES DE EMOJIS LIMPIOS */
+.btn-aura-accion {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 38px;
+  height: 38px;
+
+  padding: 0;
+  margin: 0;
+
+  cursor: pointer;
+  border-radius: 50%;
+
+  font-size: 1.2rem;
+
+  transition: all 0.2s ease;
+}
+
+/* Hover editar */
+.btn-aura-editar:hover {
+  background: rgba(155, 123, 184, 0.15) !important;
+  transform: scale(1.08);
+}
+
+/* Hover eliminar */
+.btn-aura-eliminar:hover {
+  background: rgba(220, 38, 38, 0.12) !important;
+  transform: scale(1.08);
+}
+
+/* Al hacer click */
+.btn-aura-accion:active {
+  transform: scale(0.95);
+}
+
+/* Quitar fondo gris en focus */
+.btn-aura-accion:focus,
+.btn-aura-accion:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+.acciones-botones-aura {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .btn-editar-detalle,
 .btn-editar-card {
   background: transparent !important; /* Quita el fondo grisáceo */
@@ -781,10 +872,4 @@ background: #72a29d;
   transition: transform 0.2s ease;
 }
 
-/* Efecto hover sutil para ambos botones (Lápiz y Basura) si quieres que jueguen igual */
-.btn-editar-detalle:hover,
-.btn-editar-card:hover {
-  transform: scale(1.15);              /* Crece un poquito de forma limpia al pasar el mouse */
-  background: transparent !important;
-}
 
