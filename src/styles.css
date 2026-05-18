@@ -34,3 +34,30 @@ html, body{
 .content {
     flex: 1; /* 🔥 CLAVE para que el footer baje */
 }
+
+/* Asegura que los campos de SweetAlert hereden la tipografía redonda de Aura */
+.swal2-popup,
+.swal2-title,
+.swal2-content,
+.swal2-input,
+.swal2-textarea,
+.swal2-html-container {
+  font-family: inherit !important;
+}
+
+/* Estilo específico para pulir los cuadros de texto dentro de los modales */
+.swal2-input, 
+.swal2-textarea {
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  color: #4a5568 !important; /* Un tono gris oscuro suave que combina con tu foro */
+  border-radius: 12px !important; /* Bordes redondeados para que hagan juego con las tarjetas */
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Quita el borde azul tosco por defecto cuando el usuario está escribiendo */
+.swal2-input:focus, 
+.swal2-textarea:focus {
+  border-color: #9b7bb8 !important; /* Usa el color morado característico de tu app */
+  box-shadow: 0 0 0 3px rgba(155, 123, 184, 0.2) !important;
+}
