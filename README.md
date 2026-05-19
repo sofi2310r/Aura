@@ -94,9 +94,7 @@ Brayan Alexander Mosos
 Evelin Baron
 
 ## Despliegue
-z
-https://aura45.netlify.app/
-
+https://glittery-gelato-f13186.netlify.app/home
 ## Firebase / Firestore
 
 Descripción y estructura de las colecciones usadas por la aplicación: [docs/firebase-structure.md](docs/firebase-structure.md)
