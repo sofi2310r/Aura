@@ -1,86 +1,110 @@
 <div class="dashboard-container">
-    <!-- TÍTULO DINÁMICO: Cambia según la opción del sidebar -->
-    <h2 class="panel-title" style="margin-bottom: 20px; color: #2d3436; font-weight: 600;">
-        {{ isConfigRoute ? 'Configuración de Cuenta' : 'Panel del Moderador 🛡️' }}
-    </h2>
 
-    <!-- VISTA A: TUS TARJETAS (Se mantienen exactamente igual) -->
-    <div class="cards-grid" *ngIf="!isConfigRoute" style="display: flex; gap: 20px;">
-        <div class="card shadow">
-            <div class="card-icon blue">👥</div>
-            <div class="card-info">
-                <h3>USUARIOS</h3>
-                <p class="number">{{ totalUsuarios }}</p>
-            </div>
+    <section class="hero card" *ngIf="!isConfigRoute">
+        <div>
+            <p class="hero-kicker">Panel de Moderador 🛡️</p>
+            <h2>{{ saludo }}, {{ moderadorUser?.nombre || 'Moderador' }}</h2>
+            <p class="hero-sub">{{ fechaActualTexto }}</p>
+            <p class="hero-copy">
+                Audita las métricas globales de la comunidad, inspecciona los reportes del foro y mantén la seguridad de
+                AURA bajo control.
+            </p>
         </div>
+        <div class="hero-chip">
+            <span class="chip-label">Publicaciones Foros</span>
+            <span class="chip-value">{{ publicaciones }}</span>
+        </div>
+    </section>
 
-        <div class="card shadow">
-            <div class="card-icon green">📝</div>
-            <div class="card-info">
-                <h3>PUBLICACIONES</h3>
-                <p class="number">{{ publicaciones }}</p>
-            </div>
-        </div>
-
-        <div class="card shadow">
-            <div class="card-icon red">🚫</div>
-            <div class="card-info">
-                <h3>REPORTES</h3>
-                <p class="number">{{ reportes }}</p>
-            </div>
-        </div>
-
-        <div class="card shadow">
-            <div class="card-icon orange">💬</div>
-            <div class="card-info">
-                <h3>COMENTARIOS</h3>
-                <p class="number">{{ comentariosReportados }}</p>
-            </div>
-        </div>
+    <div class="header-section" *ngIf="isConfigRoute">
+        <h1 class="titulo-principal">Configuración de Cuenta</h1>
+        <p class="subtitle">Gestiona las credenciales de tu perfil de moderación</p>
     </div>
 
-    <!-- VISTA B: FORMULARIO DE CONFIGURACIÓN -->
-    <div class="config-card shadow animate-fade-in" *ngIf="isConfigRoute" style="background: white; padding: 30px; border-radius: 15px; max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+    <ng-container *ngIf="!isConfigRoute">
+        <section class="cards-grid">
+            <article class="metric-card">
+                <span class="metric-title">Usuarios Registrados</span>
+                <strong class="metric-value">{{ totalUsuarios }}</strong>
+                <small class="metric-helper">Cuentas totales creadas</small>
+            </article>
+
+            <article class="metric-card">
+                <span class="metric-title">Hilos en Foro</span>
+                <strong class="metric-value">{{ publicaciones }}</strong>
+                <small class="metric-helper">Aportes abiertos al público</small>
+            </article>
+
+            <article class="metric-card alert-danger-card">
+                <span class="metric-title danger-title">Alertas y Reportes</span>
+                <strong class="metric-value danger-value">{{ reportes }}</strong>
+                <small class="metric-helper danger-helper">⚠️ Requieren revisión inminente</small>
+            </article>
+        </section>
+
+        <section class="card quick-actions">
+            <div class="quick-head">
+                <h3 class="quick-title">Herramientas del Moderador</h3>
+                <span class="badge">Auditoría Activa</span>
+            </div>
+
+            <div class="quick-grid">
+                <a (click)="activarConfiguracion()" class="quick-item">
+                    <span class="quick-icon">⚙️</span>
+                    <div>
+                        <strong class="quick-item-title">Seguridad de Cuenta</strong>
+                        <p class="quick-item-desc">Actualiza tus claves personales.</p>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </ng-container>
+
+    <div class="config-container animate-fade-in" *ngIf="isConfigRoute">
+        <div class="card-edit">
+            <h3 class="config-section-title">Datos del Fiscalizador</h3>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" [value]="nombre" disabled class="form-control-disabled">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Apellido</label>
+                    <input type="text" [value]="apellido" disabled class="form-control-disabled">
+                </div>
+
+                <div class="form-group span-2">
+                    <label class="form-label">Correo Corporativo</label>
+                    <input type="email" [value]="correo" disabled class="form-control-disabled">
+                </div>
+            </div>
+            <p class="config-info-text">
+                ℹ️ Tu perfil está en modo auditoría. Para modificar tus datos de asignación, contacta al Administrador de AURA.
+            </p>
+        </div>
+
+        <hr class="form-divider">
+
         <section class="form-section">
-            <h3 style="margin-bottom: 15px; color: #636e72;">Datos del Perfil</h3>
+            <h3 class="config-section-title">Credenciales de Acceso</h3>
+
+            <div class="form-group mb-20">
+                <label class="form-label">Nueva Contraseña</label>
+                <input type="password" [(ngModel)]="nuevaClave" placeholder="Mínimo 6 caracteres" class="form-control">
+            </div>
+
             
-            <div style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom:5px; font-weight: 500;">Nombre</label>
-                <input type="text" [(ngModel)]="nombre" style="width:100%; padding:12px; border-radius:8px; border:1px solid #dfe6e9; outline: none;">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom:5px; font-weight: 500;">Apellido</label>
-                <input type="text" [(ngModel)]="apellido" style="width:100%; padding:12px; border-radius:8px; border:1px solid #dfe6e9; outline: none;">
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="display:block; margin-bottom:5px; font-weight: 500;">Correo</label>
-                <input type="text" [value]="correo" disabled style="width:100%; padding:12px; border-radius:8px; background:#f1f2f6; border:1px solid #dfe6e9; color:#b2bec3; cursor: not-allowed;">
-            </div>
-
-            <button (click)="guardarCambiosPerfil()" style="background:#6c5ce7; color:white; border:none; padding:14px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; transition: 0.3s;">
-                Guardar Cambios
-            </button>
+                <button type="button" (click)="activarInicio()" class="btn-secondary">
+                    Volver al Inicio
+                </button>
+           
         </section>
 
-        <hr style="margin: 30px 0; border:0; border-top: 1px solid #f1f2f6;">
-
-        <section class="form-section">
-            <h3 style="margin-bottom: 15px; color: #636e72;">Seguridad</h3>
-            <div style="margin-bottom: 15px;">
-                <label style="display:block; margin-bottom:5px; font-weight: 500;">Nueva Contraseña</label>
-                <input type="password" [(ngModel)]="nuevaClave" placeholder="Mínimo 6 caracteres" style="width:100%; padding:12px; border-radius:8px; border:1px solid #dfe6e9; outline: none;">
-            </div>
-            <button (click)="actualizarPassword()" style="background:none; border:1px solid #6c5ce7; color:#6c5ce7; padding:12px; border-radius:8px; cursor:pointer; width:100%; font-weight: 500;">
-                Actualizar Contraseña
-            </button>
-        </section>
-
-        <!-- Mensajes -->
-        <div style="margin-top: 20px;">
-            <p *ngIf="mensaje" style="color:#00b894; font-weight: 500;">{{ mensaje }}</p>
-            <p *ngIf="errorMessage" style="color:#d63031; font-weight: 500;">{{ errorMessage }}</p>
+        <div class="error-container" *ngIf="errorMessage">
+            <p class="error-text">❌ {{ errorMessage }}</p>
         </div>
     </div>
+
 </div>

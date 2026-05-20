@@ -1,16 +1,24 @@
-/* --- Contenedor Global --- */
+/* ==========================================================================
+   1. RESET GENERAL Y CONTENEDOR GLOBAL
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 .layout {
     display: flex;
     height: 100vh;
     overflow: hidden;
 }
 
-/* --- SIDEBAR --- */
-/* --- SIDEBAR FIJA --- */
+/* ==========================================================================
+   2. BARRA LATERAL (SIDEBAR) Y COMPONENTES
+   ========================================================================== */
 .sidebar {
     width: 260px;
-    /* 🔥 fija */
-    min-width: 260px;
+    min-width: 260px; /* 🔥 fija */
     background: linear-gradient(180deg, #5f2c82, #6a11cb);
     overflow: hidden;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
@@ -20,15 +28,6 @@
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
-    /* 🔥 SOLUCIÓN REAL */
-}
-
-/* 🔥 CLAVE: MAIN se adapta automáticamente */
-.main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease;
 }
 
 /* LOGO */
@@ -38,31 +37,59 @@
     text-align: center;
 }
 
-/* PERFIL */
-/* PERFIL MEJORADO */
+/* PERFIL (OPTIMIZADO PARA COMPRIMIR ESPACIO LATERAL) */
 .user-profile-box {
     width: 100%;
-    padding: 18px 15px;
+    /* 🔥 Reducido a 6px a los lados para exprimir cada píxel horizontal */
+    padding: 18px 6px; 
     border-radius: 18px;
-
     border: 1px solid rgba(255, 255, 255, 0.25);
     background: rgba(255, 255, 255, 0.05);
-
     color: white;
     text-align: center;
-
     margin-bottom: 30px;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     box-sizing: border-box;
-    /* 🔥 clave */
+    
+    /* 🔥 Permite que el texto se muestre libremente si es exacto al contenedor */
+    overflow: visible; 
 }
 
-/* --- MENÚ --- */
+/* Nombre del Usuario */
+.user-name {
+    display: block;
+    width: 100%;
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Correo (FRENADO EN UNA SOLA LÍNEA SIN RECORTE) */
+.user-email {
+    display: block;
+    width: 100%;
+    
+    /* 🔥 OBLIGA A QUE SE QUEDE EN UNA SOLA LÍNEA SIN SALTAR */
+    white-space: nowrap; 
+    
+    /* 🔥 Tamaño ideal para que correos largos entren perfectos de corrido */
+    font-size: 0.76rem; 
+    
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    
+    /* 🔥 Desactiva bloqueos anteriores */
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* MENÚ DE NAVEGACIÓN */
 .menu a {
     display: flex;
     align-items: center;
@@ -73,15 +100,18 @@
     border-radius: 10px;
 }
 
-/* --- MAIN --- */
+/* ==========================================================================
+   3. ÁREA DE CONTENIDO PRINCIPAL (MAIN)
+   ========================================================================== */
 .main {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    transition: all 0.3s ease;
 }
 
-/* HEADER */
+/* HEADER SUPERIOR */
 .header {
     height: 70px;
     flex-shrink: 0;
@@ -93,54 +123,40 @@
     color: white;
 }
 
+/* ÁREA DINÁMICA DE CONTENIDO */
 .content-area {
+    flex: 1;
+    overflow-y: auto;
     overflow-x: hidden;
-    /* 🔥 EVITA QUE SE MONTE */
+    padding: 25px;
+    min-width: 0;
 }
 
-/* FOOTER */
-/* FOOTER MODERNO */
-/* FOOTER MORADO */
+/* PIE DE PÁGINA (FOOTER) */
 .footer-fijo {
     height: 60px;
     flex-shrink: 0;
-
     background: linear-gradient(90deg, #5f2c82, #6a11cb);
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 0 25px;
     color: white;
     font-size: 0.85rem;
-
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Texto */
 .footer-fijo p {
     margin: 0;
     opacity: 0.9;
 }
 
-/* Texto secundario */
 .footer-fijo p:last-child {
     opacity: 0.7;
 }
 
-/* Texto alineado */
-.footer-fijo p {
-    margin: 0;
-}
-
-/* Opcional: separar en dos lados */
-.footer-fijo p:last-child {
-    opacity: 0.7;
-}
-
-/* BOTÓN LOGOUT */
+/* BOTÓN SALIR (LOGOUT) */
 .logout-icon {
     background: none;
     border: none;
@@ -152,14 +168,9 @@
     height: 28px;
 }
 
-.content-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 25px;
-    min-width: 0;
-    /* 🔥 IMPORTANTE */
-}
-
+/* ==========================================================================
+   4. VISTA DE CONFIGURACIÓN Y FORMULARIOS
+   ========================================================================== */
 .config-view-container {
     display: flex;
     justify-content: center;
@@ -170,14 +181,10 @@
 .config-card {
     width: 100%;
     max-width: 520px;
-
     background: white;
     border-radius: 20px;
-
     padding: 30px 25px;
-
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-
     animation: fadeIn 0.3s ease;
 }
 
@@ -208,14 +215,12 @@
 .input-group input {
     padding: 12px;
     border-radius: 12px;
-
     border: 1px solid #ddd;
     outline: none;
-
     transition: all 0.2s ease;
 }
 
-/* EFECTO FOCUS 🔥 */
+/* EFECTO FOCUS */
 .input-group input:focus {
     border-color: #6a11cb;
     box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.15);
@@ -227,18 +232,16 @@
     color: #999;
 }
 
+/* BOTONES */
 .btn-primary {
     width: 100%;
     padding: 12px;
     border-radius: 12px;
-
     border: none;
     background: linear-gradient(90deg, #5f2c82, #6a11cb);
     color: white;
-
     font-weight: 500;
     cursor: pointer;
-
     transition: all 0.2s ease;
 }
 
@@ -247,17 +250,13 @@
     opacity: 0.9;
 }
 
-/* BOTÓN SECUNDARIO */
 .btn-outline {
     width: 100%;
     padding: 12px;
-
     border-radius: 12px;
     border: 1px solid #6a11cb;
-
     background: transparent;
     color: #6a11cb;
-
     cursor: pointer;
     transition: 0.2s;
 }
@@ -273,6 +272,7 @@
     border-top: 1px solid #eee;
 }
 
+/* MENSAJES DE ESTADO */
 .status-messages {
     margin-top: 10px;
 }
@@ -287,6 +287,7 @@
     font-size: 0.9rem;
 }
 
+/* ANIMACIONES */
 @keyframes fadeIn {
     from {
         opacity: 0;

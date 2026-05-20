@@ -30,7 +30,7 @@
       <label>
         Categoría <span class="text-danger">*</span> (Máx 200)
         <input type="text" [(ngModel)]="nuevaNota.categoria" name="categoria" maxlength="200" placeholder="Ej: Ansiedad" required>
-        <div class="text-end text-muted"><small>{{ nuevaNota.categoria?.length || 0 }}/200</small></div>
+        <div class="text-end text-muted"><small>{{ nuevaNota.categoria.length || 0 }}/200</small></div>
       </label>
 
       <!-- Fila 2: Fecha -->
@@ -43,13 +43,13 @@
       <label>
         Síntomas (Máx 200)
         <textarea [(ngModel)]="nuevaNota.sintomas" name="sintomas" rows="3" maxlength="200" placeholder="Síntomas..."></textarea>
-        <div class="text-end text-muted"><small>{{ nuevaNota.sintomas?.length || 0 }}/200</small></div>
+        <div class="text-end text-muted"><small>{{ nuevaNota.sintomas.length || 0 }}/200</small></div>
       </label>
 
       <label>
         Plan de Tratamiento (Máx 200)
         <textarea [(ngModel)]="nuevaNota.planTratamiento" name="planTratamiento" rows="3" maxlength="200" placeholder="Tratamiento..."></textarea>
-        <div class="text-end text-muted"><small>{{ nuevaNota.planTratamiento?.length || 0 }}/200</small></div>
+        <div class="text-end text-muted"><small>{{ nuevaNota.planTratamiento.length || 0 }}/200</small></div>
       </label>
 
       <!-- Fila 4: Diagnóstico -->
@@ -57,8 +57,8 @@
         Diagnóstico Clínico <span class="text-danger">*</span> (Máximo 500 caracteres)
         <textarea [(ngModel)]="nuevaNota.diagnostico" name="diagnostico" rows="4" maxlength="500" placeholder="Escriba aquí..." required></textarea>
         <div class="text-end">
-          <small [style.color]="(nuevaNota.diagnostico?.length || 0) >= 500 ? 'red' : '#718096'">
-            {{ nuevaNota.diagnostico?.length || 0 }} / 500 caracteres
+          <small [style.color]="(nuevaNota.diagnostico.length || 0) >= 500 ? 'red' : '#718096'">
+            {{ nuevaNota.diagnostico.length || 0 }} / 500 caracteres
           </small>
         </div>
       </label>
@@ -67,7 +67,7 @@
       <label class="full-width">
         Observaciones (Máx 200)
         <textarea [(ngModel)]="nuevaNota.observaciones" name="observaciones" rows="2" maxlength="200" placeholder="Observaciones..."></textarea>
-        <div class="text-end text-muted"><small>{{ nuevaNota.observaciones?.length || 0 }}/200</small></div>
+        <div class="text-end text-muted"><small>{{ nuevaNota.observaciones.length || 0 }}/200</small></div>
       </label>
 
       <!-- Fila 6: Botón Guardar -->
