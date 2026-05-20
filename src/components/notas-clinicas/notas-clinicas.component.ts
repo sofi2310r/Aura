@@ -1,6 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // Importamos ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
@@ -16,6 +16,7 @@ import Swal from 'sweetalert2';
   styleUrl: './notas-clinicas.component.css',
 })
 export class NotasClinicasComponent implements OnInit {
+  notaForm!: FormGroup;
   notas: NotaClinica[] = [];
   notasFiltradas: NotaClinica[] = [];
   pacientes: User[] = [];
@@ -29,6 +30,7 @@ export class NotasClinicasComponent implements OnInit {
   mostrarModalDetalle = false;
   notaDetalle: NotaClinica | null = null;
 
+  // Estructura de bindeo para el HTML con ngModel
   nuevaNota = {
     pacienteUid: '',
     fecha: new Date().toISOString().slice(0, 10),
@@ -40,20 +42,21 @@ export class NotasClinicasComponent implements OnInit {
   };
 
   constructor(
+    private fb: FormBuilder,
     private readonly authService: AuthService,
     private readonly notasService: NotasClinicasService,
     private readonly userService: UserService,
-    private readonly cdr: ChangeDetectorRef // Inyectamos el detector de cambios
+    private readonly cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
     this.usuarioActual = this.authService.getCurrentUser();
     this.rol = (this.usuarioActual?.rol || this.usuarioActual?.role || '').toString().trim().toLowerCase();
+    this.initForm();
     this.cargarPacientes();
     this.cargarNotas().subscribe();
   }
 
-  // --- GETTERS DE PERMISOS (Faltaban en el TS) ---
   get puedeCrearNota(): boolean {
     return this.rol === 'psicologo' || this.rol === 'psicólogo';
   }
@@ -63,13 +66,23 @@ export class NotasClinicasComponent implements OnInit {
     return !!uidActual && (this.rol === 'admin' || nota.psicologoUid === uidActual);
   }
 
+  private initForm(): void {
+    // Formulario reactivo invisible encargado de blindar los campos requeridos
+    this.notaForm = this.fb.group({
+      pacienteUid: ['', Validators.required],
+      fecha: ['', Validators.required],
+      categoria: ['', Validators.required],
+      diagnostico: ['', Validators.required]
+    });
+  }
+
   private cargarPacientes(): void {
     this.userService.getUsers().subscribe({
       next: (users) => {
         this.pacientes = users.filter((user) =>
           ['paciente', 'usuario'].includes((user.rol || user.role || '').toLowerCase())
         );
-        this.cdr.detectChanges(); // Forzar refresco al cargar pacientes
+        this.cdr.detectChanges();
       },
       error: (err) => console.error('[Notas Clínicas] Error cargando pacientes', err)
     });
@@ -93,13 +106,6 @@ export class NotasClinicasComponent implements OnInit {
           filtradas = todasLasNotas;
         }
 
-        // --- REFUERZO DE REACTIVIDAD ---
-        // 1. Limpiamos las referencias actuales
-        this.notas = [];
-        this.notasFiltradas = [];
-        this.cdr.detectChanges();
-
-        // 2. Asignamos los nuevos datos con una nueva referencia de memoria
         this.notas = [...filtradas].sort((a, b) =>
           new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
         );
@@ -112,8 +118,7 @@ export class NotasClinicasComponent implements OnInit {
       }),
       finalize(() => {
         this.cargando = false;
-        this.cdr.markForCheck(); // Notifica que la ruta de componentes puede haber cambiado
-        this.cdr.detectChanges(); // Forzar a Angular a pintar la lista cargada
+        this.cdr.detectChanges();
       })
     );
   }
@@ -121,13 +126,28 @@ export class NotasClinicasComponent implements OnInit {
   crearNotaClinica(): void {
     if (!this.usuarioActual || this.guardando) return;
 
+    // Sincronizamos los valores actuales de ngModel con el validador estricto
+    this.notaForm.patchValue({
+      pacienteUid: this.nuevaNota.pacienteUid,
+      fecha: this.nuevaNota.fecha,
+      categoria: this.nuevaNota.categoria,
+      diagnostico: this.nuevaNota.diagnostico
+    });
+
+    if (this.notaForm.invalid) {
+      Swal.fire('Campos incompletos', 'Por favor, rellene los campos obligatorios (Paciente, Fecha, Categoría y Diagnóstico).', 'warning');
+      return;
+    }
+
     const paciente = this.pacientes.find(p => p.uid === this.nuevaNota.pacienteUid);
     if (!paciente) {
-      Swal.fire('Error', 'Seleccione un paciente', 'error');
+      Swal.fire('Error', 'Seleccione un paciente válido', 'error');
       return;
     }
 
     this.guardando = true;
+    this.cdr.detectChanges();
+
     const payload = {
       ...this.nuevaNota,
       pacienteUid: paciente.uid,
@@ -143,7 +163,8 @@ export class NotasClinicasComponent implements OnInit {
     request$.pipe(
       timeout(8000),
       catchError(err => {
-        console.error('Error:', err);
+        console.error('[Notas Clínicas] Error crítico al guardar:', err);
+        Swal.fire('Error de red', 'No se recibió respuesta del servidor. Revisa tu conexión.', 'error');
         return of(null);
       }),
       finalize(() => {
@@ -151,21 +172,55 @@ export class NotasClinicasComponent implements OnInit {
         this.cdr.detectChanges();
       })
     ).subscribe((res) => {
-      if (res) {
+      // Validación flexible: si no es null, cerramos y limpiamos al instante
+      if (res !== null) {
         this.mostrarFormulario = false;
         this.resetFormulario();
+        this.cdr.detectChanges();
 
-        // RECARGA DIRECTA
+        Swal.fire({ 
+          title: '¡Nota Guardada!', 
+          text: 'El historial clínico se actualizó correctamente.',
+          icon: 'success', 
+          timer: 1500, 
+          showConfirmButton: false 
+        });
+
+        // Recarga asíncrona de fondo
         this.cargarNotas().subscribe({
-          next: () => {
-            // Refuerzo tras la suscripción
-            this.cdr.markForCheck();
-            this.cdr.detectChanges();
-            Swal.fire({ title: '¡Éxito!', icon: 'success', timer: 1000, showConfirmButton: false });
-          }
+          next: () => this.cdr.detectChanges()
         });
       } else {
-        Swal.fire('Error', 'No se pudo guardar', 'error');
+        Swal.fire('Error', 'El servidor rechazó la solicitud. Revisa los datos.', 'error');
+      }
+    });
+  }
+
+  eliminarNotaClinica(id: string): void {
+    Swal.fire({
+      title: '¿Eliminar nota?',
+      text: "Esta acción no se puede deshacer",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.notasService.deleteNotaClinica(id).pipe(
+          catchError(err => {
+            console.error('Error al eliminar:', err);
+            return of(false);
+          })
+        ).subscribe((res) => {
+          if (res !== false) {
+            this.cargarNotas().subscribe({
+              next: () => this.cdr.detectChanges()
+            });
+            Swal.fire('Eliminado', 'La nota ha sido borrada.', 'success');
+          }
+        });
       }
     });
   }
@@ -173,19 +228,15 @@ export class NotasClinicasComponent implements OnInit {
   actualizarFiltro(): void {
     const termino = this.filtroTexto.trim().toLowerCase();
     if (!termino) {
-      // Usamos el spread operator para asegurar nueva referencia
       this.notasFiltradas = [...this.notas];
     } else {
       this.notasFiltradas = this.notas.filter((nota) =>
-        (nota.pacienteNombre + (nota.categoria || '') + (nota.diagnostico || ''))
+        `${nota.pacienteNombre} ${nota.categoria || ''} ${nota.diagnostico || ''}`
           .toLowerCase().includes(termino)
       );
     }
-    this.cdr.markForCheck();
-    this.cdr.detectChanges(); // Forzar refresco tras filtrar
+    this.cdr.detectChanges();
   }
-
-  // --- MÉTODOS ADICIONALES MANTENIDOS ---
 
   toggleFormulario(): void {
     this.mostrarFormulario = !this.mostrarFormulario;
@@ -196,27 +247,19 @@ export class NotasClinicasComponent implements OnInit {
   editarNotaClinica(nota: NotaClinica): void {
     this.notaEditando = nota;
     this.mostrarFormulario = true;
-    this.nuevaNota = { ...nota, fecha: nota.fecha.slice(0, 10) };
+    
+    // Forzamos el bindeo idéntico al ID para asegurar que el listado seleccione al paciente correcto
+    this.nuevaNota = { 
+      pacienteUid: nota.pacienteUid || '',
+      fecha: nota.fecha ? nota.fecha.slice(0, 10) : new Date().toISOString().slice(0, 10),
+      categoria: nota.categoria || '',
+      diagnostico: nota.diagnostico || '',
+      sintomas: nota.sintomas || '',
+      planTratamiento: nota.planTratamiento || '',
+      observaciones: nota.observaciones || ''
+    };
+    
     this.cdr.detectChanges();
-  }
-
-  eliminarNotaClinica(id: string): void {
-    Swal.fire({
-      title: '¿Eliminar nota?',
-      text: "Esta acción no se puede deshacer",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.notasService.deleteNotaClinica(id).subscribe(() => {
-          this.cargarNotas().subscribe();
-          Swal.fire('Eliminado', 'La nota ha sido borrada.', 'success');
-        });
-      }
-    });
   }
 
   abrirModalDetalle(nota: NotaClinica): void {
@@ -227,10 +270,10 @@ export class NotasClinicasComponent implements OnInit {
 
   cerrarModalDetalle(): void {
     this.mostrarModalDetalle = false;
+    this.notaDetalle = null;
     this.cdr.detectChanges();
   }
 
-  // --- TRACKBY PARA EL HTML (Faltaba en el TS) ---
   trackByNota(index: number, nota: NotaClinica): string {
     return nota.id;
   }

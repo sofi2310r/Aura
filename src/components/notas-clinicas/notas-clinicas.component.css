@@ -21,8 +21,7 @@
   margin: 0 auto;
   padding: 26px 24px 32px;
   color: var(--text-main);
-  overflow-x: hidden;
-  /* Evita cualquier scroll horizontal residual */
+  overflow-x: hidden; /* Evita cualquier scroll horizontal residual */
 }
 
 /* =========================================
@@ -43,6 +42,11 @@
   font-size: 1.8rem;
   font-weight: 800;
   color: var(--text-main);
+}
+
+.subtitle {
+  color: var(--text-body);
+  margin: 0;
 }
 
 /* =========================================
@@ -68,15 +72,21 @@
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
+.btn-primary:hover,
+.btn-main:not(.btn-cancel):hover {
+  background: var(--primary-dark);
+}
+
 .btn-save {
   width: 100%;
   padding: 14px;
-  background-color: #3182ce;
+  background-color: var(--primary);
   color: white;
   border: none;
   border-radius: 10px;
   font-weight: bold;
   font-size: 1.1rem;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
@@ -86,9 +96,9 @@
   transform: scale(0.98);
 }
 
-.btn-save:hover {
+.btn-save:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.4) !important;
+  box-shadow: 0 12px 20px rgba(37, 99, 235, 0.3) !important;
 }
 
 .btn-cancel {
@@ -97,8 +107,12 @@
   border: 1.5px solid var(--danger) !important;
 }
 
+.btn-cancel:hover {
+  background: #fef2f2;
+}
+
 /* =========================================
-   FORMULARIO
+   FORMULARIO Y SELECCIÓN DE PACIENTE
    ========================================= */
 .nota-form {
   background: #ffffff;
@@ -116,6 +130,15 @@
   gap: 1.5rem;
 }
 
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
 .form-grid input,
 .form-grid select,
 .form-grid textarea {
@@ -125,10 +148,25 @@
   padding: 12px;
   background: var(--bg-soft);
   font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-main);
   transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+/* Asegura consistencia visual en el selector de pacientes */
+.form-grid select {
+  cursor: pointer;
+  appearance: none; /* Elimina la flecha por defecto para estilizar uniformemente */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
 }
 
 .form-grid textarea:focus,
+.form-grid select:focus,
 .form-grid input:focus {
   outline: none;
   border-color: var(--primary);
@@ -142,6 +180,10 @@
 
 .text-end {
   text-align: right;
+}
+
+.text-danger {
+  color: var(--danger);
 }
 
 /* =========================================
@@ -176,18 +218,15 @@
 }
 
 /* =========================================
-   LISTADO DE NOTAS (Solución al scroll e hilos largos)
+   LISTADO DE NOTAS
    ========================================= */
 .notas-list {
   display: grid;
-  grid-template-columns: 1fr !important;
-  /* Fuerza una sola columna */
+  grid-template-columns: 1fr !important; /* Fuerza una sola columna */
   gap: 20px;
   width: 100%;
-  max-width: 850px;
-  /* Limita el ancho para que sea legible y se vea ordenado */
-  margin: 0 auto;
-  /* Centra el listado */
+  max-width: 850px; /* Limita el ancho para que sea legible y se vea ordenado */
+  margin: 0 auto; /* Centra el listado */
 }
 
 .nota-card-v2 {
@@ -198,22 +237,21 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  overflow: hidden;
-  /* Evita que el contenido sobresalga */
+  overflow: hidden; /* Evita que el contenido sobresalga */
   box-shadow: var(--shadow-standard);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .nota-card-v2:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-standard);
+  transform: translateY(-3px);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
 }
 
-/* Títulos y nombres dentro de la tarjeta */
 .nota-header {
   display: flex;
-  flex-direction: column;
-  /* Nombre arriba, categoría abajo para más orden */
-  align-items: flex-start;
+  flex-direction: row; /* Modificado a fila para mantener consistencia con el diseño */
+  justify-content: space-between;
+  align-items: center;
   gap: 8px;
   margin-bottom: 15px;
 }
@@ -227,13 +265,12 @@
 .badge {
   background: #e0e7ff;
   color: #4338ca;
-  padding: 4px 12px;
-  border-radius: 8px;
+  padding: 6px 14px;
+  border-radius: 9999px;
   font-size: 0.8rem;
   font-weight: 700;
 }
 
-/* El contenido del diagnóstico */
 .nota-field p {
   background: var(--bg-soft);
   padding: 16px;
@@ -241,23 +278,32 @@
   font-size: 1rem;
   color: var(--text-body);
   margin: 10px 0;
-
-  /* CRÍTICO: Rompe palabras infinitas para que no generen scroll */
   overflow-wrap: anywhere;
   word-break: break-word;
   white-space: pre-wrap;
+}
+
+.nota-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.text-muted {
+  color: var(--text-body);
+  font-size: 0.85rem;
 }
 
 .nota-actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
-  margin-top: 10px;
 }
 
 .btn-circle {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 10px;
   border: 1px solid var(--border-color);
   background: #fff;
@@ -265,19 +311,207 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  font-size: 1.05rem;
+  transition: all 0.15s ease;
 }
 
-/* Animaciones y Responsivo */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+.btn-circle:hover {
+  background: var(--bg-soft);
+  transform: scale(1.05);
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.btn-edit:hover {
+  border-color: var(--info);
+  background: #f0f9ff;
+}
+
+.btn-delete:hover {
+  border-color: var(--danger);
+  background: #fef2f2;
+}
+
+/* ======================================================================= */
+/* NUEVO: ESTILOS ROBUSTOS PARA EL MODAL DE DETALLE (EL OJO)               */
+/* ======================================================================= */
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6); /* Overlay oscuro sofisticado */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Por encima de cualquier navegación */
+  backdrop-filter: blur(6px); /* Efecto difuminado impecable */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.custom-modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 650px;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalFadeIn 0.25s ease-out;
+  box-sizing: border-box;
+}
+
+.modal-card-header {
+  background-color: var(--bg-soft);
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-card-header h2 {
+  font-size: 1.4rem;
+  color: var(--text-main);
+  font-weight: 800;
+  margin: 0;
+}
+
+.close-modal-btn {
+  background: #edf2f7;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text-body);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-modal-btn:hover {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.modal-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 60vh;
+  overflow-y: auto; /* Scroll seguro si la nota es larga */
+  text-align: left; /* Corrige la alineación del texto */
+}
+
+.detail-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detail-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.detail-group h5 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  font-weight: 700;
+  margin: 0;
+}
+
+.detail-value {
+  font-size: 1.05rem;
+  color: var(--text-main);
+  margin: 0;
+  font-weight: 600;
+}
+
+.badge-value {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+}
+
+.text-block {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--bg-soft);
+  padding: 14px 16px;
+  border-radius: 10px;
+  border-left: 4px solid #cbd5e1;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.highlight-text {
+  border-left-color: var(--primary);
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.metadata-text {
+  border-left-color: #f59e0b;
+  background-color: #fffbeb;
+}
+
+.modal-card-footer {
+  background-color: var(--bg-soft);
+  padding: 18px 24px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-card-footer .text-muted {
+  font-size: 0.9rem;
+  color: var(--text-body);
+}
+
+.btn-close-confirm {
+  background-color: #475569;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-close-confirm:hover {
+  background-color: #334155;
+}
+
+/* =========================================
+   ANIMACIONES Y RESPONSIVO
+   ========================================= */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @media (max-width: 768px) {
@@ -292,5 +526,10 @@
 
   .full-width {
     grid-column: span 1;
+  }
+
+  .detail-grid-2 {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 }

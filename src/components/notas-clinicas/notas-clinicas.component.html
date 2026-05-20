@@ -19,37 +19,58 @@
     <form (ngSubmit)="crearNotaClinica()" class="form-grid">
       <!-- Fila 1: Paciente y Categoría -->
       <label>
-        Paciente
+        Paciente <span class="text-danger">*</span>
         <select [(ngModel)]="nuevaNota.pacienteUid" name="paciente" required>
           <option value="">Seleccione...</option>
+          <!-- [value]="p.uid" asegura el bindeo idéntico al editar -->
           <option *ngFor="let p of pacientes" [value]="p.uid">{{ p.nombre }}</option>
         </select>
       </label>
 
       <label>
-        Categoría
-        <input type="text" [(ngModel)]="nuevaNota.categoria" name="categoria" placeholder="Ej: Ansiedad">
+        Categoría <span class="text-danger">*</span> (Máx 200)
+        <input type="text" [(ngModel)]="nuevaNota.categoria" name="categoria" maxlength="200" placeholder="Ej: Ansiedad" required>
+        <div class="text-end text-muted"><small>{{ nuevaNota.categoria?.length || 0 }}/200</small></div>
       </label>
 
-      <!-- Fila 2: Diagnóstico (Ancho completo) -->
+      <!-- Fila 2: Fecha -->
       <label class="full-width">
-        Diagnóstico (Máximo 500 caracteres)
-        <textarea 
-          [(ngModel)]="nuevaNota.diagnostico" 
-          name="diagnostico" 
-          rows="4" 
-          maxlength="500" 
-          placeholder="Escriba aquí...">
-        </textarea>
+        Fecha <span class="text-danger">*</span>
+        <input type="date" [(ngModel)]="nuevaNota.fecha" name="fecha" required>
+      </label>
+
+      <!-- Fila 3: Síntomas y Tratamiento -->
+      <label>
+        Síntomas (Máx 200)
+        <textarea [(ngModel)]="nuevaNota.sintomas" name="sintomas" rows="3" maxlength="200" placeholder="Síntomas..."></textarea>
+        <div class="text-end text-muted"><small>{{ nuevaNota.sintomas?.length || 0 }}/200</small></div>
+      </label>
+
+      <label>
+        Plan de Tratamiento (Máx 200)
+        <textarea [(ngModel)]="nuevaNota.planTratamiento" name="planTratamiento" rows="3" maxlength="200" placeholder="Tratamiento..."></textarea>
+        <div class="text-end text-muted"><small>{{ nuevaNota.planTratamiento?.length || 0 }}/200</small></div>
+      </label>
+
+      <!-- Fila 4: Diagnóstico -->
+      <label class="full-width">
+        Diagnóstico Clínico <span class="text-danger">*</span> (Máximo 500 caracteres)
+        <textarea [(ngModel)]="nuevaNota.diagnostico" name="diagnostico" rows="4" maxlength="500" placeholder="Escriba aquí..." required></textarea>
         <div class="text-end">
-          <!-- Agregué una validación simple para evitar errores si diagnostico es null -->
-          <small [style.color]="(nuevaNota.diagnostico.length || 0) >= 500 ? 'red' : '#718096'">
-            {{ nuevaNota.diagnostico.length || 0 }} / 500 caracteres
+          <small [style.color]="(nuevaNota.diagnostico?.length || 0) >= 500 ? 'red' : '#718096'">
+            {{ nuevaNota.diagnostico?.length || 0 }} / 500 caracteres
           </small>
         </div>
       </label>
 
-      <!-- Fila 3: Botón de Guardar -->
+      <!-- Fila 5: Observaciones -->
+      <label class="full-width">
+        Observaciones (Máx 200)
+        <textarea [(ngModel)]="nuevaNota.observaciones" name="observaciones" rows="2" maxlength="200" placeholder="Observaciones..."></textarea>
+        <div class="text-end text-muted"><small>{{ nuevaNota.observaciones?.length || 0 }}/200</small></div>
+      </label>
+
+      <!-- Fila 6: Botón Guardar -->
       <div class="full-width mt-3">
         <button type="submit" class="btn-save" [disabled]="guardando">
           <span *ngIf="!guardando">💾 Guardar Nota Clínica</span>
@@ -72,13 +93,13 @@
     <span class="spinner-border spinner-border-sm"></span> Cargando notas...
   </div>
 
-  <!-- LISTADO (Con trackBy para forzar el refresco) -->
+  <!-- LISTADO VACÍO -->
   <div class="info-bar text-center" *ngIf="!cargando && notasFiltradas.length === 0">
     No se encontraron notas clínicas registradas.
   </div>
 
+  <!-- LISTADO -->
   <section class="notas-list" *ngIf="!cargando">
-    <!-- El trackBy: trackByNota ayuda a Angular a detectar cambios de ID -->
     <div class="nota-card-v2" *ngFor="let nota of notasFiltradas; trackBy: trackByNota">
       <div class="nota-header">
         <strong>{{ nota.pacienteNombre }}</strong>
@@ -92,8 +113,65 @@
         <div class="nota-actions">
           <button class="btn-circle" (click)="abrirModalDetalle(nota)">👁️</button>
           <button *ngIf="puedeEditarNota(nota)" class="btn-circle" (click)="editarNotaClinica(nota)">✏️</button>
+          <button *ngIf="puedeEditarNota(nota)" class="btn-circle btn-delete" (click)="eliminarNotaClinica(nota.id)">🗑️</button>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ======================================================================= -->
+  <!-- NUEVO: ESTRUCTURA DEL MODAL DE DETALLE (EL OJO)                         -->
+  <!-- ======================================================================= -->
+  <div class="custom-modal-overlay" *ngIf="mostrarModalDetalle && notaDetalle">
+    <div class="custom-modal-card">
+      <div class="modal-card-header d-flex justify-content-between align-items-center">
+        <h2>Detalle del Registro Clínico</h2>
+        <button type="button" class="close-modal-btn" (click)="cerrarModalDetalle()">✕</button>
+      </div>
+      
+      <div class="modal-card-body">
+        <div class="detail-group">
+          <h5>Paciente</h5>
+          <p class="detail-value">{{ notaDetalle.pacienteNombre }}</p>
+        </div>
+
+        <div class="detail-grid-2">
+          <div class="detail-group">
+            <h5>Categoría</h5>
+            <p class="detail-value badge-value">{{ notaDetalle.categoria || 'Sin definir' }}</p>
+          </div>
+          <div class="detail-group">
+            <h5>Fecha de Atención</h5>
+            <p class="detail-value">{{ formatFecha(notaDetalle.fecha) }}</p>
+          </div>
+        </div>
+
+        <div class="detail-group" *ngIf="notaDetalle.sintomas">
+          <h5>Síntomas Reportados</h5>
+          <p class="detail-value text-block">{{ notaDetalle.sintomas }}</p>
+        </div>
+
+        <div class="detail-group">
+          <h5>Diagnóstico</h5>
+          <p class="detail-value text-block highlight-text">{{ notaDetalle.diagnostico }}</p>
+        </div>
+
+        <div class="detail-group" *ngIf="notaDetalle.planTratamiento">
+          <h5>Plan de Tratamiento</h5>
+          <p class="detail-value text-block">{{ notaDetalle.planTratamiento }}</p>
+        </div>
+
+        <div class="detail-group" *ngIf="notaDetalle.observaciones">
+          <h5>Observaciones Internas</h5>
+          <p class="detail-value text-block metadata-text">{{ notaDetalle.observaciones }}</p>
+        </div>
+      </div>
+
+      <div class="modal-card-footer text-end">
+        <small class="text-muted d-block mb-2">Atendido por: {{ notaDetalle.psicologoNombre || 'Especialista' }}</small>
+        <button type="button" class="btn-close-confirm" (click)="cerrarModalDetalle()">Cerrar Vista</button>
+      </div>
+    </div>
+  </div>
+
 </div>
