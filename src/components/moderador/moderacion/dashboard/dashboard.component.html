@@ -42,69 +42,19 @@
             </article>
         </section>
 
-        <section class="card quick-actions">
-            <div class="quick-head">
-                <h3 class="quick-title">Herramientas del Moderador</h3>
-                <span class="badge">Auditoría Activa</span>
-            </div>
+        
 
-            <div class="quick-grid">
-                <a (click)="activarConfiguracion()" class="quick-item">
-                    <span class="quick-icon">⚙️</span>
-                    <div>
-                        <strong class="quick-item-title">Seguridad de Cuenta</strong>
-                        <p class="quick-item-desc">Actualiza tus claves personales.</p>
-                    </div>
-                </a>
-            </div>
-        </section>
-    </ng-container>
+           
+                        
 
-    <div class="config-container animate-fade-in" *ngIf="isConfigRoute">
-        <div class="card-edit">
-            <h3 class="config-section-title">Datos del Fiscalizador</h3>
+           
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" [value]="nombre" disabled class="form-control-disabled">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Apellido</label>
-                    <input type="text" [value]="apellido" disabled class="form-control-disabled">
-                </div>
-
-                <div class="form-group span-2">
-                    <label class="form-label">Correo Corporativo</label>
-                    <input type="email" [value]="correo" disabled class="form-control-disabled">
-                </div>
-            </div>
-            <p class="config-info-text">
-                ℹ️ Tu perfil está en modo auditoría. Para modificar tus datos de asignación, contacta al Administrador de AURA.
-            </p>
-        </div>
-
-        <hr class="form-divider">
 
         <section class="form-section">
-            <h3 class="config-section-title">Credenciales de Acceso</h3>
-
-            <div class="form-group mb-20">
-                <label class="form-label">Nueva Contraseña</label>
-                <input type="password" [(ngModel)]="nuevaClave" placeholder="Mínimo 6 caracteres" class="form-control">
-            </div>
+            
 
             
-                <button type="button" (click)="activarInicio()" class="btn-secondary">
-                    Volver al Inicio
-                </button>
-           
         </section>
 
-        <div class="error-container" *ngIf="errorMessage">
-            <p class="error-text">❌ {{ errorMessage }}</p>
-        </div>
-    </div>
+        
 
-</div>
