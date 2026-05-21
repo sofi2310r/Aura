@@ -18,6 +18,9 @@ export class Layout implements OnInit, OnDestroy {
     isConfigRoute: boolean = false;
     isSidebarVisible: boolean = false;
     isSaving: boolean = false;
+    
+    // 🔒 Control de bloqueo de inputs
+    editandoCampos: boolean = false; 
 
     // --- VARIABLES DE VISUALIZACIÓN (SIDEBAR) ---
     nombreDisplay: string = '';
@@ -31,6 +34,10 @@ export class Layout implements OnInit, OnDestroy {
 
     mensaje: string = '';
     errorMessage: string = '';
+
+    // Copia de respaldo para restaurar si el usuario cancela la edición
+    private nombreBackup: string = '';
+    private apellidoBackup: string = '';
 
     private sub: Subscription | null = null;
     private userSub: Subscription | null = null;
@@ -53,11 +60,28 @@ export class Layout implements OnInit, OnDestroy {
 
     activarConfiguracion() {
         this.isConfigRoute = true;
+        this.editandoCampos = false; // Asegura que empiece bloqueado al entrar
+    }
+
+    // Activa los inputs al presionar el lápiz
+    habilitarEdicion(): void {
+        this.nombreBackup = this.nombreEdit;
+        this.apellidoBackup = this.apellidoEdit;
+        this.editandoCampos = true;
+        this.cdr.detectChanges();
+    }
+
+    // Cancela y restaura los valores anteriores
+    cancelarEdicion(): void {
+        this.nombreEdit = this.nombreBackup;
+        this.apellidoEdit = this.apellidoBackup;
+        this.editandoCampos = false;
+        this.cdr.detectChanges();
     }
 
     logout() {
         this.authService.logout();
-        this.router.navigate(['/login']); // Redirección tras logout
+        this.router.navigate(['/login']); 
     }
 
     ngOnInit(): void {
@@ -79,13 +103,11 @@ export class Layout implements OnInit, OnDestroy {
         if (currentUser && currentUser.uid) {
             this.userSub = this.userService.getUserById(currentUser.uid).subscribe(user => {
                 if (user) {
-                    // La Sidebar siempre refleja la realidad de la DB
                     this.nombreDisplay = user.nombre || 'Usuario Aura';
                     this.correoDisplay = user.correo || '';
 
-                    // CORRECCIÓN: Los inputs solo se sincronizan si NO estamos guardando
-                    // Esto elimina el comportamiento de "doble clic"
-                    if (!this.isSaving) {
+                    // Sincroniza inputs solo si el usuario no los está editando activamente
+                    if (!this.isSaving && !this.editandoCampos) {
                         this.nombreEdit = user.nombre || '';
                         this.apellidoEdit = user.apellido || '';
                         this.correoEdit = user.correo || '';
@@ -99,72 +121,87 @@ export class Layout implements OnInit, OnDestroy {
         }
     }
 
-  guardarCambiosPerfil(event?: Event) {
-    if (event) event.preventDefault();
+    guardarCambiosPerfil(event?: Event) {
+        if (event) event.preventDefault();
 
-    const currentUser = this.authService.getCurrentUser();
-    if (this.isSaving || !currentUser?.uid) return;
+        const currentUser = this.authService.getCurrentUser();
+        if (this.isSaving || !currentUser?.uid) return;
 
-    // 1. ACTUALIZACIÓN OPTIMISTA (Inmediata para el usuario)
-    const nombreAnterior = this.nombreDisplay;
-    this.nombreDisplay = this.nombreEdit; 
-    
-    this.isSaving = true;
-    this.mensaje = '';
+        if (!this.nombreEdit || !this.apellidoEdit || !this.nombreEdit.trim() || !this.apellidoEdit.trim()) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos incompletos',
+                text: 'No se puede guardar el perfil con el nombre o apellido vacíos.',
+                confirmButtonColor: '#5b3a7d',
+            });
+            return; 
+        }
 
-    this.userService.getUserById(currentUser.uid).pipe(take(1)).subscribe({
-        next: (userDoc) => {
-            if (userDoc && userDoc.id) {
-                const dataToUpdate = {
-                    nombre: this.nombreEdit,
-                    apellido: this.apellidoEdit
-                };
+        const nombreAnterior = this.nombreDisplay;
+        this.nombreDisplay = this.nombreEdit.trim(); 
+        
+        this.isSaving = true; 
+        this.mensaje = '';
+        this.cdr.detectChanges(); 
 
-                this.userService.updateUser(userDoc.id, dataToUpdate).pipe(take(1)).subscribe({
-                    next: () => {
-                        const updatedUser = {
-                            ...currentUser,
-                            nombre: this.nombreEdit,
-                            apellido: this.apellidoEdit,
-                            correo: this.correoEdit,
-                        } as User;
+        this.userService.getUserById(currentUser.uid).pipe(take(1)).subscribe({
+            next: (userDoc) => {
+                if (userDoc && userDoc.id) {
+                    const dataToUpdate = {
+                        nombre: this.nombreEdit.trim(),
+                        apellido: this.apellidoEdit.trim()
+                    };
 
-                        this.authService.updateCurrentUser(updatedUser);
-                        this.mensaje = '';
-                        this.isSaving = false;
+                    this.userService.updateUser(userDoc.id, dataToUpdate).pipe(take(1)).subscribe({
+                        next: () => {
+                            const updatedUser = {
+                                ...currentUser,
+                                nombre: this.nombreEdit.trim(),
+                                apellido: this.apellidoEdit.trim(),
+                                correo: this.correoEdit,
+                            } as User;
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Perfil actualizado',
-                            text: 'Tus datos se guardaron correctamente.',
-                            confirmButtonColor: '#5b3a7d',
-                        });
-                    },
-                    error: (err) => {
-                        // 2. ROLLBACK: Si falla el servidor, devolvemos el nombre viejo
-                        this.nombreDisplay = nombreAnterior;
-                        this.errorMessage = 'Error al sincronizar';
-                        this.isSaving = false;
+                            this.authService.updateCurrentUser(updatedUser);
+                            
+                            // Cierra el modo edición y vuelve a bloquear los campos
+                            this.isSaving = false;
+                            this.editandoCampos = false; 
+                            this.cdr.detectChanges(); 
 
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'No se pudo actualizar',
-                            text: err?.message || 'Intenta nuevamente.',
-                            confirmButtonColor: '#d33',
-                        });
-                    }
-                });
-            } else {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Perfil actualizado',
+                                text: 'Tus datos se guardaron correctamente.',
+                                confirmButtonColor: '#5b3a7d',
+                            });
+                        },
+                        error: (err) => {
+                            this.nombreDisplay = nombreAnterior;
+                            this.isSaving = false;
+                            this.cdr.detectChanges(); 
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'No se pudo actualizar',
+                                text: err?.message || 'Intenta nuevamente.',
+                                confirmButtonColor: '#d33',
+                            });
+                        }
+                    });
+                } else {
+                    this.isSaving = false;
+                    this.nombreDisplay = nombreAnterior;
+                    this.cdr.detectChanges();
+                }
+            },
+            error: () => {
                 this.isSaving = false;
                 this.nombreDisplay = nombreAnterior;
+                this.cdr.detectChanges();
             }
-        },
-        error: () => {
-            this.isSaving = false;
-            this.nombreDisplay = nombreAnterior;
-        }
-    });
-}
+        });
+    }
+
     actualizarPassword() {
         if (this.nuevaClave.length < 6) {
             this.errorMessage = 'Mínimo 6 caracteres';

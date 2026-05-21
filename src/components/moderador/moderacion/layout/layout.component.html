@@ -36,7 +36,7 @@
                     <span>Foro</span>
                 </a>
 
-                <a class="nav-item config-btn" (click)="activarConfiguracion()" [class.active]="isConfigRoute">
+                <a class="nav-item config-btn"  routerLinkActive="active"(click)="activarConfiguracion()" [class.active]="isConfigRoute">
                     <span>⚙️</span>
                     <span>Configuración</span>
                 </a>
@@ -67,29 +67,47 @@
 
             <div class="config-view-container animate-fade-in" *ngIf="isConfigRoute">
                 <div class="config-card">
-                    <section class="config-section">
-                        <h2>Ajustes de Perfil</h2>
+                    
+                    <form #configForm="ngForm" (submit)="configForm.valid && nombreEdit.trim() && apellidoEdit.trim() && guardarCambiosPerfil($event)" class="config-section">
                         
-                        <div class="input-group">
-                            <label>Nombre</label>
-                            <input type="text" [(ngModel)]="nombreEdit" placeholder="Tu nombre">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h2 style="margin: 0;">Ajustes de Perfil</h2>
+                            
+                            <button type="button" class="btn-lapiz" (click)="habilitarEdicion()" *ngIf="!editandoCampos" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 6px; line-height: 1;" title="Editar perfil">
+                                ✏️
+                            </button>
+                            
+                            <button type="button" (click)="cancelarEdicion()" *ngIf="editandoCampos" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #d33; font-weight: 500;" title="Cancelar">
+                                ❌ Cancelar
+                            </button>
                         </div>
                         
                         <div class="input-group">
-                            <label>Apellido</label>
-                            <input type="text" [(ngModel)]="apellidoEdit" placeholder="Tu apellido">
+                            <label>Nombre <span style="color: red;">*</span></label>
+                            <input type="text" name="nombre" [(ngModel)]="nombreEdit" placeholder="Tu nombre" required #uNombre="ngModel" [disabled]="!editandoCampos || isSaving">
+                            <small *ngIf="uNombre.invalid && uNombre.touched" style="color: red; display: block; margin-top: 4px;">
+                                El nombre es obligatorio.
+                            </small>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Apellido <span style="color: red;">*</span></label>
+                            <input type="text" name="apellido" [(ngModel)]="apellidoEdit" placeholder="Tu apellido" required #uApellido="ngModel" [disabled]="!editandoCampos || isSaving">
+                            <small *ngIf="uApellido.invalid && uApellido.touched" style="color: red; display: block; margin-top: 4px;">
+                                El apellido es obligatorio.
+                            </small>
                         </div>
                         
                         <div class="input-group">
                             <label>Correo electrónico</label>
-                            <input type="email" [value]="correoEdit" disabled class="disabled-input">
+                            <input type="email" name="correo" [value]="correoEdit" disabled class="disabled-input">
                         </div>
                         
-                        <button class="btn-primary" (click)="guardarCambiosPerfil($event)" [disabled]="isSaving">
+                        <button type="submit" class="btn-primary" *ngIf="editandoCampos" [disabled]="isSaving || configForm.invalid || !nombreEdit.trim() || !apellidoEdit.trim()">
                             <span *ngIf="!isSaving">Guardar Cambios</span>
-                            <span *ngIf="isSaving">Cargando...</span>
+                            <span *ngIf="isSaving">Cargando... ⏳</span>
                         </button>
-                    </section>
+                    </form>
 
                     <hr class="separator">
                 </div>

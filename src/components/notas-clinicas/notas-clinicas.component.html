@@ -22,7 +22,6 @@
         Paciente <span class="text-danger">*</span>
         <select [(ngModel)]="nuevaNota.pacienteUid" name="paciente" required>
           <option value="">Seleccione...</option>
-          <!-- [value]="p.uid" asegura el bindeo idéntico al editar -->
           <option *ngFor="let p of pacientes" [value]="p.uid">{{ p.nombre }}</option>
         </select>
       </label>
@@ -84,7 +83,8 @@
   <section class="search-bar">
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
-      <input [(ngModel)]="filtroTexto" (input)="actualizarFiltro()" type="text" placeholder="Buscar por paciente, diagnóstico o categoría..." />
+      <!-- Placeholder actualizado indicando búsqueda por documento -->
+      <input [(ngModel)]="filtroTexto" (input)="actualizarFiltro()" type="text" placeholder="Buscar por documento, paciente, diagnóstico o categoría..." />
     </div>
   </section>
 
@@ -119,9 +119,7 @@
     </div>
   </section>
 
-  <!-- ======================================================================= -->
-  <!-- NUEVO: ESTRUCTURA DEL MODAL DE DETALLE (EL OJO)                         -->
-  <!-- ======================================================================= -->
+  <!-- MODAL DE DETALLE -->
   <div class="custom-modal-overlay" *ngIf="mostrarModalDetalle && notaDetalle">
     <div class="custom-modal-card">
       <div class="modal-card-header d-flex justify-content-between align-items-center">

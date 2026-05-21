@@ -148,12 +148,18 @@ export class NotasClinicasComponent implements OnInit {
     this.guardando = true;
     this.cdr.detectChanges();
 
+    // Mapeo explícito y seguro para cumplir con el tipo exacto que espera el servicio
     const payload = {
-      ...this.nuevaNota,
       pacienteUid: paciente.uid,
       pacienteNombre: paciente.nombre || 'Paciente',
       psicologoUid: this.usuarioActual.uid,
-      psicologoNombre: this.usuarioActual.nombre || 'Psicólogo'
+      psicologoNombre: this.usuarioActual.nombre || 'Psicólogo',
+      fecha: this.nuevaNota.fecha,
+      categoria: this.nuevaNota.categoria,
+      diagnostico: this.nuevaNota.diagnostico,
+      sintomas: this.nuevaNota.sintomas,
+      planTratamiento: this.nuevaNota.planTratamiento,
+      observaciones: this.nuevaNota.observaciones
     };
 
     const request$ = this.notaEditando
@@ -172,7 +178,6 @@ export class NotasClinicasComponent implements OnInit {
         this.cdr.detectChanges();
       })
     ).subscribe((res) => {
-      // Validación flexible: si no es null, cerramos y limpiamos al instante
       if (res !== null) {
         this.mostrarFormulario = false;
         this.resetFormulario();
@@ -186,7 +191,6 @@ export class NotasClinicasComponent implements OnInit {
           showConfirmButton: false 
         });
 
-        // Recarga asíncrona de fondo
         this.cargarNotas().subscribe({
           next: () => this.cdr.detectChanges()
         });
@@ -230,10 +234,28 @@ export class NotasClinicasComponent implements OnInit {
     if (!termino) {
       this.notasFiltradas = [...this.notas];
     } else {
-      this.notasFiltradas = this.notas.filter((nota) =>
-        `${nota.pacienteNombre} ${nota.categoria || ''} ${nota.diagnostico || ''}`
-          .toLowerCase().includes(termino)
-      );
+      this.notasFiltradas = this.notas.filter((nota) => {
+        const pacienteAsociado = this.pacientes.find(p => p.uid === nota.pacienteUid);
+        
+        // CORRECCIÓN: Forzamos el tipado a 'as any' de manera segura para saltarnos la restricción estricta de la interfaz
+        const pacAny = pacienteAsociado as any;
+        const documentoPaciente = String(
+          pacAny?.documento || 
+          pacAny?.documentoIdentidad || 
+          pacAny?.cedula || 
+          pacAny?.dni ||
+          ''
+        ).toLowerCase();
+
+        const nombre = String(nota.pacienteNombre || '').toLowerCase();
+        const cat = String(nota.categoria || '').toLowerCase();
+        const diag = String(nota.diagnostico || '').toLowerCase();
+
+        return nombre.includes(termino) || 
+               documentoPaciente.includes(termino) || 
+               cat.includes(termino) || 
+               diag.includes(termino);
+      });
     }
     this.cdr.detectChanges();
   }
@@ -248,7 +270,6 @@ export class NotasClinicasComponent implements OnInit {
     this.notaEditando = nota;
     this.mostrarFormulario = true;
     
-    // Forzamos el bindeo idéntico al ID para asegurar que el listado seleccione al paciente correcto
     this.nuevaNota = { 
       pacienteUid: nota.pacienteUid || '',
       fecha: nota.fecha ? nota.fecha.slice(0, 10) : new Date().toISOString().slice(0, 10),

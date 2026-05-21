@@ -14,20 +14,32 @@
 }
 
 /* ==========================================================================
-   2. BARRA LATERAL (SIDEBAR) Y COMPONENTES
+   2. BARRA LATERAL (SIDEBAR) REACCIONANDO AL MOUSE (HOVER)
    ========================================================================== */
 .sidebar {
-    width: 260px;
-    min-width: 260px; /* 🔥 fija */
+    width: 68px; /* 🥷 Ancho ultra compacto por defecto (Solo se verán los iconos) */
+    min-width: 68px;
     background: linear-gradient(180deg, #5f2c82, #6a11cb);
     overflow: hidden;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    
+    /* 🚀 Transición suave de 0.3 segundos al abrir y cerrar */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+}
+
+/* 🔥 CUANDO EL MOUSE ENTRA: La barra se expande automáticamente */
+.sidebar:hover {
+    width: 260px;
+    min-width: 260px;
 }
 
 .sidebar-content {
-    width: 100%;
-    padding: 20px;
+    width: 260px; /* 📐 Forzamos a que el contenido interno mantenga su tamaño real */
+    padding: 20px 10px;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 /* LOGO */
@@ -35,12 +47,18 @@
     color: white;
     margin-bottom: 30px;
     text-align: center;
+    white-space: nowrap;
+    transition: transform 0.3s ease;
 }
 
-/* PERFIL (OPTIMIZADO PARA COMPRIMIR ESPACIO LATERAL) */
+/* Ajuste del logo al encogerse */
+.sidebar:not(:hover) .logo {
+    transform: scale(0.8);
+}
+
+/* PERFIL (Se adapta visualmente cuando la barra está colapsada) */
 .user-profile-box {
     width: 100%;
-    /* 🔥 Reducido a 6px a los lados para exprimir cada píxel horizontal */
     padding: 18px 6px; 
     border-radius: 18px;
     border: 1px solid rgba(255, 255, 255, 0.25);
@@ -53,9 +71,17 @@
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    
-    /* 🔥 Permite que el texto se muestre libremente si es exacto al contenedor */
-    overflow: visible; 
+    transition: opacity 0.2s ease, visibility 0.2s ease, margin 0.3s ease, height 0.3s ease, padding 0.3s ease;
+}
+
+/* 🛑 SOLUCIÓN AL CORTE EXTRAÑO: Si no hay hover, el perfil desaparece limpiamente sin dejar rastros */
+.sidebar:not(:hover) .user-profile-box {
+    opacity: 0;
+    visibility: hidden;
+    margin-bottom: 0;
+    height: 0;
+    padding: 0;
+    border: none;
 }
 
 /* Nombre del Usuario */
@@ -68,36 +94,68 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: opacity 0.2s ease;
 }
 
-/* Correo (FRENADO EN UNA SOLA LÍNEA SIN RECORTE) */
+/* Correo */
 .user-email {
     display: block;
     width: 100%;
-    
-    /* 🔥 OBLIGA A QUE SE QUEDE EN UNA SOLA LÍNEA SIN SALTAR */
     white-space: nowrap; 
-    
-    /* 🔥 Tamaño ideal para que correos largos entren perfectos de corrido */
     font-size: 0.76rem; 
-    
     color: rgba(255, 255, 255, 0.85);
     text-align: center;
-    
-    /* 🔥 Desactiva bloqueos anteriores */
-    overflow: visible;
-    text-overflow: clip;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 0.2s ease;
 }
 
 /* MENÚ DE NAVEGACIÓN */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .menu a {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 12px 15px;
+    padding: 12px;
     color: white;
     text-decoration: none;
     border-radius: 10px;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.menu a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ocultar sutilmente detalles de texto si la barra está cerrada */
+.sidebar:not(:hover) .menu a span:last-child {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Estilo para los textos del menú al expandir */
+.menu a span:last-child {
+    transition: opacity 0.2s ease;
+}
+
+/* 🎯 SOLUCIÓN A ICONOS DESALINEADOS: Centrado perfecto calculado para los 68px de ancho */
+.menu a span:first-child {
+    font-size: 1.3rem;
+    min-width: 48px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: margin 0.3s ease;
+}
+
+/* Ajuste milimétrico de posición cuando el menú está cerrado */
+.sidebar:not(:hover) .menu a span:first-child {
+    margin-left: -2px; 
 }
 
 /* ==========================================================================
@@ -200,6 +258,17 @@
     color: #555;
 }
 
+/* Efecto Hover sobre el botón de activar lápiz */
+.btn-lapiz {
+    transition: all 0.2s ease;
+    border-radius: 8px;
+}
+
+.btn-lapiz:hover {
+    background-color: rgba(95, 44, 130, 0.1) !important;
+    transform: scale(1.05);
+}
+
 .input-group {
     display: flex;
     flex-direction: column;
@@ -218,18 +287,23 @@
     border: 1px solid #ddd;
     outline: none;
     transition: all 0.2s ease;
+    background-color: white;
+    color: #333;
 }
 
-/* EFECTO FOCUS */
-.input-group input:focus {
+/* EFECTO FOCUS (Solo cuando está habilitado para edición) */
+.input-group input:focus:not(:disabled) {
     border-color: #6a11cb;
     box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.15);
 }
 
-/* INPUT DESHABILITADO */
+/* INPUTS DESHABILITADOS O EN MODO LECTURA ANTES DEL LÁPIZ */
+.input-group input:disabled,
 .disabled-input {
-    background: #f3f3f3;
-    color: #999;
+    background: #f8f9fa; 
+    color: #888;
+    border-color: #e9ecef;
+    cursor: not-allowed;
 }
 
 /* BOTONES */
@@ -245,9 +319,18 @@
     transition: all 0.2s ease;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
     transform: translateY(-2px);
     opacity: 0.9;
+}
+
+/* Comportamiento del botón guardar cuando está bloqueado/procesando */
+.btn-primary:disabled {
+    background: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 1;
 }
 
 .btn-outline {

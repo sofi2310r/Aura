@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router, NavigationEnd, RouterModule } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { ForoService } from '../../../../services/foro.service';
 import { UserService } from '../../../../services/user.service';
 import { AuthService } from '../../../../services/auth.service';
@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: false, // Componente basado en módulo clásico
+  standalone: false, 
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -25,7 +25,7 @@ export class Dashboard implements OnInit, OnDestroy {
   isConfigRoute = false;
   isModeradorHomeRoute = true;
 
-  // Datos del Moderador (Lectura)
+  // Datos del Moderador (Lectura Reactiva)
   moderadorUser: User | null = null;
   nombre = '';
   apellido = '';
@@ -117,21 +117,18 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   cargarDatosModerador(): void {
-    const usuarioActual = this.authService.getCurrentUser();
-    if (!usuarioActual) {
-      this.errorMessage = 'No hay sesión iniciada.';
-      this.cdr.detectChanges();
-      return;
-    }
-
-    // Cargamos los datos del moderador en modo de solo lectura
+    // SOLUCIÓN DEFINITIVA: Escuchar los cambios del usuario actual de manera reactiva global
     this.subscriptions.add(
-      this.userService.getUserById(usuarioActual.uid).subscribe(user => {
+      this.authService.currentUser$.subscribe(user => {
         if (user) {
           this.moderadorUser = user;
           this.nombre = user.nombre || '';
           this.apellido = user.apellido || '';
           this.correo = user.correo || '';
+          this.errorMessage = '';
+          this.cdr.detectChanges();
+        } else {
+          this.errorMessage = 'No hay sesión iniciada.';
           this.cdr.detectChanges();
         }
       })
@@ -149,7 +146,7 @@ export class Dashboard implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // --- SEGURIDAD Y CREDENCIALES (Única acción de cambio permitida) ---
+  // --- SEGURIDAD Y CREDENCIALES ---
   actualizarPassword(): void {
     if (this.nuevaClave.length < 6) {
       Swal.fire({
