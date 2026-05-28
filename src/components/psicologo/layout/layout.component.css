@@ -1,3 +1,6 @@
+/* ==========================================================================
+   Estilos Generales y Base
+   ========================================================================== */
 * {
     margin: 0;
     padding: 0;
@@ -35,6 +38,9 @@ app-navbar-psicologo {
     gap: 0;
 }
 
+/* ==========================================================================
+   Sidebar Dinámico (Menú Lateral)
+   ========================================================================== */
 .sidebar {
     width: 90px;
     background: linear-gradient(180deg, #5f2c82 0%, #6a11cb 100%);
@@ -47,6 +53,7 @@ app-navbar-psicologo {
     min-height: calc(100vh - 70px);
     transition: all 0.3s ease;
     overflow: hidden;
+    z-index: 10;
 }
 
 .sidebar:hover {
@@ -100,6 +107,7 @@ app-navbar-psicologo {
     transition: all 0.25s ease;
     font-weight: 500;
     white-space: nowrap;
+    user-select: none;
 }
 
 .sidebar:hover .menu-item {
@@ -134,6 +142,9 @@ app-navbar-psicologo {
     padding-left: 12px;
 }
 
+/* ==========================================================================
+   Contenedor Principal de Contenido
+   ========================================================================== */
 .main {
     flex: 1;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -148,6 +159,216 @@ app-navbar-psicologo {
     padding: 30px 40px;
 }
 
+/* ==========================================================================
+   Sección de Configuración (Formulario)
+   ========================================================================== */
+.config-container {
+    padding: 40px; /* Más aire en los bordes */
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    color: #2c2c2c;
+}
+
+.header-section {
+    margin-bottom: 35px;
+}
+
+.titulo-principal {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #4a2d6a; /* Sincronizado con el morado de AURA */
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #666;
+}
+
+/* --- Encabezado de Datos Personales con Lápiz --- */
+.edit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.edit-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c2c2c;
+    font-weight: 600;
+}
+
+/* ✏️ Botón Lápiz Interactivo, Estético y Cliqueable */
+.btn-edit-toggle {
+    background: #ffffff;
+    border: 1px solid #e4e4e7;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4a2d6a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.btn-edit-toggle:hover {
+    background: #f4f4f5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.btn-edit-toggle:active {
+    transform: scale(0.97);
+}
+
+/* Estado del botón cuando se está editando (Cambia a Cancelar) */
+.btn-edit-toggle.active {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+/* --- Tarjeta del Formulario --- */
+.card-edit {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 35px; /* Más espacio interno */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+    transition: box-shadow 0.2s ease;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px; /* Más separación entre campos de texto */
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 13px;
+    color: #444;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+/* Asterisco de campo obligatorio */
+.required-asterisk {
+    color: #ef4444;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+/* --- Entradas de texto (Inputs) --- */
+.form-control {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #e4e4e7;
+    outline: none;
+    font-size: 14px;
+    background: #ffffff;
+    color: #1f2937;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+/* 🔒 Cuando están bloqueados de raíz sin tocar el lápiz */
+.form-control:disabled {
+    background: #f4f4f5 !important;
+    color: #71717a !important;
+    cursor: not-allowed;
+    opacity: 0.85;
+    border-color: #e4e4e7 !important;
+    box-shadow: none !important;
+}
+
+/* ✨ Cuando se le da al lápiz y se vuelven editables */
+.form-control.editable-input {
+    border: 2px solid #7c5cff;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.1);
+}
+
+.form-control.editable-input:focus {
+    border-color: #4a2d6a; /* Cambia a tu morado al escribir */
+    box-shadow: 0 0 0 3px rgba(74, 45, 106, 0.15);
+}
+
+/* --- Botón Guardar Cambios --- */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    border-top: 1px solid #f4f4f5;
+    padding-top: 20px;
+}
+
+.btn-primary {
+    padding: 12px 24px;
+    background: #7c5cff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(124, 92, 255, 0.2);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #6848ff;
+    box-shadow: 0 6px 16px rgba(124, 92, 255, 0.3);
+}
+
+/* Estado bloqueado del botón si los campos requeridos están vacíos */
+.btn-primary:disabled {
+    background: #e4e4e7;
+    color: #a1a1aa;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   Mensajes de Alerta e Interfaz de Footer
+   ========================================================================== */
+.alert {
+    margin-top: 15px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.success {
+    background: #e6ffed;
+    color: #1a7f37;
+    border: 1px solid #b7ebc6;
+}
+
+.danger {
+    background: #ffe6e6;
+    color: #b42318;
+    border: 1px solid #f5b5b5;
+}
+
 footer {
     background: linear-gradient(135deg, #6a11cb 0%, #2fa98f 100%);
     color: white;
@@ -156,6 +377,7 @@ footer {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    margin-top: auto;
 }
 
 footer p {
@@ -163,6 +385,9 @@ footer p {
     font-size: 14px;
 }
 
+/* ==========================================================================
+   Responsive Design (Media Queries)
+   ========================================================================== */
 @media (max-width: 768px) {
     .layout {
         flex-direction: column;
@@ -198,7 +423,16 @@ footer p {
         justify-content: flex-start;
     }
 
-    .content {
+    .config-container {
+        padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .card-edit {
         padding: 20px;
     }
 
@@ -206,209 +440,6 @@ footer p {
         flex-direction: column;
         gap: 8px;
         text-align: center;
+        padding: 20px 0;
     }
-}
-/* =========================
-   CONTENEDOR GENERAL
-========================= */
-.config-container {
-  padding: 30px;
-  max-width: 1100px;
-  margin: 0 auto;
-  color: #2c2c2c;
-}
-
-/* =========================
-   HEADER
-========================= */
-.header-section {
-  margin-bottom: 25px;
-}
-
-.titulo-principal {
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 5px;
-  color: #1e1e1e;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: #666;
-}
-
-/* =========================
-   CARD FORMULARIO
-========================= */
-.card-edit {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
-  transition: transform 0.2s ease;
-}
-
-.card-edit:hover {
-  transform: translateY(-2px);
-}
-
-/* =========================
-   GRID FORMULARIO
-========================= */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-}
-
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* =========================
-   INPUTS
-========================= */
-.form-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-group label {
-  font-size: 13px;
-  margin-bottom: 5px;
-  color: #444;
-  font-weight: 600;
-}
-
-.form-control {
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  outline: none;
-  transition: 0.2s;
-  font-size: 14px;
-  background: #fff;
-}
-
-.form-control:focus {
-  border-color: #7c5cff;
-  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
-}
-
-/* INPUT DESHABILITADO */
-.disabled {
-  background: #f3f3f3;
-  color: #888;
-}
-
-/* =========================
-   BOTONES
-========================= */
-.btn-primary {
-  margin-top: 15px;
-  padding: 10px 18px;
-  background: #7c5cff;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.btn-primary:hover {
-  background: #6848ff;
-}
-
-.btn-secondary {
-  margin-top: 15px;
-  padding: 10px 18px;
-  background: #2dd4bf;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.2s;
-}
-
-.btn-secondary:hover {
-  background: #14b8a6;
-}
-
-/* =========================
-   MENSAJES
-========================= */
-.alert {
-  margin-top: 15px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.success {
-  background: #e6ffed;
-  color: #1a7f37;
-  border: 1px solid #b7ebc6;
-}
-
-.danger {
-  background: #ffe6e6;
-  color: #b42318;
-  border: 1px solid #f5b5b5;
-}
-
-footer {
-  margin-top: auto;
-  text-align: center;
-  font-size: 12px;
-  color: #888;
-  padding: 20px 0;
-}
-
-/* 🧠 Header con lápiz */
-.edit-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.edit-header h3 {
-  margin: 0;
-}
-
-/* ✏️ botón lápiz */
-.edit-icon {
-  background: transparent;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.edit-icon:hover {
-  transform: scale(1.2);
-}
-
-/* 🧾 inputs normales */
-.form-control {
-  transition: 0.2s ease;
-}
-
-/* 🔒 cuando están bloqueados */
-.form-control:disabled {
-  background: #f2f2f2;
-  cursor: not-allowed;
-  opacity: 0.8;
-}
-
-/* ✨ cuando editas (opcional visual) */
-.form-control.editing {
-  border: 1px solid #7c5cff;
-  box-shadow: 0 0 0 2px rgba(124, 92, 255, 0.15);
 }

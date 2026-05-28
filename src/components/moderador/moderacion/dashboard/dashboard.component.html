@@ -23,23 +23,40 @@
 
     <ng-container *ngIf="!isConfigRoute">
         <section class="cards-grid">
-            <article class="metric-card">
+            
+            <!-- Tarjeta: Usuarios -->
+            <article class="metric-card" 
+                     routerLink="/moderador/usuarios" 
+                     routerLinkActive="active" 
+                     (click)="activarDashboard()" 
+                     tabindex="0">
                 <span class="metric-title">Usuarios Registrados</span>
                 <strong class="metric-value">{{ totalUsuarios }}</strong>
                 <small class="metric-helper">Cuentas totales creadas</small>
             </article>
 
-            <article class="metric-card">
+            <!-- Tarjeta: Foro -->
+            <article class="metric-card" 
+                     routerLink="/moderador/foro" 
+                     routerLinkActive="active" 
+                     (click)="activarDashboard()" 
+                     tabindex="0">
                 <span class="metric-title">Hilos en Foro</span>
                 <strong class="metric-value">{{ publicaciones }}</strong>
                 <small class="metric-helper">Aportes abiertos al público</small>
             </article>
 
-            <article class="metric-card alert-danger-card">
+            <!-- Tarjeta: Reportes -->
+            <article class="metric-card alert-danger-card" 
+                     routerLink="/moderador/reportes" 
+                     routerLinkActive="active" 
+                     (click)="activarDashboard()" 
+                     tabindex="0">
                 <span class="metric-title danger-title">Alertas y Reportes</span>
                 <strong class="metric-value danger-value">{{ reportes }}</strong>
                 <small class="metric-helper danger-helper">⚠️ Requieren revisión inminente</small>
             </article>
+
         </section>
     </ng-container>
 

@@ -407,3 +407,42 @@
     margin: 0;
     font-size: 0.9rem;
 }
+/* ==========================================================================
+   Estilos de Interactividad para las Tarjetas Métricas
+   ========================================================================== */
+
+.metric-card {
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    outline: none;
+    /* Transición suave para todos los estados (hover, active) */
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                background-color 0.2s ease;
+}
+
+/* Efecto Hover: Eleva la tarjeta sutilmente y profundiza la sombra */
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    background-color: rgba(255, 255, 255, 0.03); /* Brillo sutil si el fondo es oscuro */
+}
+
+/* Variación Hover para la tarjeta de Reportes (Alerta/Peligro) */
+.alert-danger-card:hover {
+    box-shadow: 0 10px 20px rgba(213, 0, 0, 0.15);
+    background-color: rgba(213, 0, 0, 0.02); /* Tinte rojizo muy leve en hover */
+}
+
+/* Efecto Active: Simula la presión física de un botón al hacer clic */
+.metric-card:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+/* Accesibilidad: Enfoque visual claro al navegar con el teclado (Tab) */
+.metric-card:focus-visible {
+    box-shadow: 0 0 0 3px #6366f1; /* Ajusta este color al morado/azul de AURA */
+}

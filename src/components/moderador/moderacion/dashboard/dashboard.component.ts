@@ -136,6 +136,16 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   // --- NAVEGACIÓN DE PANELES EN EL DASHBOARD ---
+  
+  /**
+   * Se ejecuta al hacer clic en las tarjetas métricas del panel o links de navegación principal.
+   * Restablece el estado para ocultar el formulario de ajustes de perfil.
+   */
+  activarDashboard(): void {
+    this.isConfigRoute = false;
+    this.cdr.detectChanges();
+  }
+
   activarConfiguracion(): void {
     this.isConfigRoute = true;
     this.cdr.detectChanges();

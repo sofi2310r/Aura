@@ -1,37 +1,58 @@
 <div class="reportes-container">
-    <h2>Centro de Moderación 🚨</h2>
-
-    <div *ngIf="reportes.length === 0" class="vacio shadow">
-        <span class="icon">🎉</span>
-        <p>¡Todo limpio! No hay reportes pendientes.</p>
-    </div>
-
-    <div class="lista">
-        <div class="reporte-card shadow" *ngFor="let r of reportes">
+    
+    <header class="section-header">
+        <div class="header-info">
+            <h2>Gestión de Reportes </h2>
             
-            <div class="info">
-                <span class="tag">Post: {{ r.publicacion.titulo }}</span>
-                <p class="Comentario">"{{ r.Comentario.texto }}"</p>
-                <div class="meta">
-                    <span class="autor">👤 {{ r.Comentario.autor }}</span>
-                    <span class="fecha">{{ r.Comentario.fecha | date:'short' }}</span>
-                </div>
-            </div>
-
-            <div class="acciones">
-                <button class="btn ignorar" (click)="ignorarReporte(r.publicacion, r.index)">
-                    Ignorar ✔
-                </button>
-
-                <button class="btn eliminar" (click)="eliminarComentario(r.publicacion, r.index)">
-                    Eliminar 💀
-                </button>
-
-                <button class="btn bloquear" (click)="bloquearUsuario(r.Comentario.autorUid, r.publicacion.id, r.index)">
-                    Bloquear 🚫
-                </button>
-            </div>
-
+        <div class="counter-badge" [class.danger]="reportes.length > 0">
+            <span>{{ reportes.length }}</span> {{ reportes.length === 1 ? 'Reporte pendiente' : 'Reportes pendientes' }}
         </div>
+  
+    <div class="empty-state card animate-fade-in" *ngIf="reportes.length === 0">
+        <div class="empty-icon">🛡️</div>
+        <h3>¡Todo bajo control!</h3>
+        <p>No quedan comentarios reportados pendientes.</p>
     </div>
+
+    <div class="reportes-grid" *ngIf="reportes.length > 0">
+        <article class="reporte-card card animate-fade-in" *ngFor="let item of reportes">
+            
+            <div class="reporte-origen">
+                <span class="tag-contexto">📍 Hilo del Foro:</span>
+                <h4 class="pub-titulo">{{ item.publicacion.titulo }}</h4>
+            </div>
+
+            <div class="reporte-contenido">
+                <blockquote class="comentario-texto">
+                    "{{ item.Comentario.texto }}"
+                </blockquote>
+            </div>
+
+            <footer class="reporte-acciones">
+                
+                <button class="btn-action btn-ban" 
+                        (click)="bloquearUsuario(item.publicacion.id, item.publicacion.id, item.index)"
+                        title="Bloquear usuario por reincidencia">
+                    <span>🚫</span> Sancionar Autor
+                </button>
+
+                <div class="right-actions">
+                    <button class="btn-action btn-ignore" 
+                            (click)="ignorarReporte(item.publicacion, item.index)"
+                            title="Aprobar comentario y retirar alerta">
+                        <span>👁️</span> Ignorar
+                    </button>
+
+                    <button class="btn-action btn-delete" 
+                            (click)="eliminarComentario(item.publicacion, item.index)"
+                            title="Borrar comentario permanentemente">
+                        <span>🗑️</span> Eliminar
+                    </button>
+                </div>
+
+            </footer>
+
+        </article>
+    </div>
+
 </div>
