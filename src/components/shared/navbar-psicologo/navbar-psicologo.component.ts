@@ -98,6 +98,30 @@ import { AuthService } from '../../../services/auth.service';
       width: 24px;
       height: 24px;
     }
+
+    @media (max-width: 767px) {
+      .topbar {
+        padding: 0 16px;
+        height: 60px;
+        gap: 12px;
+      }
+      .topbar-title {
+        font-size: 15px;
+        letter-spacing: 0;
+      }
+      .navbar-brand img {
+        height: 36px;
+      }
+      .btn-logout {
+        width: 44px;
+        height: 44px;
+        border-radius: 6px;
+      }
+      .btn-logout svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
   `]
 })
 export class NavbarPsicologoComponent {

@@ -367,6 +367,7 @@ form {
 
 /* Botón de cambio de panel (texto) */
 .switch-btn {
+  display: none;
   background: none;
   border: none;
   color: #999;
@@ -504,7 +505,7 @@ form {
 
 /* ════════════════════════════════════
    RESPONSIVE — tablet y móvil
-════════════════════════════════════ */
+   ════════════════════════════════════ */
 @media (max-width: 768px) {
   .auth-box {
     min-height: auto;
@@ -559,7 +560,26 @@ form {
   }
 
   .primary-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 12px;
+  }
+
+  .switch-btn {
+    display: block;
+    width: 100%;
+    text-align: center;
+    min-height: 44px;
+  }
+
+  .input-group {
+    min-height: 44px;
+  }
+
+  .input-group input {
+    font-size: 16px !important;
   }
 }
 

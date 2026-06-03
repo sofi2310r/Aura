@@ -83,16 +83,109 @@
   box-shadow: 0 0 0 3px rgba(91, 74, 138, 0.18);
 }
 
-@media (max-width: 900px) {
+.hamburger-btn {
+  display: none;
+}
+
+.mobile-login-item {
+  display: none;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 767px) {
   .navbar {
-    flex-wrap: wrap;
-    gap: 16px;
+    padding: 12px 24px;
+    position: relative;
+  }
+
+  .logo {
+    font-size: 1.25rem;
+  }
+
+  .logo img {
+    width: 40px;
+  }
+
+  .login-icon-link {
+    display: none; /* Se muestra como item de texto dentro del menu movil */
+  }
+
+  .mobile-login-item {
+    display: block;
+    margin-top: 10px;
+    border-top: 1px solid #f0eef8;
+    padding-top: 16px;
+  }
+
+  .hamburger-btn {
+    display: flex;
+    flex-direction: column;
     justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 101;
+    transition: transform 0.3s ease;
+  }
+
+  .hamburger-btn .bar {
+    display: block;
+    width: 24px;
+    height: 3px;
+    background-color: var(--purple-dark);
+    border-radius: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  }
+
+  /* Animación del menú hamburguesa */
+  .hamburger-btn.open .bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .hamburger-btn.open .bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger-btn.open .bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 24px 32px;
+    gap: 20px;
+    box-shadow: 0 10px 20px rgba(91, 74, 138, 0.08);
+    border-top: 1px solid #f0eef8;
+    z-index: 99;
+  }
+
+  .nav-links.open {
+    display: flex;
+    animation: slideDownMenu 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .nav-links a.active-link::after {
+    bottom: -4px;
   }
 }
 
-@media (max-width: 640px) {
-  .nav-links {
-    gap: 14px;
+@keyframes slideDownMenu {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

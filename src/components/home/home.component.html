@@ -1,44 +1,103 @@
 <app-navbar></app-navbar>
 
-<section class="hero">
+<!-- SECCIÓN: HERO -->
+<section class="hero animate-fade-in">
   <div class="hero-content">
+    <span class="hero-tag">Salud Mental & Red de Apoyo 💜</span>
     <h1>Bienvenida a AURA</h1>
-<p>Tu refugio para sanar, crecer y sentirte segura cada día.</p>
+    <p>
+      Tu refugio para sanar, crecer y sentirte acompañada en cada paso. Un espacio seguro diseñado exclusivamente 
+      para tu bienestar psicológico, contención emocional y desarrollo personal.
+    </p>
     <div class="hero-buttons">
-      <button class="btn-primary" routerLink="/login">Registrate</button>
+      <button class="btn-primary" routerLink="/login">Registrate Gratis</button>
       <button class="btn-secondary" routerLink="/descargar-app">Descargar App</button>
-      <button class="btn-secondary" routerLink="/quienes-somos">Descubre mas</button>
+      <button class="btn-secondary" routerLink="/quienes-somos">Saber más</button>
     </div>
   </div>
 
   <div class="hero-image">
     <div class="hero-circle">
-<img class="hero-img" src="https://mrarvcfgtnrdrepzzfnp.supabase.co/storage/v1/object/sign/Aura/image/aura.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xM2YxYTAyMy1kNTk4LTQ0OTAtYTg4Zi0xYWQ0NTE4M2JiOGMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBdXJhL2ltYWdlL2F1cmEucG5nIiwiaWF0IjoxNzc1NzM4MzMzLCJleHAiOjE4MDcyNzQzMzN9.WdrVYRhCCE_T870vm8D630GQi41-GrQQXuHZal29QUw" alt="amor">
+      <img class="hero-img" src="https://mrarvcfgtnrdrepzzfnp.supabase.co/storage/v1/object/sign/Aura/image/aura.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8xM2YxYTAyMy1kNTk4LTQ0OTAtYTg4Zi0xYWQ0NTE4M2JiOGMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJBdXJhL2ltYWdlL2F1cmEucG5nIiwiaWF0IjoxNzc1NzM4MzMzLCJleHAiOjE4MDcyNzQzMzN9.WdrVYRhCCE_T870vm8D630GQi41-GrQQXuHZal29QUw" alt="Logotipo Aura">
     </div>
   </div>
 </section>
 
-<section class="features">
-  <div class="card" *ngFor="let f of features">
- <div class="card-icon">
-  <img [src]="f.icon" alt="icono">
-</div>
-    <p>{{ f.desc }}</p>
+<!-- SECCIÓN: CARACTERÍSTICAS / SERVICIOS -->
+<section class="features-section">
+  <div class="section-title">
+    <h2>Nuestros Pilares de Cuidado</h2>
+    <p>Descubre las herramientas y redes de apoyo que AURA pone a tu disposición para proteger tu salud mental.</p>
+  </div>
+  <div class="features-grid">
+    <div class="card" *ngFor="let f of features">
+      <div class="card-icon-container">
+        <img [src]="f.icon" alt="{{ f.title }}" class="card-icon-img">
+      </div>
+      <h3>{{ f.title }}</h3>
+      <p>{{ f.desc }}</p>
+    </div>
   </div>
 </section>
 
+<!-- SECCIÓN: ESTADÍSTICAS E IMPACTO -->
+<section class="stats-section">
+  <div class="stats-overlay"></div>
+  <div class="stats-container">
+    <div class="stat-card" *ngFor="let s of stats">
+      <strong class="stat-value">{{ s.value }}</strong>
+      <h4 class="stat-label">{{ s.label }}</h4>
+      <p class="stat-desc">{{ s.desc }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN: EMPODERAMIENTO -->
 <section class="empowerment">
   <div class="emp-content">
+    <span class="emp-kicker">Red de contención activa</span>
     <h2>Empoderamiento y Seguridad para Mujeres</h2>
     <p>
-      En AURA encontraras un espacio digital seguro y confiable donde podras recibir apoyo e informacion para tu
-      desarrollo personal y proteccion.
+      En AURA creemos firmemente en la importancia de la contención emocional. Nuestro portal digital ofrece 
+      un refugio contra el estrés diario y el acoso, vinculándote de forma directa con especialistas y 
+      permitiéndote interactuar con una comunidad empática.
     </p>
+    <ul class="emp-list">
+      <li>🛡️ Foros 100% moderados para evitar ciberacoso y agresiones.</li>
+      <li>👩‍⚕️ Psicólogas certificadas listas para brindarte guía clínica.</li>
+      <li>🔒 Privacidad máxima: sesiones y notas clínicas protegidas.</li>
+    </ul>
   </div>
 
   <div class="emp-circle">
-  <img src="https://png.pngtree.com/png-vector/20250307/ourmid/pngtree-from-equality-to-equity-the-next-step-for-women-s-rights-png-image_15742610.png" alt="Mujer empoderada">
-</div>
+    <img src="https://png.pngtree.com/png-vector/20250307/ourmid/pngtree-from-equality-to-equity-the-next-step-for-women-s-rights-png-image_15742610.png" alt="Ilustración de Empoderamiento Femenino">
+  </div>
+</section>
+
+<!-- SECCIÓN: SEMILLAS DE BIENESTAR (CONSEJOS) -->
+<section class="tips-section">
+  <div class="section-title">
+    <h2>Semillas de Bienestar 🌱</h2>
+    <p>Consejos rápidos diseñados por profesionales para nutrir tu salud mental en el día a día.</p>
+  </div>
+  <div class="tips-grid">
+    <div class="tip-card" *ngFor="let t of tips">
+      <div class="tip-icon">✨</div>
+      <h3>{{ t.title }}</h3>
+      <p>{{ t.desc }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECCIÓN: LLAMADA A LA ACCIÓN (CTA) -->
+<section class="cta-section">
+  <div class="cta-container">
+    <h2>¿Lista para priorizar tu salud emocional?</h2>
+    <p>Únete hoy a AURA. Obtén acceso a herramientas de autocuidado, sesiones de apoyo y una comunidad segura.</p>
+    <div class="cta-buttons">
+      <button class="btn-primary btn-cta" routerLink="/login">Comenzar Ahora 💜</button>
+    </div>
+  </div>
 </section>
 
 <app-footer></app-footer>

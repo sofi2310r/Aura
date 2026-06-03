@@ -16,21 +16,21 @@
 
             <tbody>
                 <tr *ngFor="let usuario of usuarios">
-                    <td class="bold">{{ usuario.nombre }}</td>
-                    <td>{{ usuario.correo }}</td>
-                    <td><span class="badge-rol">{{ usuario.rol }}</span></td>
+                    <td class="bold" data-label="Nombre">{{ usuario.nombre }}</td>
+                    <td data-label="Correo">{{ usuario.correo }}</td>
+                    <td data-label="Rol"><span class="badge-rol">{{ usuario.rol }}</span></td>
 
-                    <td [class.high-reports]="usuario.reporte >= 3">
+                    <td data-label="Reportes" [class.high-reports]="usuario.reporte >= 3">
                         {{ usuario.reporte || 0 }}
                     </td>
 
-                    <td>
+                    <td data-label="Estado">
                         <span class="status-badge" [ngClass]="usuario.activo ? 'active' : 'blocked'">
                             {{ usuario.activo ? 'Activo' : 'Bloqueado' }}
                         </span>
                     </td>
 
-                    <td>
+                    <td data-label="Acciones">
                         <button *ngIf="usuario.activo" class="btn-action block" (click)="bloquear(usuario)">
                             🚫 Bloquear
                         </button>

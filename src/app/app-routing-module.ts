@@ -78,8 +78,8 @@ const routes: Routes = [
     ]
   },
 
-  // 6. Rutas compartidas protegidas
-  { path: 'foro', component: ForoComponent, canActivate: [AuthGuard] },
+  // 6. Rutas compartidas
+  { path: 'foro', component: ForoComponent },
   { path: 'notas-clinicas', component: NotasClinicasComponent, canActivate: [AuthGuard] },
 
   // 7. Manejo de errores (ORDEN CRÍTICO)

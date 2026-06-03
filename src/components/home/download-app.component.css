@@ -80,3 +80,29 @@
 .back-btn:hover {
   background: #3f2558;
 }
+
+@media (max-width: 767px) {
+  .download-card {
+    padding: 24px 16px;
+    border-radius: 20px;
+  }
+  .download-card h1 {
+    font-size: 1.8rem;
+  }
+  .download-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .download-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+  .back-btn {
+    width: 100%;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

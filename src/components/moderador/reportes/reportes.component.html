@@ -2,11 +2,12 @@
     
     <header class="section-header">
         <div class="header-info">
-            <h2>Gestión de Reportes </h2>
-            
+            <h2>Gestión de Reportes 🛡️</h2>
+        </div>
         <div class="counter-badge" [class.danger]="reportes.length > 0">
             <span>{{ reportes.length }}</span> {{ reportes.length === 1 ? 'Reporte pendiente' : 'Reportes pendientes' }}
         </div>
+    </header>
   
     <div class="empty-state card animate-fade-in" *ngIf="reportes.length === 0">
         <div class="empty-icon">🛡️</div>
@@ -17,15 +18,17 @@
     <div class="reportes-grid" *ngIf="reportes.length > 0">
         <article class="reporte-card card animate-fade-in" *ngFor="let item of reportes">
             
-            <div class="reporte-origen">
-                <span class="tag-contexto">📍 Hilo del Foro:</span>
-                <h4 class="pub-titulo">{{ item.publicacion.titulo }}</h4>
-            </div>
+            <div class="reporte-info">
+                <div class="reporte-origen">
+                    <span class="tag-contexto">📍 Hilo del Foro:</span>
+                    <h4 class="pub-titulo">{{ item.publicacion.titulo }}</h4>
+                </div>
 
-            <div class="reporte-contenido">
-                <blockquote class="comentario-texto">
-                    "{{ item.Comentario.texto }}"
-                </blockquote>
+                <div class="reporte-contenido">
+                    <blockquote class="comentario-texto">
+                        "{{ item.Comentario.texto }}"
+                    </blockquote>
+                </div>
             </div>
 
             <footer class="reporte-acciones">

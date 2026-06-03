@@ -517,19 +517,92 @@
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-content {
+    text-align: center;
+  }
+
+  .btn-main {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
   }
 
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 1.2rem;
   }
 
   .full-width {
     grid-column: span 1;
   }
 
+  .form-grid input,
+  .form-grid select,
+  .form-grid textarea {
+    font-size: 16px !important;
+  }
+
+  .nota-form {
+    padding: 1.5rem 1rem;
+  }
+
+  .nota-card-v2 {
+    padding: 16px;
+  }
+
+  .nota-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .nota-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .nota-actions {
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .btn-circle {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Modal adaptaciones */
+  .custom-modal-card {
+    max-height: 90vh;
+  }
+
+  .modal-card-body {
+    padding: 16px;
+    max-height: 55vh;
+  }
+
   .detail-grid-2 {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
+  }
+
+  .modal-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .btn-close-confirm {
+    width: 100%;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }

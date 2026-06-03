@@ -32,6 +32,11 @@ export class ForoComponent implements OnDestroy {
   rutaSalida = '/home';
   private isDestroyed = false;
 
+  // Filtrado y Búsqueda de Comunidad
+  terminoBusqueda = '';
+  categoriaSeleccionada = 'Todas';
+  readonly categorias = ['Todas', 'Ansiedad', 'Autoestima', 'Desahogo', 'Mindfulness', 'Consejos'];
+
   constructor(
     private readonly foroService: ForoService,
     private readonly cdr: ChangeDetectorRef,
@@ -461,5 +466,54 @@ export class ForoComponent implements OnDestroy {
 
   get conteoTitulo(): number {
     return this.titulo ? this.titulo.length : 0;
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.authService.getCurrentUser();
+  }
+
+  filtrarCategoria(cat: string): void {
+    this.categoriaSeleccionada = cat;
+  }
+
+  getPublicacionesFiltradas(): Publicacion[] {
+    let filtradas = this.publicaciones;
+
+    // 1. Filtrar por término de búsqueda en título y contenido
+    if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
+      const query = this.terminoBusqueda.toLowerCase().trim();
+      filtradas = filtradas.filter(
+        (pub) =>
+          (pub.titulo || '').toLowerCase().includes(query) ||
+          (pub.contenido || '').toLowerCase().includes(query)
+      );
+    }
+
+    // 2. Filtrar por categorías dinámicas basadas en palabras clave
+    if (this.categoriaSeleccionada !== 'Todas') {
+      const cat = this.categoriaSeleccionada.toLowerCase();
+      filtradas = filtradas.filter((pub) => {
+        const text = ((pub.titulo || '') + ' ' + (pub.contenido || '')).toLowerCase();
+        
+        if (cat === 'ansiedad') {
+          return text.includes('ansiedad') || text.includes('estrés') || text.includes('pánico') || text.includes('panico') || text.includes('nervios') || text.includes('crisis');
+        }
+        if (cat === 'autoestima') {
+          return text.includes('autoestima') || text.includes('amor propio') || text.includes('espejo') || text.includes('valor') || text.includes('insegura') || text.includes('seguridad');
+        }
+        if (cat === 'desahogo') {
+          return text.includes('desahogo') || text.includes('triste') || text.includes('llorar') || text.includes('sola') || text.includes('dolor') || text.includes('mal');
+        }
+        if (cat === 'mindfulness') {
+          return text.includes('mindfulness') || text.includes('medita') || text.includes('respirar') || text.includes('respira') || text.includes('paz') || text.includes('calma') || text.includes('atención plena');
+        }
+        if (cat === 'consejos') {
+          return text.includes('consejo') || text.includes('recomiend') || text.includes('ayuda') || text.includes('tip') || text.includes('sugerencia');
+        }
+        return true;
+      });
+    }
+
+    return filtradas;
   }
 }

@@ -207,3 +207,81 @@
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ==========================================================================
+   Diseño Responsivo (Tarjetas de Reportes Modernas)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .reportes-container {
+        padding: 15px 10px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+
+    .header-info h2 {
+        font-size: 1.5rem;
+    }
+
+    .counter-badge {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .reportes-grid {
+        gap: 16px;
+    }
+
+    .reporte-card {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .reporte-info {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .comentario-texto {
+        margin: 8px 0 0 0;
+        font-size: 0.95rem;
+        padding: 10px 14px;
+    }
+
+    .reporte-acciones {
+        align-items: stretch;
+        width: 100%;
+        min-width: unset;
+        margin-top: 4px;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 16px;
+    }
+
+    .right-actions {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 12px 10px;
+        font-size: 0.85rem;
+        border-radius: 8px;
+        min-height: 44px;
+    }
+
+    .btn-ban {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+}

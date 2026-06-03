@@ -61,3 +61,18 @@ html, body{
   border-color: #9b7bb8 !important; /* Usa el color morado característico de tu app */
   box-shadow: 0 0 0 3px rgba(155, 123, 184, 0.2) !important;
 }
+
+/* ==========================================================================
+   UTILIDADES RESPONSIVAS GLOBALES
+   ========================================================================== */
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

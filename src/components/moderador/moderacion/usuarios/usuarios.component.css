@@ -82,3 +82,103 @@ td {
     filter: brightness(0.9);
     transform: translateY(-2px);
 }
+
+/* ==========================================================================
+   Diseño Responsivo (Tablas a Tarjetas Modernas)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .usuarios-container {
+        padding: 12px;
+    }
+
+    .usuarios-container h2 {
+        font-size: 1.4rem;
+        color: #4a2d6a;
+        margin-bottom: 10px;
+    }
+
+    .table-wrapper {
+        background: transparent;
+        box-shadow: none !important;
+        border-radius: 0;
+        margin-top: 15px;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    /* Ocultar la cabecera original en móvil */
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    tr {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        margin-bottom: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(95, 44, 130, 0.05);
+    }
+
+    td {
+        border: none;
+        border-bottom: 1px solid #f1f5f9;
+        position: relative;
+        padding: 12px 6px;
+        text-align: right;
+        font-size: 0.9rem;
+        color: #334155;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 48px;
+        box-sizing: border-box;
+    }
+
+    td:last-child {
+        border-bottom: none;
+        padding-bottom: 4px;
+        margin-top: 8px;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        color: #64748b;
+        letter-spacing: 0.5px;
+        text-align: left;
+    }
+
+    .bold {
+        font-weight: 700;
+        color: #4a2d6a;
+    }
+
+    .status-badge {
+        padding: 4px 10px;
+    }
+
+    .btn-action {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 0.88rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border-radius: 10px;
+    }
+}
