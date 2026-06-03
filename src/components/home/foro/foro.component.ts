@@ -6,7 +6,8 @@ import Swal from 'sweetalert2';
 import { NotificacionService } from '../../../services/notificacion.service';
 import { UserService } from '../../../services/user.service';
 import { Router } from '@angular/router';
-
+import { interval, Subscription } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-foro',
@@ -14,7 +15,6 @@ import { Router } from '@angular/router';
   templateUrl: './foro.component.html',
   styleUrl: './foro.component.css',
 })
-
 export class ForoComponent implements OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   publicaciones: Publicacion[] = [];
@@ -31,6 +31,7 @@ export class ForoComponent implements OnDestroy {
   mostrarNavegacionPublica = true;
   rutaSalida = '/home';
   private isDestroyed = false;
+  private autoRefreshSub?: Subscription;
 
   // Filtrado y Búsqueda de Comunidad
   terminoBusqueda = '';
@@ -46,35 +47,86 @@ export class ForoComponent implements OnDestroy {
     private userService: UserService
   ) {
     this.aplicarContextoNavegacion();
+    this.vistaDetalle = null;
 
+    this.cargarPublicaciones();
+
+    this.autoRefreshSub = interval(8000)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() => this.foroService.getPublicaciones())
+      )
+      .subscribe({
+        next: (publicaciones) => {
+          if (publicaciones) {
+            this.actualizarListadoLocal(publicaciones);
+          }
+        },
+        error: (err) => console.error('Error en autorefresco:', err)
+      });
+  }
+
+  private cargarPublicaciones(): void {
     this.foroService
       .getPublicaciones()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((publicaciones) => {
-        this.publicaciones = [...publicaciones];
-        this.safeDetectChanges();
-
-        if (this.vistaDetalle) {
-          const actualizada = publicaciones.find((pub) => pub.id === this.vistaDetalle?.id);
-          if (actualizada) {
-            this.vistaDetalle = actualizada;
-            this.safeDetectChanges();
+      .subscribe({
+        next: (publicaciones) => {
+          console.log('--- DATOS DEL SERVIDOR RECIBIDOS ---', publicaciones);
+          if (publicaciones) {
+            this.actualizarListadoLocal(publicaciones);
           }
+        },
+        error: (err) => {
+          console.error('Error crítico al descargar posts', err);
+          this.safeDetectChanges();
         }
       });
   }
-  getNombre(): string {
-    return this.authService.getCurrentUser()?.nombre || 'Usuario';
+
+  private actualizarListadoLocal(publicaciones: Publicacion[]): void {
+    console.log('Sincronizando listado local. ¿Es Array?:', Array.isArray(publicaciones), 'Tamaño:', publicaciones?.length);
+
+    if (!Array.isArray(publicaciones)) {
+      console.warn('¡Atención! Las publicaciones no llegaron como un Array válido.');
+      return;
+    }
+
+    this.publicaciones = [...publicaciones];
+
+    if (this.vistaDetalle) {
+      const actualizada = publicaciones.find((pub) => pub.id === this.vistaDetalle?.id);
+      if (actualizada) {
+        this.vistaDetalle = { ...actualizada };
+      }
+    }
+
+    this.cdr.detectChanges();
+    this.safeDetectChanges();
   }
 
-  getCorreo(): string {
-    return this.authService.getCurrentUser()?.correo || 'administrador';
+  // BOTÓN BYPASS - Si el servidor falla, esto comprobará si el HTML/CSS responde
+  inyectarPostFalso(): void {
+    console.log('Inyectando post falso de diagnóstico...');
+    this.publicaciones = [
+      {
+        id: 'bypass-test',
+        titulo: 'Post de Diagnóstico de Aura',
+        contenido: 'Si puedes ver esta tarjeta morada, tu HTML, tus directivas y tus estilos CSS están al 100%. El problema está estrictamente en la respuesta vacía de tu base de datos Firebase.',
+        fecha: new Date(),
+        autor: 'Psicólogo de Prueba',
+        autorUid: 'mock-123',
+        rol: 'psicologo',
+        Comentarios: []
+      }
+    ];
+    this.cdr.detectChanges();
   }
 
+  getNombre(): string { return this.authService.getCurrentUser()?.nombre || 'Usuario'; }
+  getCorreo(): string { return this.authService.getCurrentUser()?.correo || 'usuario@aura.com'; }
   getRol(): string {
     const user = this.authService.getCurrentUser();
-    const role = (user?.rol || user?.role || '').toString().toLowerCase();
-    return role;
+    return (user?.rol || user?.role || '').toString().toLowerCase().trim();
   }
 
   private aplicarContextoNavegacion(): void {
@@ -86,81 +138,34 @@ export class ForoComponent implements OnDestroy {
     this.mostrarNavbarAdmin = !esRutaAdmin && (rol === 'admin' || rol === 'administrador');
     this.mostrarNavegacionPublica = !(this.mostrarNavbarAdmin || esRutaPsicologo || esRutaModerador || esRutaAdmin || rol === 'psicologo' || rol === 'moderador');
 
-    if (esRutaAdmin || rol === 'admin' || rol === 'administrador') {
-      this.rutaSalida = '/admin';
-      return;
-    }
-
-    if (rol === 'psicologo') {
-      this.rutaSalida = '/psicologo';
-      return;
-    }
-
-    if (rol === 'moderador') {
-      this.rutaSalida = '/moderador';
-      return;
-    }
-
+    if (esRutaAdmin || rol === 'admin' || rol === 'administrador') { this.rutaSalida = '/admin'; return; }
+    if (rol === 'psicologo') { this.rutaSalida = '/psicologo'; return; }
+    if (rol === 'moderador') { this.rutaSalida = '/moderador'; return; }
     this.rutaSalida = '/home';
   }
 
-  tienePermisosModerador(): boolean {
-    const user = this.authService.getCurrentUser();
-    const rolesAutorizados = ['admin', 'administrador', 'moderador', 'psicologo'];
+  tienePermisosModerador(): boolean { return ['admin', 'administrador', 'moderador', 'psicologo'].includes(this.getRol()); }
+  puedeCrearPublicacion(): boolean { return ['admin', 'administrador', 'psicologo'].includes(this.getRol()); }
+  puedeEditar(): boolean { return ['admin', 'administrador', 'psicologo'].includes(this.getRol()); }
 
-    return rolesAutorizados.includes(user?.rol?.toLowerCase() || '');
-  }
-
-  puedeCrearPublicacion(): boolean {
-    const rolesCreadores = ['admin', 'administrador', 'psicologo'];
-    return rolesCreadores.includes(this.getRol());
-  }
-
- eliminarPublicacion(event: Event, pub: Publicacion): void {
+  eliminarPublicacion(event: Event, pub: Publicacion): void {
     event.stopPropagation();
-
     if (!this.tienePermisosModerador()) return;
 
-    // 1. Alerta de confirmación
     Swal.fire({
       title: '¿Eliminar publicación?',
-      text: `¿Estás seguro de eliminar "${pub.titulo}"? Esta acción no se puede deshacer.`,
+      text: `¿Estás seguro de eliminar "${pub.titulo}"?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#718096',
       confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.showLoading(); 
-
         this.foroService.eliminarPublicacion(pub.id).subscribe({
           next: () => {
-            this.mensaje = ''; 
-
-            if (this.vistaDetalle?.id === pub.id) {
-              this.vistaDetalle = null;
-            }
-
-            // 2. NUEVA ALERTA: Aviso rápido de éxito con la tipografía de Aura
-            Swal.fire({
-              icon: 'success',
-              title: 'Eliminado exitosamente',
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 1500, // Se cierra sola en 1.5 segundos
-              timerProgressBar: true
-            });
-
-            this.cdr.detectChanges(); 
-          },
-          error: (error: Error) => {
-            this.mensaje = error.message;
-            this.cdr.detectChanges();
-            Swal.fire('Error', 'No se pudo eliminar la publicación', 'error');
-          },
+            if (this.vistaDetalle?.id === pub.id) this.vistaDetalle = null;
+            this.cargarPublicaciones();
+          }
         });
       }
     });
@@ -168,302 +173,86 @@ export class ForoComponent implements OnDestroy {
 
   async editarPublicacion(event: Event, pub: Publicacion): Promise<void> {
     event.stopPropagation();
-
-    // Verificación de rol: Solo Admin o Psicólogo
-    if (!['admin', 'administrador', 'psicologo'].includes(this.getRol())) {
-      Swal.fire('Acceso denegado', 'No tienes permisos para editar.', 'error');
-      return;
-    }
+    if (!this.puedeEditar()) return;
 
     const { value: formValues } = await Swal.fire({
       title: 'Editar Publicación',
       html:
-        `<input id="sw-titulo" class="swal2-input" value="${pub.titulo}" placeholder="Título">` +
-        `<textarea id="sw-contenido" class="swal2-textarea" style="height:150px" placeholder="Contenido">${pub.contenido}</textarea>`,
-      focusConfirm: false,
+        `<input id="sw-titulo" class="swal2-input" value="${pub.titulo}">` +
+        `<textarea id="sw-contenido" class="swal2-textarea" style="height:150px">${pub.contenido}</textarea>`,
       showCancelButton: true,
-      confirmButtonText: 'Guardar cambios',
       preConfirm: () => {
         const t = (document.getElementById('sw-titulo') as HTMLInputElement).value;
         const c = (document.getElementById('sw-contenido') as HTMLTextAreaElement).value;
-        if (!t || !c) return Swal.showValidationMessage('Ambos campos son obligatorios');
         return [t, c];
       }
     });
 
     if (formValues) {
-      this.foroService.actualizarPublicacion(pub.id, {
-        titulo: formValues[0],
-        contenido: formValues[1]
-      }).subscribe({
+      this.foroService.actualizarPublicacion(pub.id, { titulo: formValues[0], contenido: formValues[1] }).subscribe({
         next: (pubActualizada) => {
-          // Si estamos en la vista de detalle, actualizamos la referencia local
-          if (this.vistaDetalle?.id === pubActualizada.id) {
-            this.vistaDetalle = pubActualizada;
-          }
-          this.safeDetectChanges();
-          Swal.fire('¡Éxito!', 'Publicación actualizada correctamente.', 'success');
-        },
-        error: (error: any) => Swal.fire('Error', error.message, 'error')
+          if (this.vistaDetalle?.id === pubActualizada.id) this.vistaDetalle = { ...pubActualizada };
+          this.cargarPublicaciones();
+        }
       });
     }
   }
 
-  toggleFormulario(): void {
-    this.mostrarFormulario = !this.mostrarFormulario;
-  }
+  toggleFormulario(): void { this.mostrarFormulario = !this.mostrarFormulario; }
 
   publicar(): void {
-  if (!this.puedeCrearPublicacion()) {
-    Swal.fire('Acceso Restringido', 'No tienes permisos para crear nuevas publicaciones.', 'error');
-    return;
-  }
+    if (!this.puedeCrearPublicacion() || !this.titulo.trim() || !this.contenido.trim()) return;
+    this.publicando = true;
+    const tBackup = this.titulo; const cBackup = this.contenido;
+    this.titulo = ''; this.contenido = ''; this.mostrarFormulario = false;
 
-  if (!this.titulo.trim() || !this.contenido.trim()) {
-    Swal.fire('Completa los campos', 'Debes escribir título y contenido.', 'warning');
-    return;
-  }
-
-  if (this.titulo.length > 25) {
-    Swal.fire('Límite de caracteres', 'El título no puede superar los 25 caracteres.', 'warning');
-    return;
-  }
-
-  if (this.contenido.length > 200) {
-    Swal.fire('Límite de caracteres', 'El contenido no puede superar los 200 caracteres.', 'warning');
-    return;
-  }
-
-  // 1. Bloqueamos el botón para evitar doble clic accidental
-  this.publicando = true;
-
-  // Guardamos temporalmente los datos por si la petición falla y toca recuperarlos
-  const tituloRespando = this.titulo;
-  const contenidoRespaldo = this.contenido;
-
-  // 2. EFECTO INMEDIATO: Cerramos el formulario y limpiamos campos ya mismo
-  this.titulo = '';
-  this.contenido = '';
-  this.mostrarFormulario = false;
-  this.mensaje = '';
-  this.cdr.detectChanges(); // Pintamos el cierre rápido de la interfaz
-
-  // 3. Enviamos a la base de datos en segundo plano
-  this.foroService
-    .crearPublicacion({
-      titulo: tituloRespando,
-      contenido: contenidoRespaldo,
-      autor: this.getNombre(),
-      autorUid: this.authService.getCurrentUser()?.uid || '',
-      rol: this.getRol(),
-    })
-    .subscribe({
-      next: () => {
-        // Como la interfaz ya se actualizó al principio, solo liberamos la bandera por detrás
-        this.publicando = false;
-
-        // Opcional: Un mini-toast súper discreto que no bloquea la navegación
-        Swal.fire({
-          icon: 'success',
-          title: 'Publicado',
-          timer: 1000,
-          showConfirmButton: false,
-          toast: true,
-          position: 'top-end'
-        });
-      },
-      error: (error: Error) => {
-        // 4. CONTROL DE ERRORES: Si falla, devolvemos todo a como estaba para que no pierda la información
-        this.publicando = false;
-        this.titulo = tituloRespando;
-        this.contenido = contenidoRespaldo;
-        this.mostrarFormulario = true; // Le reabrimos el cuadro
-        this.mensaje = error.message;
-        this.cdr.detectChanges();
-        
-        Swal.fire('Error al publicar', 'No se pudo guardar. Inténtalo de nuevo.', 'error');
-      },
+    this.foroService.crearPublicacion({ titulo: tBackup, contenido: cBackup, autor: this.getNombre(), autorUid: this.authService.getCurrentUser()?.uid || '', rol: this.getRol() }).subscribe({
+      next: () => { this.publicando = false; this.cargarPublicaciones(); },
+      error: () => { this.publicando = false; this.mostrarFormulario = true; }
     });
-}
-
-  abrirDetalle(pub: Publicacion): void {
-    this.vistaDetalle = pub;
   }
 
-  volverLista(): void {
-    this.vistaDetalle = null;
-    this.nuevoComentario = '';
-  }
-
-  ngOnDestroy(): void {
-    this.isDestroyed = true;
-  }
+  abrirDetalle(pub: Publicacion): void { this.vistaDetalle = { ...pub }; this.safeDetectChanges(); }
+  volverLista(): void { this.vistaDetalle = null; this.nuevoComentario = ''; this.safeDetectChanges(); }
+  ngOnDestroy(): void { this.isDestroyed = true; if (this.autoRefreshSub) this.autoRefreshSub.unsubscribe(); }
 
   private safeDetectChanges(): void {
-    if (this.isDestroyed) {
-      return;
-    }
-
+    if (this.isDestroyed) return;
     setTimeout(() => {
-      try {
-        this.cdr.detectChanges();
-      } catch {
-        try {
-          this.cdr.markForCheck();
-        } catch {
-          // Ignorar errores de ciclo de detección de cambios.
-        }
-      }
+      try { this.cdr.detectChanges(); } catch { try { this.cdr.markForCheck(); } catch {} }
     }, 0);
   }
 
   responder(): void {
-    // RESTRICCIÓN: Los moderadores NO comentan, solo moderan.
-    if (this.getRol() === 'moderador') {
-      Swal.fire('Modo Moderación', 'Los moderadores no pueden participar en las discusiones.', 'info');
-      return;
-    }
-
-    if (!this.vistaDetalle || !this.nuevoComentario.trim()) {
-      Swal.fire('Completa el comentario', 'Escribe algo antes de publicar.', 'warning');
-      return;
-    }
-
-    this.enviando = true;
-    const textoParaEnviar = this.nuevoComentario;
-    this.nuevoComentario = '';
-
-    const currentUser = this.authService.getCurrentUser();
-
-    this.foroService
-      .agregarComentario(this.vistaDetalle.id, {
-        texto: textoParaEnviar,
-        autor: this.getNombre(),
-        autorUid: currentUser?.uid || '',
-        publicacionAutorUid: (this.vistaDetalle as any).autorUid || '',
-        rol: this.getRol(),
-        fecha: new Date(),
-        reportado: false
-      })
-      .subscribe({
-        next: (publicacionActualizada) => {
-          this.vistaDetalle = publicacionActualizada;
-          this.publicaciones = this.publicaciones.map((pub) =>
-            pub.id === publicacionActualizada.id ? publicacionActualizada : pub
-          );
-          this.enviando = false;
-          this.safeDetectChanges();
-          Swal.fire({
-            icon: 'success',
-            title: 'Comentario agregado',
-            timer: 1200,
-            showConfirmButton: false,
-            toast: true,
-            position: 'top-end'
-          });
-        },
-        error: () => {
-          this.enviando = false;
-          this.nuevoComentario = textoParaEnviar;
-          Swal.fire('Error', 'No se pudo enviar el comentario', 'error');
-        },
-      });
+    if (this.getRol() === 'moderador' || !this.vistaDetalle || !this.nuevoComentario.trim()) return;
+    this.enviando = true; const text = this.nuevoComentario; this.nuevoComentario = '';
+    this.foroService.agregarComentario(this.vistaDetalle.id, { texto: text, autor: this.getNombre(), autorUid: this.authService.getCurrentUser()?.uid || '', publicacionAutorUid: (this.vistaDetalle as any).autorUid || '', rol: this.getRol(), fecha: new Date(), reportado: false }).subscribe({
+      next: (pubUp) => { this.vistaDetalle = { ...pubUp }; this.publicaciones = this.publicaciones.map((p) => p.id === pubUp.id ? pubUp : p); this.enviando = false; this.cdr.detectChanges(); }
+    });
   }
 
   reportar(index: number): void {
     if (!this.vistaDetalle) return;
-
-    const Comentario = this.vistaDetalle.Comentarios[index];
-    const nombreAutor = Comentario.autor;
-
-    Swal.fire({
-      title: '¿Reportar comentario?',
-      text: "Se notificará al equipo de moderación.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Reportar',
-      confirmButtonColor: '#e74c3c'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // 1. Marca el comentario en la base de datos del foro
-        this.foroService.reportarComentario(this.vistaDetalle!.id, index).subscribe({
-          next: (publicacion) => {
-            this.vistaDetalle = publicacion;
-            this.publicaciones = this.publicaciones.map((pub) =>
-              pub.id === publicacion.id ? publicacion : pub
-            );
-            this.safeDetectChanges();
-            Swal.fire({ icon: 'success', title: 'Reportado', timer: 1500, showConfirmButton: false, toast: true, position: 'top-end' });
-          },
-          error: (error: any) => {
-            Swal.fire('Error', error.message || 'No se pudo reportar el comentario', 'error');
-          }
-        });
-
-        // 2. Suma el reporte al perfil del usuario en la tabla de gestión
-        if (Comentario.autorUid) {
-          this.userService.sumarReportePorUid(Comentario.autorUid).subscribe({
-            next: () => { },
-            error: () => {
-              if (nombreAutor) {
-                this.userService.sumarReportePorNombre(nombreAutor).subscribe({
-                  next: () => { },
-                  error: () => { }
-                });
-              }
-            }
-          });
-        } else if (nombreAutor) {
-          this.userService.sumarReportePorNombre(nombreAutor).subscribe({
-            next: () => { },
-            error: () => { }
-          });
-        }
-      }
+    this.foroService.reportarComentario(this.vistaDetalle!.id, index).subscribe({
+      next: (p) => { this.vistaDetalle = { ...p }; this.publicaciones = this.publicaciones.map((pub) => pub.id === p.id ? p : pub); this.cdr.detectChanges(); }
     });
   }
 
   responderComentario(index: number): void {
-    // RESTRICCIÓN: Los moderadores NO responden comentarios.
-    if (this.getRol() === 'moderador') return;
-
-    if (!this.vistaDetalle || !this.nuevaRespuesta[index]?.trim()) return;
-
-    this.enviando = true;
-    const textoRespuesta = this.nuevaRespuesta[index];
-    this.nuevaRespuesta[index] = '';
-
-    this.foroService
-      .agregarRespuesta(this.vistaDetalle.id, index, {
-        texto: textoRespuesta,
-        autor: this.getNombre(),
-      })
-      .subscribe({
-        next: (publicacionActualizada) => {
-          this.vistaDetalle = publicacionActualizada;
-          this.enviando = false;
-          this.safeDetectChanges();
-        },
-        error: (error: Error) => {
-          this.enviando = false;
-          this.nuevaRespuesta[index] = textoRespuesta;
-          this.mensaje = error.message;
-        },
-      });
-  }
-
-  formatFecha(fecha: Date): string {
-    return fecha.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
+    if (this.getRol() === 'moderador' || !this.vistaDetalle || !this.nuevaRespuesta[index]?.trim()) return;
+    this.enviando = true; const txt = this.nuevaRespuesta[index]; this.nuevaRespuesta[index] = '';
+    this.foroService.agregarRespuesta(this.vistaDetalle.id, index, { texto: txt, autor: this.getNombre() }).subscribe({
+      next: (p) => { this.vistaDetalle = { ...p }; this.enviando = false; this.cdr.detectChanges(); }
     });
   }
 
-  get conteoCaracteres(): number {
-    return this.contenido ? this.contenido.length : 0;
+  formatFecha(fecha: any): string {
+    if (!fecha) return '';
+    const d = fecha.seconds ? new Date(fecha.seconds * 1000) : new Date(fecha);
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
+<<<<<<< HEAD
   get conteoTitulo(): number {
     return this.titulo ? this.titulo.length : 0;
   }
@@ -517,3 +306,8 @@ export class ForoComponent implements OnDestroy {
     return filtradas;
   }
 }
+=======
+  get conteoCaracteres(): number { return this.contenido ? this.contenido.length : 0; }
+  get conteoTitulo(): number { return this.titulo ? this.titulo.length : 0; }
+}
+>>>>>>> de64b96bf0a530fe7e0fe5d6ab3b5c8210f01c9c
