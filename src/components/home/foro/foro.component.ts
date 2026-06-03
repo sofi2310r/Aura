@@ -48,7 +48,6 @@ export class ForoComponent implements OnDestroy {
   ) {
     this.aplicarContextoNavegacion();
     this.vistaDetalle = null;
-
     this.cargarPublicaciones();
 
     this.autoRefreshSub = interval(8000)
@@ -100,11 +99,9 @@ export class ForoComponent implements OnDestroy {
       }
     }
 
-    this.cdr.detectChanges();
     this.safeDetectChanges();
   }
 
-  // BOTÓN BYPASS - Si el servidor falla, esto comprobará si el HTML/CSS responde
   inyectarPostFalso(): void {
     console.log('Inyectando post falso de diagnóstico...');
     this.publicaciones = [
@@ -119,7 +116,7 @@ export class ForoComponent implements OnDestroy {
         Comentarios: []
       }
     ];
-    this.cdr.detectChanges();
+    this.safeDetectChanges();
   }
 
   getNombre(): string { return this.authService.getCurrentUser()?.nombre || 'Usuario'; }
@@ -191,8 +188,21 @@ export class ForoComponent implements OnDestroy {
     if (formValues) {
       this.foroService.actualizarPublicacion(pub.id, { titulo: formValues[0], contenido: formValues[1] }).subscribe({
         next: (pubActualizada) => {
-          if (this.vistaDetalle?.id === pubActualizada.id) this.vistaDetalle = { ...pubActualizada };
-          this.cargarPublicaciones();
+          // Actualización reactiva instantánea sin recarga de pantalla
+          if (this.vistaDetalle?.id === pubActualizada.id) {
+            this.vistaDetalle = { ...pubActualizada };
+          }
+
+          const listaModificada = this.publicaciones.map((p) =>
+            p.id === pubActualizada.id ? pubActualizada : p
+          );
+
+          this.publicaciones = [...listaModificada];
+          this.safeDetectChanges();
+        },
+        error: (err) => {
+          console.error('Error al intentar editar la publicación:', err);
+          Swal.fire('Error', 'No se pudieron guardar los cambios', 'error');
         }
       });
     }
@@ -214,12 +224,16 @@ export class ForoComponent implements OnDestroy {
 
   abrirDetalle(pub: Publicacion): void { this.vistaDetalle = { ...pub }; this.safeDetectChanges(); }
   volverLista(): void { this.vistaDetalle = null; this.nuevoComentario = ''; this.safeDetectChanges(); }
-  ngOnDestroy(): void { this.isDestroyed = true; if (this.autoRefreshSub) this.autoRefreshSub.unsubscribe(); }
+
+  ngOnDestroy(): void {
+    this.isDestroyed = true;
+    if (this.autoRefreshSub) this.autoRefreshSub.unsubscribe();
+  }
 
   private safeDetectChanges(): void {
     if (this.isDestroyed) return;
     setTimeout(() => {
-      try { this.cdr.detectChanges(); } catch { try { this.cdr.markForCheck(); } catch {} }
+      try { this.cdr.detectChanges(); } catch { try { this.cdr.markForCheck(); } catch { } }
     }, 0);
   }
 
@@ -227,14 +241,23 @@ export class ForoComponent implements OnDestroy {
     if (this.getRol() === 'moderador' || !this.vistaDetalle || !this.nuevoComentario.trim()) return;
     this.enviando = true; const text = this.nuevoComentario; this.nuevoComentario = '';
     this.foroService.agregarComentario(this.vistaDetalle.id, { texto: text, autor: this.getNombre(), autorUid: this.authService.getCurrentUser()?.uid || '', publicacionAutorUid: (this.vistaDetalle as any).autorUid || '', rol: this.getRol(), fecha: new Date(), reportado: false }).subscribe({
-      next: (pubUp) => { this.vistaDetalle = { ...pubUp }; this.publicaciones = this.publicaciones.map((p) => p.id === pubUp.id ? pubUp : p); this.enviando = false; this.cdr.detectChanges(); }
+      next: (pubUp) => {
+        this.vistaDetalle = { ...pubUp };
+        this.publicaciones = this.publicaciones.map((p) => p.id === pubUp.id ? pubUp : p);
+        this.enviando = false;
+        this.safeDetectChanges();
+      }
     });
   }
 
   reportar(index: number): void {
     if (!this.vistaDetalle) return;
     this.foroService.reportarComentario(this.vistaDetalle!.id, index).subscribe({
-      next: (p) => { this.vistaDetalle = { ...p }; this.publicaciones = this.publicaciones.map((pub) => pub.id === p.id ? p : pub); this.cdr.detectChanges(); }
+      next: (p) => {
+        this.vistaDetalle = { ...p };
+        this.publicaciones = this.publicaciones.map((pub) => pub.id === p.id ? p : pub);
+        this.safeDetectChanges();
+      }
     });
   }
 
@@ -242,7 +265,7 @@ export class ForoComponent implements OnDestroy {
     if (this.getRol() === 'moderador' || !this.vistaDetalle || !this.nuevaRespuesta[index]?.trim()) return;
     this.enviando = true; const txt = this.nuevaRespuesta[index]; this.nuevaRespuesta[index] = '';
     this.foroService.agregarRespuesta(this.vistaDetalle.id, index, { texto: txt, autor: this.getNombre() }).subscribe({
-      next: (p) => { this.vistaDetalle = { ...p }; this.enviando = false; this.cdr.detectChanges(); }
+      next: (p) => { this.vistaDetalle = { ...p }; this.enviando = false; this.safeDetectChanges(); }
     });
   }
 
@@ -250,11 +273,6 @@ export class ForoComponent implements OnDestroy {
     if (!fecha) return '';
     const d = fecha.seconds ? new Date(fecha.seconds * 1000) : new Date(fecha);
     return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
-  }
-
-<<<<<<< HEAD
-  get conteoTitulo(): number {
-    return this.titulo ? this.titulo.length : 0;
   }
 
   isLoggedIn(): boolean {
@@ -268,7 +286,6 @@ export class ForoComponent implements OnDestroy {
   getPublicacionesFiltradas(): Publicacion[] {
     let filtradas = this.publicaciones;
 
-    // 1. Filtrar por término de búsqueda en título y contenido
     if (this.terminoBusqueda && this.terminoBusqueda.trim() !== '') {
       const query = this.terminoBusqueda.toLowerCase().trim();
       filtradas = filtradas.filter(
@@ -278,12 +295,11 @@ export class ForoComponent implements OnDestroy {
       );
     }
 
-    // 2. Filtrar por categorías dinámicas basadas en palabras clave
     if (this.categoriaSeleccionada !== 'Todas') {
       const cat = this.categoriaSeleccionada.toLowerCase();
       filtradas = filtradas.filter((pub) => {
         const text = ((pub.titulo || '') + ' ' + (pub.contenido || '')).toLowerCase();
-        
+
         if (cat === 'ansiedad') {
           return text.includes('ansiedad') || text.includes('estrés') || text.includes('pánico') || text.includes('panico') || text.includes('nervios') || text.includes('crisis');
         }
@@ -305,9 +321,7 @@ export class ForoComponent implements OnDestroy {
 
     return filtradas;
   }
-}
-=======
+
   get conteoCaracteres(): number { return this.contenido ? this.contenido.length : 0; }
   get conteoTitulo(): number { return this.titulo ? this.titulo.length : 0; }
 }
->>>>>>> de64b96bf0a530fe7e0fe5d6ab3b5c8210f01c9c

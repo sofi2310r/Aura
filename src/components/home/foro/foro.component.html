@@ -15,14 +15,12 @@
             <span class="menu-text">Panel</span>
           </a>
         </li>
-
         <li class="menu-item" title="Usuarios">
           <a routerLink="/admin/usuarios" routerLinkActive="active">
             <span class="menu-icon">👩‍🦰</span>
             <span class="menu-text">Usuarios</span>
           </a>
         </li>
-
         <li class="menu-item" title="Foro">
           <a routerLink="/admin/foro" routerLinkActive="active">
             <span class="menu-icon">💬</span>
@@ -41,9 +39,7 @@
 <ng-template #foroPublico>
   <ng-container *ngIf="mostrarNavegacionPublica; else foroInterno">
     <app-navbar></app-navbar>
-
     <ng-container *ngTemplateOutlet="foroBody"></ng-container>
-
     <app-footer></app-footer>
   </ng-container>
 </ng-template>
@@ -58,9 +54,7 @@
       <span class="normas-icon">🛡️</span>
       <div>
         <strong>Normas del foro</strong>
-        <p>
-          Este es un espacio seguro. Trata a los demás con respeto y empatía. Cualquier comentario ofensivo será reportado.
-        </p>
+        <p>Este es un espacio seguro. Trata a los demás con respeto y empatía. Cualquier comentario ofensivo será reportado.</p>
       </div>
     </div>
   </div>
@@ -73,6 +67,7 @@
 
     <p class="foro-status" *ngIf="mensaje && mensaje.trim() !== ''">{{ mensaje }}</p>
 
+    <!-- VISTA DETALLE (Sale cuando se presiona una publicación) -->
     <div class="detalle" *ngIf="vistaDetalle && vistaDetalle.titulo">
       <button class="btn-volver" (click)="volverLista()">← Volver al foro</button>
 
@@ -83,18 +78,10 @@
             <span class="autor-pub">Por {{ vistaDetalle.autor || 'Usuario Aura' }}</span>
           </div>
 
+          <!-- Aquí se mantiene el botón para editar una vez abierta la publicación -->
           <div class="acciones-botones-aura" *ngIf="puedeEditar() || tienePermisosModerador()">
-            <button *ngIf="puedeEditar()"
-                    class="btn-aura-accion btn-aura-editar"
-                    (click)="editarPublicacion($event, vistaDetalle)">
-              ✏️
-            </button>
-
-            <button *ngIf="tienePermisosModerador()"
-                    class="btn-aura-accion btn-aura-eliminar"
-                    (click)="eliminarPublicacion($event, vistaDetalle)">
-              🗑️
-            </button>
+            <button *ngIf="puedeEditar()" class="btn-aura-accion btn-aura-editar" (click)="editarPublicacion($event, vistaDetalle)">✏️</button>
+            <button *ngIf="tienePermisosModerador()" class="btn-aura-accion btn-aura-eliminar" (click)="eliminarPublicacion($event, vistaDetalle)">🗑️</button>
           </div>
         </div>
         <h2>{{ vistaDetalle.titulo }}</h2>
@@ -102,7 +89,7 @@
       </div>
 
       <div class="comentarios-seccion">
-        <h3>Comentarios ({{ vistaDetalle.Comentarios?.length || 0 }})</h3>
+        <h3>Comentarios ({{ vistaDetalle.Comentarios.length || 0 }})</h3>
 
         <div class="comentario" *ngFor="let c of vistaDetalle.Comentarios; let i = index">
           <div class="comentario-header">
@@ -111,7 +98,6 @@
           </div>
           <p class="comentario-texto">{{ c.texto }}</p>
 
-<<<<<<< HEAD
           <div class="respuestas" *ngIf="c.respuestas?.length">
             <div class="respuesta" *ngFor="let r of c.respuestas">
               <strong>{{ r.autor }}</strong>
@@ -120,43 +106,25 @@
           </div>
 
           <div class="comentario-acciones" *ngIf="isLoggedIn()">
-=======
-          <div class="comentario-acciones">
->>>>>>> de64b96bf0a530fe7e0fe5d6ab3b5c8210f01c9c
             <span class="reportado" *ngIf="c.reportado">Reportado 🚩</span>
             <button class="btn-reportar" *ngIf="!c.reportado" (click)="reportar(i)">Reportar</button>
           </div>
         </div>
-<<<<<<< HEAD
- 
-        <p class="sin-comentarios" *ngIf="vistaDetalle.Comentarios.length === 0">Sé la primera en responder.</p>
-      </div>
- 
-      <!-- Si está iniciado sesión y no es moderador, puede responder -->
-      <div class="responder-seccion" *ngIf="isLoggedIn() && getRol() !== 'moderador' && vistaDetalle.titulo">
-=======
 
-        <p class="sin-comentarios" *ngIf="!vistaDetalle.Comentarios || vistaDetalle.Comentarios.length === 0">
-          Sé la primera en responder.
-        </p>
+        <p class="sin-comentarios" *ngIf="!vistaDetalle.Comentarios || vistaDetalle.Comentarios.length === 0">Sé la primera en responder.</p>
       </div>
 
-      <div class="responder-seccion" *ngIf="getRol() !== 'moderador'">
->>>>>>> de64b96bf0a530fe7e0fe5d6ab3b5c8210f01c9c
+      <div class="responder-seccion" *ngIf="isLoggedIn() && getRol() !== 'moderador'">
         <h3>Responder</h3>
         <textarea class="textarea-field" placeholder="Escribe tu respuesta..." [(ngModel)]="nuevoComentario" name="comentario" rows="4" maxlength="200"></textarea>
         <button type="button" class="btn-responder" (click)="responder()" [disabled]="enviando">
           {{ enviando ? 'Enviando...' : 'Publicar respuesta' }}
         </button>
       </div>
-<<<<<<< HEAD
 
-      <!-- Si no está iniciado sesión, se le invita a iniciar sesión para participar -->
-      <div class="responder-seccion guest-prompt-box" *ngIf="!isLoggedIn() && vistaDetalle.titulo">
+      <div class="responder-seccion guest-prompt-box" *ngIf="!isLoggedIn()">
         <h3>Responder</h3>
-        <p class="guest-prompt-text">
-          Inicia sesión o regístrate en AURA para poder participar en esta conversación y compartir tu apoyo.
-        </p>
+        <p class="guest-prompt-text">Inicia sesión o regístrate en AURA para poder participar en esta conversación y compartir tu apoyo.</p>
         <button type="button" class="btn-nueva btn-iniciar-sesion" routerLink="/login">Iniciar Sesión / Registrarse 💜</button>
       </div>
 
@@ -165,9 +133,9 @@
       </p>
     </div>
 
+    <!-- VISTA GENERAL (LISTADO DEL FORO) -->
     <div *ngIf="!vistaDetalle">
       
-      <!-- Barra de Búsqueda y Categorías -->
       <div class="comunidad-filtros-bar">
         <div class="search-box">
           <span class="search-icon">🔍</span>
@@ -180,54 +148,33 @@
                   (click)="filtrarCategoria(cat)"
                   class="pill-btn">
             {{ cat }}
-=======
-    </div>
-
-    <div *ngIf="!vistaDetalle">
-      <div class="nueva-pub">
-        <button *ngIf="puedeCrearPublicacion()" class="btn-nueva" (click)="toggleFormulario()">
-          {{ mostrarFormulario ? 'Cancelar' : '+ Nueva Publicación' }}
-        </button>
-
-        <div class="formulario" *ngIf="mostrarFormulario && puedeCrearPublicacion()">
-          <h3>Crear publicación</h3>
-          <input class="input-field" type="text" placeholder="Título de tu publicación" [(ngModel)]="titulo" name="titulo" maxlength="25" />
-          <textarea class="textarea-field" placeholder="Comparte tu experiencia o pregunta..." [(ngModel)]="contenido" name="contenido" rows="5" maxlength="200"></textarea>
-          <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
-            {{ publicando ? 'Publicando...' : 'Publicar' }}
->>>>>>> de64b96bf0a530fe7e0fe5d6ab3b5c8210f01c9c
           </button>
         </div>
       </div>
 
-<<<<<<< HEAD
+      <div class="nueva-pub" *ngIf="puedeCrearPublicacion()">
+        <button class="btn-nueva" (click)="toggleFormulario()">
+          {{ mostrarFormulario ? 'Cancelar' : '+ Nueva Publicación' }}
+        </button>
+
+        <div class="formulario" *ngIf="mostrarFormulario">
+          <h3>Crear publicación</h3>
+          <input class="input-field" type="text" placeholder="Título de tu publicación" [(ngModel)]="titulo" name="titulo" maxlength="25" />
+          <textarea class="textarea-field" placeholder="Comparte tu experiencia o pregunta..." [(ngModel)]="contenido" name="contenido" rows="5" maxlength="200"></textarea>
+          <div class="conteo-palabras" style="text-align:right; color:#9b7bb8; font-size:0.95em; margin-bottom:8px;">
+            Título: {{ conteoTitulo }} / 25 caracteres<br>
+            Contenido: {{ conteoCaracteres }} / 200 caracteres
+          </div>
+          <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
+            {{ publicando ? 'Publicando...' : 'Publicar' }}
+          </button>
+        </div>
+      </div>
+
       <div class="comunidad-layout">
         
-        <!-- Columna Principal: Feed de Publicaciones -->
         <div class="comunidad-feed">
-          
-          <div class="nueva-pub">
-            <button *ngIf="puedeCrearPublicacion()" class="btn-nueva" (click)="toggleFormulario()">
-              {{ mostrarFormulario ? 'Cancelar' : '+ Nueva Publicación' }}
-            </button>
-
-            <div class="formulario" *ngIf="mostrarFormulario && puedeCrearPublicacion()">
-              <h3>Crear publicación</h3>
-              <input class="input-field" type="text" placeholder="Título de tu publicación" [(ngModel)]="titulo"
-                name="titulo" maxlength="25" />
-              <textarea class="textarea-field" placeholder="Comparte tu experiencia o pregunta..." [(ngModel)]="contenido"
-                name="contenido" rows="5" maxlength="200"></textarea>
-              <div class="conteo-palabras" style="text-align:right; color:#9b7bb8; font-size:0.95em; margin-bottom:8px;">
-                Título: {{ conteoTitulo }} / 25 caracteres<br>
-                Contenido: {{ conteoCaracteres }} / 200 caracteres
-              </div>
-              <button class="btn-publicar" (click)="publicar()" [disabled]="publicando">
-                {{ publicando ? 'Publicando...' : 'Publicar' }}
-              </button>
-            </div>
-          </div>
-
-          <div class="lista">
+          <div class="lista" *ngIf="getPublicacionesFiltradas().length > 0; else sinPublicaciones">
             <div class="publicacion-card" *ngFor="let pub of getPublicacionesFiltradas()" (click)="abrirDetalle(pub)">
               <div class="card-top">
                 <div class="pub-meta">
@@ -235,111 +182,60 @@
                   <span class="autor-pub">Por {{ pub.autor || 'Usuario Aura' }}</span>
                 </div>
 
-                <div class="acciones-botones-aura">
-                  <button *ngIf="getRol() === 'psicologo' || getRol() === 'admin'"
-                          class="btn-aura-accion btn-aura-editar"
-                          (click)="editarPublicacion($event, pub)">
-                    ✏️
-                  </button>
-                  <button *ngIf="tienePermisosModerador()"
-                          class="btn-aura-accion btn-aura-eliminar"
-                          (click)="eliminarPublicacion($event, pub)">
-                    🗑️
-                  </button>
+                <!-- Botones de la lista: Se eliminó el botón de editar (✏️) de aquí -->
+                <div class="acciones-botones-aura" *ngIf="tienePermisosModerador()">
+                  <button class="btn-aura-accion btn-aura-eliminar" (click)="eliminarPublicacion($event, pub)">🗑️</button>
                 </div>
               </div>
               <h3 class="titulo">{{ pub.titulo }}</h3>
               <p class="preview" style="white-space: pre-wrap;">{{ pub.contenido }}</p>
               <div class="card-footer">
-                <span class="comentarios">{{ pub.Comentarios.length }} Comentarios</span>
+                <span class="comentarios">{{ pub.Comentarios.length || 0 }} Comentarios</span>
                 <span class="ver-mas">Ver más</span>
               </div>
             </div>
-=======
-      <div class="lista" *ngIf="publicaciones && publicaciones.length > 0; else sinPublicaciones">
-        <div class="publicacion-card" *ngFor="let pub of publicaciones" (click)="abrirDetalle(pub)">
-          <div class="card-top">
-            <div class="pub-meta">
-              <span class="fecha">{{ formatFecha(pub.fecha) }}</span>
-              <span class="autor-pub">Por {{ pub.autor || 'Usuario Aura' }}</span>
-            </div>
-
-            <div class="acciones-botones-aura" *ngIf="puedeEditar() || tienePermisosModerador()">
-              <button *ngIf="puedeEditar()" class="btn-aura-accion btn-aura-editar" (click)="editarPublicacion($event, pub)">✏️</button>
-              <button *ngIf="tienePermisosModerador()" class="btn-aura-accion btn-aura-eliminar" (click)="eliminarPublicacion($event, pub)">🗑️</button>
-            </div>
-          </div>
-          <h3 class="titulo">{{ pub.titulo }}</h3>
-          <p class="preview" style="white-space: pre-wrap;">{{ pub.contenido }}</p>
-          <div class="card-footer">
-            <span class="comentarios">{{ pub.Comentarios?.length || 0 }} Comentarios</span>
-            <span class="ver-mas">Ver más</span>
->>>>>>> de64b96bf0a530fe7e0fe5d6ab3b5c8210f01c9c
           </div>
 
-          <p class="sin-publicaciones" *ngIf="getPublicacionesFiltradas().length === 0">
-            Aún no hay publicaciones que coincidan con la búsqueda o categoría seleccionada.
-          </p>
-
+          <ng-template #sinPublicaciones>
+            <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f7fafc; border: 1px dashed #cbd5e0; border-radius: 8px;">
+              <p style="color: #4a5568; font-weight: bold; margin-bottom: 10px;">No se encontraron publicaciones en el servidor que coincidan.</p>
+              <button type="button" (click)="inyectarPostFalso()" style="background: #9b7bb8; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
+                ⚡ Forzar renderizado de prueba (Bypass)
+              </button>
+            </div>
+          </ng-template>
         </div>
 
-        <!-- Columna Lateral: Widgets e Información -->
         <aside class="comunidad-sidebar">
-          
-          <!-- Widget 1: Teléfonos de Emergencia / Ayuda -->
           <div class="sidebar-widget support-widget">
             <h3>Línea de Crisis 📞</h3>
-            <p class="widget-subtitle">Si tú o alguien que conoces necesita apoyo psicológico urgente, comunícate gratis:</p>
+            <p class="widget-subtitle">Si necesitas apoyo psicológico urgente, comunícate gratis:</p>
             <ul class="support-list">
-              <li>
-                <strong>Línea de la Vida (Nacional)</strong>
-                <span>800 911 2000 (24/7)</span>
-              </li>
-              <li>
-                <strong>Atención Psicológica UNAM</strong>
-                <span>55 5025 0855</span>
-              </li>
-              <li>
-                <strong>Línea Violeta (Mujeres)</strong>
-                <span>800 822 4460</span>
-              </li>
+              <li><strong>Línea de la Vida</strong> <span>800 911 2000 (24/7)</span></li>
+              <li><strong>Atención Psicológica UNAM</strong> <span>55 5025 0855</span></li>
+              <li><strong>Línea Violeta (Mujeres)</strong> <span>800 822 4460</span></li>
             </ul>
           </div>
 
-          <!-- Widget 2: Normas del Foro -->
           <div class="sidebar-widget rules-widget">
             <h3>Espacio Seguro 🛡️</h3>
-            <p class="widget-subtitle">Recordatorio sobre normas de convivencia sana:</p>
+            <p class="widget-subtitle">Normas de convivencia sana:</p>
             <ul class="rules-list">
-              <li><strong>Empatía:</strong> Trata a las demás integrantes con suavidad y comprensión.</li>
-              <li><strong>Seguridad:</strong> Prohibido compartir direcciones, teléfonos o contactos.</li>
-              <li><strong>Moderación:</strong> El acoso o agresiones derivan en bloqueo inmediato de cuenta.</li>
+              <li><strong>Empatía:</strong> Trata a las demás con suavidad y comprensión.</li>
+              <li><strong>Seguridad:</strong> No compartas datos personales o de contacto.</li>
+              <li><strong>Moderación:</strong> El acoso deriva en el bloqueo inmediato de la cuenta.</li>
             </ul>
           </div>
 
-          <!-- Widget 3: Afirmación diaria -->
           <div class="sidebar-widget quote-widget">
             <h3>Semilla del Día ✨</h3>
             <blockquote class="quote-text">
               "No estás sola en esta andadura. Expresar lo que sientes es de valientes, y tu salud mental es una prioridad incondicional."
             </blockquote>
           </div>
-
         </aside>
 
       </div>
-
-<<<<<<< HEAD
-=======
-      <ng-template #sinPublicaciones>
-        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #f7fafc; border: 1px dashed #cbd5e0; border-radius: 8px;">
-          <p style="color: #4a5568; font-weight: bold; margin-bottom: 10px;">No se encontraron publicaciones en el servidor.</p>
-          <button type="button" (click)="inyectarPostFalso()" style="background: #9b7bb8; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">
-            ⚡ Forzar renderizado de prueba (Bypass)
-          </button>
-        </div>
-      </ng-template>
->>>>>>> de64b96bf0a530fe7e0fe5d6ab3b5c8210f01c9c
     </div>
 
   </div>
