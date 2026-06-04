@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core'; // <-- 1. IMPORTADO AQUÍ
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
@@ -55,7 +55,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
     public readonly router: Router,
     private readonly foroService: ForoService,
-    private readonly cdr: ChangeDetectorRef // <-- 2. INYECTADO AQUÍ
+    private readonly cdr: ChangeDetectorRef 
   ) {
     this.users$ = this.userService.getUsers();
   }
@@ -76,7 +76,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.foroService.getPublicaciones().subscribe(pubs => {
         this.totalPublicaciones = pubs.length;
-        this.cdr.detectChanges(); // Forzar actualización visual de estadísticas
+        this.cdr.detectChanges(); 
       })
     );
 
@@ -84,7 +84,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.users$.subscribe(users => {
         this.cargarEstadisticas(users);
-        this.cdr.detectChanges(); // Forzar actualización visual de estadísticas
+        this.cdr.detectChanges(); 
       })
     );
 
@@ -109,7 +109,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   private updateRouteState(url: string): void {
     const cleanUrl = url.split('?')[0].split('#')[0];
     this.isAdminHomeRoute = cleanUrl === '/admin' || cleanUrl === '/admin/';
-    this.cdr.detectChanges(); // Forzar actualización visual al cambiar de ruta
+    this.cdr.detectChanges(); 
   }
 
   cargarAdminActual(): void {
@@ -128,20 +128,28 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           this.nombre = user.nombre;
           this.apellido = user.apellido;
           this.correo = user.correo;
-          this.cdr.detectChanges(); // Forzar actualización de los datos del perfil
+          this.cdr.detectChanges(); 
         }
       })
     );
   }
 
-  // MÉTODO NUEVO: Guardar cambios de perfil (Configuración)
+  // MÉTODO MODIFICADO: Guardar cambios con validación de campos vacíos
   guardarCambiosPerfil(): void {
     if (!this.adminUser) return;
 
+    // Validación: Verifica si los campos están vacíos después de quitar espacios
+    if (!this.nombre.trim() || !this.apellido.trim()) {
+      this.errorMessage = 'El nombre y el apellido son obligatorios.';
+      this.mensaje = '';
+      this.cdr.detectChanges();
+      return;
+    }
+
     const usuarioActualizado: User = {
       ...this.adminUser,
-      nombre: this.nombre,
-      apellido: this.apellido
+      nombre: this.nombre.trim(),
+      apellido: this.apellido.trim()
     };
 
     this.subscriptions.add(
@@ -151,6 +159,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           this.nombre = user.nombre;
           this.apellido = user.apellido;
           this.errorMessage = '';
+          this.mensaje = 'Perfil actualizado correctamente.';
           this.cdr.detectChanges();
 
           this.authService.updateCurrentUser(user);

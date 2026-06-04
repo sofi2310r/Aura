@@ -505,12 +505,10 @@ footer p {
 @media (max-width: 768px) {
   .topbar {
     flex-wrap: wrap;
-    padding: 0 16px;
-    height: 60px;
   }
 
   .topbar-title {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .layout {
@@ -521,45 +519,35 @@ footer p {
     width: 100%;
     min-height: auto;
     flex-direction: row;
-    padding: 10px 16px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    gap: 10px;
+    padding: 10px 20px;
   }
 
   .sidebar:hover {
     width: 100%;
-    padding: 10px 16px;
   }
 
   .perfil-mini {
     margin-bottom: 0;
-    padding: 0;
+    padding: 10px;
     border: none;
-    display: none !important;
   }
 
-  .perfil-nombre,
+  .perfil-nome,
   .perfil-correo {
-    display: none !important;
+    display: none;
   }
 
   .menu {
     margin-top: 0;
     display: flex;
-    gap: 8px;
-    width: 100%;
+    gap: 10px;
+    width: auto;
     flex-direction: row;
-    justify-content: space-around;
   }
 
   .menu-item {
     margin: 0;
-    padding: 10px 12px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    padding: 8px 12px;
   }
 
   .logo {
@@ -567,19 +555,7 @@ footer p {
   }
 
   .contenido {
-    padding: 16px;
-  }
-
-  .btn-primary,
-  .btn-opcion {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .form-control {
-    font-size: 16px !important;
+    padding: 20px;
   }
 }
 
@@ -949,4 +925,11 @@ footer p {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.error-msg {
+  color: #d33;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  display: block;
 }

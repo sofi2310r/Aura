@@ -1,11 +1,9 @@
 <div class="page">
 
-  <!-- NAVBAR COMPARTIDO -->
   <app-navbar-admin [titulo]="'Panel de Administración - ' + (adminUser?.nombre || 'Admin')"></app-navbar-admin>
 
   <div class="layout">
 
-    <!-- Sidebar (Menú Lateral) -->
     <div class="sidebar">
       <div class="perfil-mini">
         <p class="perfil-nombre">{{ adminUser?.nombre || 'Admin' }}</p>
@@ -43,48 +41,52 @@
       </ul>
     </div>
 
-    <!-- ÁREA DE CONTENIDO -->
     <div class="contenido">
 
-      <!-- 1. VISTAS DINÁMICAS -->
       <router-outlet *ngIf="!isAdminHomeRoute && !router.url.includes('configuracion')"></router-outlet>
 
-      <!-- 2. SECCIÓN DE CONFIGURACIÓN (CORREGIDA PARA UN SOLO CLIC) -->
       <div *ngIf="router.url.includes('configuracion')" class="config-container">
         <div class="header-section">
           <h1 class="titulo-principal">Configuración de Perfil</h1>
           <p class="subtitle">Actualiza tu información de administrador</p>
         </div>
 
-        <!-- Formulario de Datos Personales -->
-        <form (submit)="guardarCambiosPerfil(); $event.preventDefault()" class="card-edit">
+        <form #adminForm="ngForm" (submit)="adminForm.valid && guardarCambiosPerfil(); $event.preventDefault()" class="card-edit">
           <h3>Datos Personales</h3>
           <div class="form-grid">
+            
             <div class="form-group">
               <label for="nombre">Nombre</label>
-              <input type="text" id="nombre" name="nombre" [(ngModel)]="nombre" class="form-control" required>
+              <input type="text" id="nombre" name="nombre" [(ngModel)]="nombre" 
+                     class="form-control" #nombreInput="ngModel" required>
+              <small class="error-msg" *ngIf="nombreInput.invalid && nombreInput.touched">
+                Este campo es requerido
+              </small>
             </div>
+
             <div class="form-group">
               <label for="apellido">Apellido</label>
-              <input type="text" id="apellido" name="apellido" [(ngModel)]="apellido" class="form-control" required>
+              <input type="text" id="apellido" name="apellido" [(ngModel)]="apellido" 
+                     class="form-control" #apellidoInput="ngModel" required>
+              <small class="error-msg" *ngIf="apellidoInput.invalid && apellidoInput.touched">
+                Este campo es requerido
+              </small>
             </div>
+
             <div class="form-group">
               <label>Correo Electrónico</label>
               <input type="email" [value]="adminUser?.correo" disabled class="form-control disabled">
             </div>
           </div>
-          <button type="submit" class="btn-primary">Guardar Cambios</button>
+          <button type="submit" class="btn-primary" [disabled]="adminForm.invalid">Guardar Cambios</button>
         </form>
 
-
-        <!-- Mensajes de Feedback -->
         <div class="alert success" *ngIf="mensaje">✅ {{ mensaje }}</div>
         <div class="alert danger" *ngIf="errorMessage">❌ {{ errorMessage }}</div>
       </div>
 
-      <!-- 3. VISTA PRINCIPAL (ESTADÍSTICAS) -->
       <ng-container *ngIf="isAdminHomeRoute">
-  
+ 
           <section class="hero card">
             <div>
               <p class="hero-kicker">Panel de Administración</p>
@@ -170,7 +172,6 @@
     </div>
   </div>
 
-  <!-- FOOTER COMPARTIDO -->
   <app-footer-admin [titulo]="'Panel de Administración'"></app-footer-admin>
 
 </div>
