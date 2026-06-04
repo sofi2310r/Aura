@@ -43,8 +43,7 @@ export class ForoComponent implements OnDestroy {
     private readonly cdr: ChangeDetectorRef,
     private readonly authService: AuthService,
     private readonly router: Router,
-    private notificacionService: NotificacionService,
-    private userService: UserService
+    private notificacionService: NotificacionService
   ) {
     this.aplicarContextoNavegacion();
     this.vistaDetalle = null;

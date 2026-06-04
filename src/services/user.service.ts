@@ -141,6 +141,7 @@ export class UserService {
           tap((createdUser) => {
             const remainingUsers = this.usersSubject.value.filter((item) => item.id !== createdUser.id);
             this.usersSubject.next(this.sortUsers([...remainingUsers, createdUser]));
+            this.refreshUsers(); // <--- RECARGA AUTOMÁTICA DE LA LISTA TRAS EL REGISTRO
           }),
           catchError((error: unknown) =>
             throwError(() => new Error(extractBackendErrorMessage(error, 'No se pudo guardar el usuario.'))),
@@ -170,6 +171,7 @@ export class UserService {
         tap((createdUser) => {
           const remainingUsers = this.usersSubject.value.filter((item) => item.id !== createdUser.id);
           this.usersSubject.next(this.sortUsers([...remainingUsers, createdUser]));
+          this.refreshUsers(); // <--- RECARGA AUTOMÁTICA DE LA LISTA TRAS EL REGISTRO
         }),
         catchError((error: unknown) =>
           throwError(() => new Error(extractBackendErrorMessage(error, 'No se pudo guardar el usuario.'))),
@@ -235,19 +237,19 @@ export class UserService {
       : this.backend.put<FirestoreCreateResponse>(`${this.usersUrl}/${encodeURIComponent(id)}`, payload);
 
     return request$.pipe(
-        // Forzamos a que el observable devuelva el resultado y se complete
-        map(() => (typeof idOrUser === 'object' ? idOrUser : { id, ...payload } as User)),
-        tap((updatedUser) => {
-          const currentUsers = this.usersSubject.value;
-          const updatedList = currentUsers.map((u) =>
-            (u.id === id || u.uid === id) ? { ...u, ...payload } : u
-          );
-          this.usersSubject.next(this.sortUsers(updatedList));
-        }),
-        catchError((error: unknown) =>
-          throwError(() => new Error(extractBackendErrorMessage(error, 'No se pudo actualizar.')))
-        )
-      );
+      // Forzamos a que el observable devuelva el resultado y se complete
+      map(() => (typeof idOrUser === 'object' ? idOrUser : { id, ...payload } as User)),
+      tap((updatedUser) => {
+        const currentUsers = this.usersSubject.value;
+        const updatedList = currentUsers.map((u) =>
+          (u.id === id || u.uid === id) ? { ...u, ...payload } : u
+        );
+        this.usersSubject.next(this.sortUsers(updatedList));
+      }),
+      catchError((error: unknown) =>
+        throwError(() => new Error(extractBackendErrorMessage(error, 'No se pudo actualizar.')))
+      )
+    );
   }
 
   bloquearUsuario(uid: string) {
