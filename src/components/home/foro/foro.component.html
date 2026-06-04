@@ -67,7 +67,6 @@
 
     <p class="foro-status" *ngIf="mensaje && mensaje.trim() !== ''">{{ mensaje }}</p>
 
-    <!-- VISTA DETALLE (Sale cuando se presiona una publicación) -->
     <div class="detalle" *ngIf="vistaDetalle && vistaDetalle.titulo">
       <button class="btn-volver" (click)="volverLista()">← Volver al foro</button>
 
@@ -78,7 +77,6 @@
             <span class="autor-pub">Por {{ vistaDetalle.autor || 'Usuario Aura' }}</span>
           </div>
 
-          <!-- Aquí se mantiene el botón para editar una vez abierta la publicación -->
           <div class="acciones-botones-aura" *ngIf="puedeEditar() || tienePermisosModerador()">
             <button *ngIf="puedeEditar()" class="btn-aura-accion btn-aura-editar" (click)="editarPublicacion($event, vistaDetalle)">✏️</button>
             <button *ngIf="tienePermisosModerador()" class="btn-aura-accion btn-aura-eliminar" (click)="eliminarPublicacion($event, vistaDetalle)">🗑️</button>
@@ -133,7 +131,6 @@
       </p>
     </div>
 
-    <!-- VISTA GENERAL (LISTADO DEL FORO) -->
     <div *ngIf="!vistaDetalle">
       
       <div class="comunidad-filtros-bar">
@@ -182,7 +179,6 @@
                   <span class="autor-pub">Por {{ pub.autor || 'Usuario Aura' }}</span>
                 </div>
 
-                <!-- Botones de la lista: Se eliminó el botón de editar (✏️) de aquí -->
                 <div class="acciones-botones-aura" *ngIf="tienePermisosModerador()">
                   <button class="btn-aura-accion btn-aura-eliminar" (click)="eliminarPublicacion($event, pub)">🗑️</button>
                 </div>
@@ -211,9 +207,9 @@
             <h3>Línea de Crisis 📞</h3>
             <p class="widget-subtitle">Si necesitas apoyo psicológico urgente, comunícate gratis:</p>
             <ul class="support-list">
-              <li><strong>Línea de la Vida</strong> <span>800 911 2000 (24/7)</span></li>
-              <li><strong>Atención Psicológica UNAM</strong> <span>55 5025 0855</span></li>
-              <li><strong>Línea Violeta (Mujeres)</strong> <span>800 822 4460</span></li>
+              <li><strong>Línea Nacional 192</strong> <span>Opción 4 (24/7)</span></li>
+              <li><strong>Línea Púrpura (Mujeres)</strong> <span>01 8000 112 137</span></li>
+              <li><strong>Línea de la Esperanza</strong> <span>(601) 323 2425</span></li>
             </ul>
           </div>
 
