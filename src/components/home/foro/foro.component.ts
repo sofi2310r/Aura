@@ -64,6 +64,11 @@ export class ForoComponent implements OnDestroy {
       });
   }
 
+  // Método público que puedes llamar desde la vista si quieres forzar recarga manual
+  public recargarForo(): void {
+    this.cargarPublicaciones();
+  }
+
   private cargarPublicaciones(): void {
     this.foroService
       .getPublicaciones()
@@ -98,23 +103,6 @@ export class ForoComponent implements OnDestroy {
       }
     }
 
-    this.safeDetectChanges();
-  }
-
-  inyectarPostFalso(): void {
-    console.log('Inyectando post falso de diagnóstico...');
-    this.publicaciones = [
-      {
-        id: 'bypass-test',
-        titulo: 'Post de Diagnóstico de Aura',
-        contenido: 'Si puedes ver esta tarjeta morada, tu HTML, tus directivas y tus estilos CSS están al 100%. El problema está estrictamente en la respuesta vacía de tu base de datos Firebase.',
-        fecha: new Date(),
-        autor: 'Psicólogo de Prueba',
-        autorUid: 'mock-123',
-        rol: 'psicologo',
-        Comentarios: []
-      }
-    ];
     this.safeDetectChanges();
   }
 
@@ -187,7 +175,6 @@ export class ForoComponent implements OnDestroy {
     if (formValues) {
       this.foroService.actualizarPublicacion(pub.id, { titulo: formValues[0], contenido: formValues[1] }).subscribe({
         next: (pubActualizada) => {
-          // Actualización reactiva instantánea sin recarga de pantalla
           if (this.vistaDetalle?.id === pubActualizada.id) {
             this.vistaDetalle = { ...pubActualizada };
           }
