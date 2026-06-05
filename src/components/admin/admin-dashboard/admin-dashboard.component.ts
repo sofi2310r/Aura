@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
@@ -11,6 +11,9 @@ import { AuthService } from '../../../services/auth.service';
 import { NavbarAdminComponent } from '../../shared/navbar-admin/navbar-admin.component';
 import { FooterAdminComponent } from '../../shared/footer-admin/footer-admin.component';
 import { ForoService } from '../../../services/foro.service';
+
+// Declaramos bootstrap globalmente para interactuar con sus modales por código
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -55,7 +58,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
     public readonly router: Router,
     private readonly foroService: ForoService,
-    private readonly cdr: ChangeDetectorRef 
+    private readonly cdr: ChangeDetectorRef,
+    private readonly zone: NgZone // <-- INYECTAMOS NGZONE PARA CONTROLAR EL FLUJO VISUAL
   ) {
     this.users$ = this.userService.getUsers();
   }
@@ -134,11 +138,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     );
   }
 
-  // MÉTODO MODIFICADO: Guardar cambios con validación de campos vacíos
   guardarCambiosPerfil(): void {
     if (!this.adminUser) return;
 
-    // Validación: Verifica si los campos están vacíos después de quitar espacios
     if (!this.nombre.trim() || !this.apellido.trim()) {
       this.errorMessage = 'El nombre y el apellido son obligatorios.';
       this.mensaje = '';
@@ -185,6 +187,101 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  /**
+   * SOLUCIÓN POR CONTRATO (ZONA DE INTERRUPCIÓN): Forzamos a que Angular ejecute el cierre
+   * dentro de su propio hilo principal reactivo de inmediato.
+   */
+  eliminarUsuario(id: string): void {
+    if (!id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'El usuario seleccionado no tiene un ID válido.',
+        confirmButtonColor: '#5b3a7d'
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará al usuario permanentemente.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        
+        Swal.showLoading();
+
+        this.subscriptions.add(
+          this.userService.removeUser(id).subscribe({
+            next: () => {
+              // FORZAMOS A ANGULAR A VOLVER A ENTRAR EN SU ZONA DE CAMBIOS
+              this.zone.run(() => {
+                
+                // 1. Buscamos y presionamos físicamente todos los botones de escape de las modales vivas
+                const botonesDeCierre = document.querySelectorAll('.modal.show [data-bs-dismiss="modal"]');
+                botonesDeCierre.forEach((boton: any) => boton.click());
+
+                // 2. Destruimos las instancias oficiales del árbol del DOM por si el click falló
+                const allModals = document.querySelectorAll('.modal');
+                allModals.forEach((modalElement) => {
+                  try {
+                    const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+                    if (modalInstance) {
+                      modalInstance.hide();
+                    }
+                  } catch (e) {
+                    modalElement.classList.remove('show');
+                    modalElement.setAttribute('aria-hidden', 'true');
+                    (modalElement as HTMLElement).style.display = 'none';
+                  }
+                });
+
+                // 3. Limpiamos las cortinas grises de Bootstrap con micro-retardo reactivo
+                setTimeout(() => {
+                  const backdrops = document.querySelectorAll('.modal-backdrop');
+                  backdrops.forEach(backdrop => backdrop.remove());
+                  
+                  document.body.classList.remove('modal-open');
+                  document.body.style.removeProperty('padding-right');
+                  document.body.style.overflow = 'auto';
+
+                  // Solicitamos datos nuevos al servicio y repintamos de inmediato la tabla
+                  this.userService.refresh();
+                  this.cdr.detectChanges();
+                }, 100);
+
+                // 4. Cerramos SweetAlert y lanzamos el éxito directo sin clics fantasmas en pantalla
+                Swal.close();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Eliminado',
+                  text: 'El usuario ha sido eliminado correctamente.',
+                  confirmButtonColor: '#5b3a7d'
+                });
+              });
+            },
+            error: (err) => {
+              this.zone.run(() => {
+                Swal.close();
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error al eliminar',
+                  text: err.message || 'No se pudo completar la acción.',
+                  confirmButtonColor: '#5b3a7d'
+                });
+              });
+            }
+          })
+        );
+      }
+    });
   }
 
   cargarEstadisticas(users: User[]): void {
