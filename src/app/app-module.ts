@@ -32,6 +32,7 @@ import { NavbarPsicologoComponent } from '../components/shared/navbar-psicologo/
 import { NavbarAdminComponent } from '../components/shared/navbar-admin/navbar-admin.component';
 import { AuthTokenInterceptor } from '../services/auth-token.interceptor';
 import { DashboardComponent } from '../components/psicologo/dashboard/dashboard';
+import { DownloadAppComponent } from '../components/home/download-app.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { DashboardComponent } from '../components/psicologo/dashboard/dashboard'
     Reportes,
     Usuarios,
     Dashboard,
-    QuienesSomos
+    QuienesSomos,
+    DownloadAppComponent
   ],
   imports: [
     BrowserModule,

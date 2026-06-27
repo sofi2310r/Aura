@@ -1,23 +1,49 @@
+<app-navbar></app-navbar>
+
 <div class="download-page">
   <div class="download-card">
     <h1>Descarga la App de AURA</h1>
-    <p>Si tienes menos de 18 años, pide a tu padre, madre o tutor que te ayude a descargar la aplicación.</p>
+    <p class="subtitle">Lleva tu espacio de bienestar y apoyo emocional contigo. Accede de forma rápida y segura desde tu dispositivo móvil.</p>
 
     <div class="download-actions">
-      <a href="https://play.google.com/store" target="_blank" rel="noopener" class="download-btn android">
-        Descargar para Android
+      <a href="/apk/AURA.apk" download="AURA.apk" class="download-btn android">
+        <span class="icon">🤖</span> Descargar para Android
       </a>
-      <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener" class="download-btn ios">
-        Descargar para iOS
+      <a routerLink="/home" class="download-btn ios">
+        <span class="icon">🏠</span> Volver al inicio
       </a>
+    </div>
+
+    <div class="install-steps">
+      <h3>¿Cómo instalar la aplicación?</h3>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-text">
+            <strong>Descarga el APK:</strong> Haz clic en el botón azul de Android y confirma la descarga en tu navegador.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-text">
+            <strong>Habilita Orígenes Desconocidos:</strong> Ve a la configuración de seguridad de tu teléfono y permite instalar aplicaciones externas si tu navegador te lo solicita.
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-text">
+            <strong>Instala e Inicia:</strong> Abre el archivo descargado (<code>AURA.apk</code>) desde la barra de notificaciones o tu carpeta de descargas y sigue las instrucciones en pantalla.
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="download-info">
       <p>
-        La aplicación de AURA te permite acceder de forma segura a terapia y apoyo emocional desde tu celular.
-        Si eres menor de edad, asegúrate de pedir autorización a tu padre, madre o tutor.
+        <strong>Aviso de seguridad:</strong> AURA protege tu privacidad. Si tienes menos de 18 años, te sugerimos pedir ayuda a tu madre, padre o tutor para completar la instalación.
       </p>
-      <button routerLink="/home" class="back-btn">Volver al inicio</button>
     </div>
   </div>
 </div>
+
+<app-footer></app-footer>

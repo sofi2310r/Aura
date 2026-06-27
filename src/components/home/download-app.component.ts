@@ -4,8 +4,7 @@ import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-download-app',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
+  standalone: false,
   templateUrl: './download-app.component.html',
   styleUrls: ['./download-app.component.css'],
 })

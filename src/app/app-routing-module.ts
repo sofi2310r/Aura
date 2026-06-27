@@ -28,6 +28,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'home', component: HomeComponent },
   { path: 'descargar-app', component: DownloadAppComponent },
+  { path: 'descargar', component: DownloadAppComponent },
   { path: 'quienes-somos', component: QuienesSomos },
 
   // 3. Módulo de Administrador

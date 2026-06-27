@@ -95,6 +95,14 @@ Evelin Baron
 
 ## Despliegue
 https://glittery-gelato-f13186.netlify.app/home
+
+### Subir el APK a la página
+
+1. Copia el archivo APK dentro de `public/apk/`.
+2. Usa un nombre estable, por ejemplo `AURA.apk`.
+3. El enlace público quedará disponible en `/apk/AURA.apk`.
+4. La vista de descarga está en la ruta `/descargar-app`.
+
 ## Firebase / Firestore
 
 Descripción y estructura de las colecciones usadas por la aplicación: [docs/firebase-structure.md](docs/firebase-structure.md)
